@@ -81,29 +81,48 @@ export default function Home() {
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
-          <div className="max-w-2xl">
-            <h1 className="font-rajdhani font-bold text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-4">
-              Top Up Game <br />
-              <span className="blaze-gradient">
-                Instant & Murah
-              </span>
-            </h1>
-            <p className="text-gray-300 text-base md:text-lg mb-8 max-w-xl">
-              Platform top-up game dan voucher digital terpercaya. Proses cepat dalam hitungan detik, 
-              harga terbaik, dan layanan pelanggan 24/7.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left - Text Content */}
+            <div className="max-w-2xl">
+              <h1 className="font-rajdhani font-bold text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-4">
+                Top Up Game <br />
+                <span className="blaze-gradient">
+                  Instant & Murah
+                </span>
+              </h1>
+              <p className="text-gray-300 text-base md:text-lg mb-8 max-w-xl">
+                Platform top-up game dan voucher digital terpercaya. Proses cepat dalam hitungan detik, 
+                harga terbaik, dan layanan pelanggan 24/7.
+              </p>
 
-            {/* Search */}
-            <div className="relative max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Cari game atau voucher..."
-                className="pl-12 pr-4 py-6 bg-black/50 border-primary/20 text-white placeholder:text-gray-500 rounded-xl focus:border-primary"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                data-testid="search-input"
-              />
+              {/* Search */}
+              <div className="relative max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Cari game atau voucher..."
+                  className="pl-12 pr-4 py-6 bg-black/50 border-primary/20 text-white placeholder:text-gray-500 rounded-xl focus:border-primary"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  data-testid="search-input"
+                />
+              </div>
+            </div>
+
+            {/* Right - Mascot */}
+            <div className="hidden lg:flex justify-center items-center">
+              <div className="relative">
+                {/* Glow effect behind mascot */}
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl scale-75 animate-pulse" />
+                <img 
+                  src={BlazeMascot} 
+                  alt="Blaze Mascot" 
+                  className="relative z-10 w-80 h-80 object-contain drop-shadow-2xl animate-float"
+                  style={{
+                    filter: 'drop-shadow(0 0 30px rgba(255, 0, 0, 0.4))'
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
