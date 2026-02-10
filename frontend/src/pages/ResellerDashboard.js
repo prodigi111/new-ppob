@@ -110,7 +110,7 @@ export default function ResellerDashboard() {
       setWebsiteSetup(prev => ({
         ...prev,
         storeName: `${user.name}'s Store`,
-        subdomain: user.name.toLowerCase().replace(/\s+/g, ''),
+        customDomain: user.name.toLowerCase().replace(/\s+/g, ''),
       }));
     }
   }, [user, navigate]);
