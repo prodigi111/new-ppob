@@ -221,20 +221,33 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 to-accent/10 p-8 md:p-12 border border-primary/20">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            <div className="relative z-10 max-w-xl">
-              <h2 className="font-rajdhani font-bold text-2xl md:text-3xl text-white uppercase mb-4">
-                Jadi Reseller <span className="text-primary">Blaze</span>Store!
-              </h2>
-              <p className="text-gray-300 mb-6">
-                Dapatkan harga spesial dan tingkatkan penghasilan Anda dengan menjadi reseller BlazeStore.
-              </p>
-              <Button 
-                className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider blaze-btn"
-                onClick={() => window.location.href = '/reseller'}
-                data-testid="cta-reseller-btn"
-              >
-                Daftar Reseller
-              </Button>
+            
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="max-w-xl">
+                <h2 className="font-rajdhani font-bold text-2xl md:text-3xl text-white uppercase mb-4">
+                  Jadi Reseller <span className="text-primary">Blaze</span>Store!
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  Dapatkan harga spesial dan tingkatkan penghasilan Anda dengan menjadi reseller BlazeStore.
+                </p>
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider blaze-btn"
+                  onClick={() => window.location.href = '/reseller'}
+                  data-testid="cta-reseller-btn"
+                >
+                  Daftar Reseller
+                </Button>
+              </div>
+              
+              {/* Mascot in CTA */}
+              <div className="hidden md:block">
+                <img 
+                  src={BlazeMascot} 
+                  alt="Blaze Mascot" 
+                  className="w-48 h-48 object-contain animate-float"
+                  style={{ filter: 'drop-shadow(0 0 20px rgba(255, 0, 0, 0.4))' }}
+                />
+              </div>
             </div>
           </div>
         </div>
