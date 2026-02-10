@@ -150,7 +150,7 @@ const TESTIMONIALS = [
     store: 'topupgame.id',
     avatar: 'RP',
     rating: 5,
-    comment: 'Sejak jadi reseller VoucherVerse, penghasilan naik 3x lipat. Sistemnya mudah dan support-nya responsif banget!',
+    comment: 'Sejak jadi reseller BlazeStore, penghasilan naik 3x lipat. Sistemnya mudah dan support-nya responsif banget!',
     profit: 'Rp 15.000.000/bulan'
   },
   {
@@ -666,7 +666,7 @@ export default function Reseller() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-rajdhani font-bold text-3xl md:text-4xl text-white uppercase mb-4">
-              Kenapa Pilih <span className="text-primary">VoucherVerse</span>?
+              Kenapa Pilih <span className="text-primary">BlazeStore</span>?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Platform reseller all-in-one dengan fitur lengkap untuk memulai bisnis top up game
@@ -727,7 +727,7 @@ export default function Reseller() {
                 Kalkulator Keuntungan
               </h2>
               <p className="text-muted-foreground mb-8">
-                Hitung estimasi penghasilan Anda sebagai reseller VoucherVerse. 
+                Hitung estimasi penghasilan Anda sebagai reseller BlazeStore. 
                 Geser slider untuk melihat potensi keuntungan!
               </p>
 
@@ -937,7 +937,7 @@ export default function Reseller() {
               Wall of Fame: <span className="text-accent">Reseller Sukses</span>
             </h2>
             <p className="text-muted-foreground">
-              Cerita sukses dari reseller VoucherVerse
+              Cerita sukses dari reseller BlazeStore
             </p>
           </div>
 
