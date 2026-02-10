@@ -979,7 +979,7 @@ export default function ResellerDashboard() {
                 </div>
                 <div>
                   <h4 className="font-medium text-white mb-1">Auto Sync</h4>
-                  <p className="text-xs text-muted-foreground">Produk & harga sinkron otomatis dengan VoucherVerse</p>
+                  <p className="text-xs text-muted-foreground">Produk & harga sinkron otomatis dengan BlazeStore</p>
                 </div>
               </div>
             </div>

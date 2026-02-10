@@ -77,7 +77,7 @@ export default function Checkout() {
               Pembayaran Berhasil!
             </h1>
             <p className="text-muted-foreground mb-8">
-              Top-up berhasil diproses. Terima kasih telah menggunakan VoucherVerse.
+              Top-up berhasil diproses. Terima kasih telah menggunakan BlazeStore.
             </p>
 
             <div className="bg-card rounded-xl p-6 border border-border mb-6 text-left">
