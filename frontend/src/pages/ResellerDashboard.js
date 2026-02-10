@@ -60,14 +60,14 @@ import {
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Theme options for website
+// Theme options for website - Blaze themed
 const THEMES = [
-  { id: 'neon', name: 'Neon Cyber', primary: '#7C3AED', secondary: '#00E5FF', bg: '#050505' },
-  { id: 'sunset', name: 'Sunset Blaze', primary: '#F97316', secondary: '#FACC15', bg: '#0A0A0A' },
-  { id: 'ocean', name: 'Ocean Wave', primary: '#0EA5E9', secondary: '#06B6D4', bg: '#0C1222' },
-  { id: 'forest', name: 'Forest Green', primary: '#22C55E', secondary: '#84CC16', bg: '#0A1A0A' },
-  { id: 'rose', name: 'Rose Gold', primary: '#EC4899', secondary: '#F472B6', bg: '#1A0A14' },
-  { id: 'classic', name: 'Classic Dark', primary: '#6366F1', secondary: '#8B5CF6', bg: '#111111' },
+  { id: 'blaze', name: 'Blaze Fire', primary: '#FF0000', secondary: '#FFD700', bg: '#050A18' },
+  { id: 'blaze-gold', name: 'Blaze Gold', primary: '#FFD700', secondary: '#FF0000', bg: '#050A18' },
+  { id: 'midnight', name: 'Midnight', primary: '#3B82F6', secondary: '#60A5FA', bg: '#050A18' },
+  { id: 'emerald', name: 'Emerald', primary: '#10B981', secondary: '#34D399', bg: '#051A14' },
+  { id: 'purple', name: 'Purple Flame', primary: '#8B5CF6', secondary: '#A78BFA', bg: '#0A0518' },
+  { id: 'sunset', name: 'Sunset', primary: '#F97316', secondary: '#FBBF24', bg: '#0A0805' },
 ];
 
 export default function ResellerDashboard() {
