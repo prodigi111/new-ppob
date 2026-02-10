@@ -71,15 +71,19 @@ export default function Home() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1701377000907-64f247c931f0?w=1920&q=80')`,
+            backgroundImage: `url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80')`,
           }}
         />
         <div className="hero-overlay absolute inset-0" />
+        {/* Fire accent glow */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <div className="max-w-2xl">
             <h1 className="font-rajdhani font-bold text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-4">
               Top Up Game <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+              <span className="blaze-gradient">
                 Instant & Murah
               </span>
             </h1>
@@ -94,7 +98,7 @@ export default function Home() {
               <Input
                 type="text"
                 placeholder="Cari game atau voucher..."
-                className="pl-12 pr-4 py-6 bg-black/50 border-white/10 text-white placeholder:text-gray-500 rounded-xl"
+                className="pl-12 pr-4 py-6 bg-black/50 border-primary/20 text-white placeholder:text-gray-500 rounded-xl focus:border-primary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 data-testid="search-input"
@@ -109,7 +113,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 fire-glow">
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div>
