@@ -45,8 +45,15 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - Checkout page with mock payment
 - Transaction tracking
 - User profile with order history
-- Reseller registration and dashboard
-- Admin dashboard with tabs (Overview, Orders, Products, Users, Reseller apps)
+- **Reseller Landing Page (Uniplay-style):**
+  - Hero with social proof stats (Total Omzet, Transaksi, Reseller Aktif)
+  - 6 Benefit cards (Tanpa Deposit, Sistem Otomatis, Website Sendiri, dll)
+  - Interactive Profit Calculator with sliders
+  - 3-Tier Pricing (Pro, Legend, Supreme) with billing toggle
+  - Wall of Fame testimonials
+  - FAQ section
+- Reseller Dashboard (Tabs: Overview, Transaksi, Top Up Saldo, Website)
+- Admin dashboard with tabs
 - Dark cyberpunk theme with neon accents
 
 ### Database Collections
