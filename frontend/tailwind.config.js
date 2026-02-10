@@ -11,8 +11,15 @@ module.exports = {
       },
       colors: {
         background: '#050505',
-        card: '#0A0A0B',
-        popover: '#0A0A0B',
+        foreground: '#FAFAFA',
+        card: {
+          DEFAULT: '#0A0A0B',
+          foreground: '#FAFAFA',
+        },
+        popover: {
+          DEFAULT: '#0A0A0B',
+          foreground: '#FAFAFA',
+        },
         primary: {
           DEFAULT: '#7C3AED',
           foreground: '#FFFFFF',
