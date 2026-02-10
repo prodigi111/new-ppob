@@ -55,9 +55,10 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
   - FAQ section
 - Reseller Dashboard (Tabs: Overview, Transaksi, Top Up Saldo, **Deploy Website**)
   - **Deploy Website Feature**:
-    - Konfigurasi: Nama Toko, Subdomain, Tagline, WhatsApp
+    - Konfigurasi: Nama Toko, **Custom Domain** (.com/.id/.store), Tagline, WhatsApp
     - 6 Theme pilihan (Neon Cyber, Sunset Blaze, Ocean Wave, dll)
     - Live Preview dengan toggle Desktop/Mobile
+    - **DNS Setup Instructions** untuk konfigurasi domain sendiri
     - One-click Deploy dengan status indicator
     - Fitur SSL gratis dan Auto Sync produk
 - Admin dashboard with tabs
