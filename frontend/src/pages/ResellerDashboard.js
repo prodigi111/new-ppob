@@ -605,14 +605,17 @@ export default function ResellerDashboard() {
             {/* Status Banner */}
             {websiteSetup.deployed && (
               <div className="bg-success/10 border border-success/30 rounded-2xl p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
                       <CheckCircle2 className="w-6 h-6 text-success" />
                     </div>
                     <div>
                       <h3 className="font-rajdhani font-semibold text-lg text-white">Website Online!</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white font-mono">
+                        {websiteSetup.customDomain}{websiteSetup.domainExtension}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
                         Deployed pada {formatDate(websiteSetup.deployedAt)}
                       </p>
                     </div>
@@ -621,7 +624,7 @@ export default function ResellerDashboard() {
                     <Button
                       variant="outline"
                       className="border-success/30 text-success hover:bg-success/10"
-                      onClick={() => window.open(`https://${websiteSetup.subdomain}.voucherverse.com`, '_blank')}
+                      onClick={() => window.open(`https://${websiteSetup.customDomain}${websiteSetup.domainExtension}`, '_blank')}
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Buka Website
@@ -629,7 +632,7 @@ export default function ResellerDashboard() {
                     <Button
                       variant="outline"
                       className="border-border"
-                      onClick={() => copyToClipboard(`https://${websiteSetup.subdomain}.voucherverse.com`)}
+                      onClick={() => copyToClipboard(`https://${websiteSetup.customDomain}${websiteSetup.domainExtension}`)}
                     >
                       <Copy className="w-4 h-4 mr-2" />
                       Salin URL
@@ -669,27 +672,57 @@ export default function ResellerDashboard() {
                     />
                   </div>
 
-                  {/* Subdomain */}
+                  {/* Custom Domain */}
                   <div className="space-y-2">
                     <Label className="text-gray-300 flex items-center gap-2">
                       <Globe className="w-4 h-4" />
-                      Subdomain
+                      Domain Website
                     </Label>
-                    <div className="flex">
+                    <div className="flex gap-2">
                       <Input
                         placeholder="namatoko"
-                        className="bg-black/50 border-white/10 text-white rounded-r-none"
-                        value={websiteSetup.subdomain}
+                        className="bg-black/50 border-white/10 text-white flex-1"
+                        value={websiteSetup.customDomain}
                         onChange={(e) => setWebsiteSetup(prev => ({ 
                           ...prev, 
-                          subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') 
+                          customDomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') 
                         }))}
                       />
-                      <div className="px-4 bg-black/30 border border-l-0 border-white/10 rounded-r-lg flex items-center">
-                        <span className="text-muted-foreground text-sm">.voucherverse.com</span>
+                      <select
+                        className="bg-black/50 border border-white/10 rounded-lg px-3 text-white font-mono"
+                        value={websiteSetup.domainExtension}
+                        onChange={(e) => setWebsiteSetup(prev => ({ ...prev, domainExtension: e.target.value }))}
+                      >
+                        <option value=".com">.com</option>
+                        <option value=".id">.id</option>
+                        <option value=".co.id">.co.id</option>
+                        <option value=".net">.net</option>
+                        <option value=".store">.store</option>
+                      </select>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Domain: <span className="font-mono text-primary">{websiteSetup.customDomain || 'namatoko'}{websiteSetup.domainExtension}</span>
+                    </p>
+                  </div>
+
+                  {/* DNS Configuration Info */}
+                  {!websiteSetup.deployed && (
+                    <div className="bg-secondary/10 border border-secondary/20 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <Globe className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-white font-medium mb-1">Setup DNS (Setelah Deploy)</p>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Setelah deploy, arahkan domain Anda ke server kami dengan menambahkan DNS record berikut:
+                          </p>
+                          <div className="bg-black/30 rounded-lg p-2 font-mono text-xs">
+                            <p className="text-gray-300">A Record: @ → 185.199.108.153</p>
+                            <p className="text-gray-300">CNAME: www → hosting.voucherverse.com</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Tagline */}
                   <div className="space-y-2">
