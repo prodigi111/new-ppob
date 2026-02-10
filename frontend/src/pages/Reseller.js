@@ -599,7 +599,7 @@ export default function Reseller() {
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider px-8"
+              className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider px-8 blaze-btn"
               onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
               data-testid="cta-pricing"
             >
@@ -609,7 +609,7 @@ export default function Reseller() {
             <Button
               size="lg"
               variant="outline"
-              className="border-secondary/50 text-secondary hover:bg-secondary/10 font-rajdhani uppercase tracking-wider"
+              className="border-accent/50 text-accent hover:bg-accent/10 font-rajdhani uppercase tracking-wider"
               onClick={() => document.getElementById('domain-checker').scrollIntoView({ behavior: 'smooth' })}
               data-testid="cta-domain"
             >
@@ -630,9 +630,9 @@ export default function Reseller() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {STATS.map((stat, index) => (
-              <div key={index} className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+              <div key={index} className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-primary/10">
                 <p className="font-mono text-2xl md:text-3xl font-bold text-white">
-                  {stat.value}<span className="text-primary">{stat.suffix}</span>
+                  {stat.value}<span className="text-accent">{stat.suffix}</span>
                 </p>
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
