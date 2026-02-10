@@ -579,6 +579,22 @@ export default function Reseller() {
         </div>
       </section>
 
+      {/* Domain Checker Section */}
+      <section id="domain-checker" className="py-16 md:py-24 bg-card/50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="font-rajdhani font-bold text-3xl md:text-4xl text-white uppercase mb-4">
+              Cek <span className="text-secondary">Domain</span> Impianmu
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Pilih nama domain unik untuk website reseller Anda. Subdomain gratis untuk semua paket!
+            </p>
+          </div>
+          
+          <DomainChecker />
+        </div>
+      </section>
+
       {/* Profit Calculator */}
       <section id="calculator" className="py-16 md:py-24 bg-card/50">
         <div className="max-w-6xl mx-auto px-4">
