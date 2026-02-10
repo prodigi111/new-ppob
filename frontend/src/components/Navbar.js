@@ -36,11 +36,11 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2" data-testid="logo-link">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center fire-glow">
               <Zap className="w-6 h-6 text-white" />
             </div>
             <span className="font-rajdhani font-bold text-xl text-white uppercase tracking-wider hidden sm:block">
-              VoucherVerse
+              <span className="text-primary">Blaze</span>Store
             </span>
           </Link>
 
