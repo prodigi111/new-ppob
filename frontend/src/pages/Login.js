@@ -47,8 +47,12 @@ export default function Login() {
     <div className="min-h-screen pt-16 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <img 
+              src={BlazeLogo} 
+              alt="Blaze Store" 
+              className="h-16 w-auto object-contain"
+            />
           </div>
           <h1 className="font-rajdhani font-bold text-2xl text-white uppercase">
             Masuk ke Akun
