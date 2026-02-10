@@ -294,9 +294,9 @@ export default function ResellerDashboard() {
               )}
             </div>
             <p className="font-mono text-lg font-bold text-white truncate">
-              {websiteSetup.subdomain || 'belum-setup'}
+              {websiteSetup.customDomain || 'belum-setup'}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">.voucherverse.com</p>
+            <p className="text-sm text-muted-foreground mt-1">{websiteSetup.domainExtension || '.com'}</p>
           </div>
         </div>
 
