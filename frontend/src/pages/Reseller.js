@@ -177,11 +177,28 @@ const STATS = [
 ];
 
 // Simulated taken domains for demo
-const TAKEN_DOMAINS = ['topupgame', 'diamondstore', 'gg-topup', 'gamevoucher', 'topupku', 'vouchergame'];
+const TAKEN_DOMAINS = {
+  'com': ['topupgame', 'diamondstore', 'gamevoucher', 'topupku'],
+  'id': ['topupgame', 'gg-topup'],
+  'co.id': ['gamevoucher'],
+  'net': ['topupgame'],
+  'store': [],
+};
+
+// Domain extensions with prices
+const DOMAIN_EXTENSIONS = [
+  { ext: '.com', price: 150000, popular: true },
+  { ext: '.id', price: 250000, popular: true },
+  { ext: '.co.id', price: 200000, popular: false },
+  { ext: '.net', price: 140000, popular: false },
+  { ext: '.store', price: 180000, popular: true },
+  { ext: '.shop', price: 170000, popular: false },
+];
 
 // Domain Checker Component
 const DomainChecker = () => {
   const [domainInput, setDomainInput] = useState('');
+  const [selectedExt, setSelectedExt] = useState('.com');
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -200,26 +217,36 @@ const DomainChecker = () => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const isTaken = TAKEN_DOMAINS.includes(cleanDomain);
+    // Check availability for all extensions
+    const extensionResults = DOMAIN_EXTENSIONS.map(ext => {
+      const extKey = ext.ext.replace('.', '');
+      const takenList = TAKEN_DOMAINS[extKey] || [];
+      const isAvailable = !takenList.includes(cleanDomain);
+      return {
+        ...ext,
+        available: isAvailable,
+        fullDomain: `${cleanDomain}${ext.ext}`
+      };
+    });
+
+    // Generate suggestions if main domain is taken
+    const mainExtKey = selectedExt.replace('.', '');
+    const mainTaken = (TAKEN_DOMAINS[mainExtKey] || []).includes(cleanDomain);
     
-    // Generate suggestions
-    const suggestions = [
+    const suggestions = mainTaken ? [
       `${cleanDomain}-store`,
       `${cleanDomain}id`,
       `my${cleanDomain}`,
       `${cleanDomain}shop`,
-    ].filter(s => !TAKEN_DOMAINS.includes(s));
+      `get${cleanDomain}`,
+    ].slice(0, 4) : [];
 
     setResult({
       domain: cleanDomain,
-      available: !isTaken,
-      suggestions: isTaken ? suggestions : [],
-      extensions: [
-        { ext: '.voucherverse.com', available: !isTaken, type: 'subdomain' },
-        { ext: '.com', available: Math.random() > 0.5, type: 'domain', price: 150000 },
-        { ext: '.id', available: Math.random() > 0.3, type: 'domain', price: 250000 },
-        { ext: '.co.id', available: Math.random() > 0.4, type: 'domain', price: 200000 },
-      ]
+      selectedExt,
+      mainAvailable: !mainTaken,
+      suggestions,
+      extensions: extensionResults,
     });
 
     setChecking(false);
@@ -239,28 +266,36 @@ const DomainChecker = () => {
         </div>
         <div>
           <h3 className="font-rajdhani font-bold text-xl text-white uppercase">Cek Domain</h3>
-          <p className="text-sm text-muted-foreground">Temukan domain impianmu</p>
+          <p className="text-sm text-muted-foreground">Dapatkan domain sendiri untuk website Anda</p>
         </div>
       </div>
 
       {/* Search Input */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Input
             type="text"
             placeholder="Masukkan nama domain impianmu..."
-            className="bg-black/50 border-white/10 text-white pl-4 pr-32 py-6 text-lg"
+            className="bg-black/50 border-white/10 text-white pl-4 py-6 text-lg"
             value={domainInput}
             onChange={(e) => setDomainInput(e.target.value)}
             onKeyPress={handleKeyPress}
             data-testid="domain-input"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-            .voucherverse.com
-          </span>
         </div>
+        <select
+          className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-mono"
+          value={selectedExt}
+          onChange={(e) => setSelectedExt(e.target.value)}
+        >
+          {DOMAIN_EXTENSIONS.map(ext => (
+            <option key={ext.ext} value={ext.ext}>
+              {ext.ext} - {formatPrice(ext.price)}/thn
+            </option>
+          ))}
+        </select>
         <Button
-          className="bg-secondary hover:bg-secondary/90 text-black font-rajdhani uppercase px-6"
+          className="bg-secondary hover:bg-secondary/90 text-black font-rajdhani uppercase px-8"
           onClick={checkDomain}
           disabled={checking}
           data-testid="check-domain-btn"
@@ -270,10 +305,27 @@ const DomainChecker = () => {
           ) : (
             <>
               <Search className="w-5 h-5 mr-2" />
-              Cek
+              Cek Domain
             </>
           )}
         </Button>
+      </div>
+
+      {/* Quick Extension Buttons */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {DOMAIN_EXTENSIONS.filter(e => e.popular).map(ext => (
+          <button
+            key={ext.ext}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedExt === ext.ext
+                ? 'bg-secondary/20 text-secondary border border-secondary/30'
+                : 'bg-black/30 text-gray-400 border border-white/10 hover:border-white/30'
+            }`}
+            onClick={() => setSelectedExt(ext.ext)}
+          >
+            {ext.ext}
+          </button>
+        ))}
       </div>
 
       {/* Results */}
