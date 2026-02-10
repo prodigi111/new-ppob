@@ -6,25 +6,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 263 84% 58%;
+    /* Blaze Brand Colors */
+    --background: 220 69% 4%; /* Deep Midnight #050A18 */
+    --foreground: 0 0% 100%; /* Electric White #FFFFFF */
+    --card: 220 50% 6%; /* Slightly lighter */
+    --card-foreground: 0 0% 100%;
+    --popover: 220 50% 6%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 100% 50%; /* Blaze Red #FF0000 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 187 100% 50%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 10%;
+    --secondary: 0 0% 100%; /* Electric White */
+    --secondary-foreground: 220 69% 4%;
+    --muted: 184 6% 20%; /* Circuit Grey #2D3436 */
     --muted-foreground: 0 0% 64%;
-    --accent: 48 97% 53%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 51 100% 50%; /* Golden Coin #FFD700 */
+    --accent-foreground: 220 69% 4%;
     --destructive: 4 100% 59%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 263 84% 58%;
+    --border: 184 6% 20%; /* Circuit Grey */
+    --input: 184 6% 20%;
+    --ring: 0 100% 50%; /* Blaze Red */
     --radius: 0.5rem;
   }
 }
@@ -37,32 +38,32 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-    background-color: #050505;
+    background-color: #050A18;
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Blaze theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0A0B;
+  background: #050A18;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272A;
+  background: #2D3436;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED;
+  background: #FF0000;
 }
 
-/* Selection */
+/* Selection - Blaze Red */
 ::selection {
-  background: rgba(124, 58, 237, 0.3);
+  background: rgba(255, 0, 0, 0.3);
   color: #fff;
 }
 
@@ -73,46 +74,60 @@
   inset: 0;
   z-index: -1;
   background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-  opacity: 0.03;
+  opacity: 0.02;
   pointer-events: none;
 }
 
-/* Grid background */
+/* Grid background - Blaze style */
 .grid-bg {
   background-image: 
-    linear-gradient(to right, rgba(128, 128, 128, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* Glassmorphism */
+/* Glassmorphism - Blaze style */
 .glass {
   backdrop-filter: blur(16px);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(5, 10, 24, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Neon glow effects */
-.neon-purple {
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+/* Neon glow effects - Blaze */
+.neon-red {
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
 }
 
-.neon-cyan {
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+.neon-gold {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
-.neon-yellow {
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+.neon-white {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
-/* Game card hover effect */
+/* Game card hover effect - Blaze */
 .game-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .game-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+}
+
+/* Fire/Flame animation */
+.fire-glow {
+  animation: fireGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
+  }
 }
 
 /* Terminal input style */
@@ -122,4 +137,21 @@
 
 .terminal-input:focus {
   @apply border-primary ring-1 ring-primary/50;
+}
+
+/* Blaze gradient text */
+.blaze-gradient {
+  background: linear-gradient(135deg, #FF0000 0%, #FFD700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Blaze button glow */
+.blaze-btn {
+  transition: all 0.3s ease;
+}
+
+.blaze-btn:hover {
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
 }

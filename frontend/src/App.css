@@ -1,12 +1,12 @@
-/* VoucherVerse Custom Styles */
+/* VoucherVerse - Blaze Theme Styles */
 
 /* Hero section gradient overlay */
 .hero-overlay {
   background: linear-gradient(
     to bottom,
-    rgba(5, 5, 5, 0.7) 0%,
-    rgba(5, 5, 5, 0.9) 50%,
-    rgba(5, 5, 5, 1) 100%
+    rgba(5, 10, 24, 0.7) 0%,
+    rgba(5, 10, 24, 0.9) 50%,
+    rgba(5, 10, 24, 1) 100%
   );
 }
 
@@ -32,7 +32,7 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Category tabs */
+/* Category tabs - Blaze */
 .category-tab {
   position: relative;
   transition: color 0.3s ease;
@@ -45,7 +45,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #7C3AED, #00E5FF);
+  background: linear-gradient(90deg, #FF0000, #FFD700);
   transition: width 0.3s ease;
 }
 
@@ -54,36 +54,36 @@
   width: 100%;
 }
 
-/* Denomination card */
+/* Denomination card - Blaze */
 .denom-card {
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(45, 52, 54, 0.5);
 }
 
 .denom-card:hover {
-  border-color: rgba(124, 58, 237, 0.5);
-  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(255, 0, 0, 0.5);
+  background: rgba(255, 0, 0, 0.1);
 }
 
 .denom-card.selected {
-  border-color: #7C3AED;
-  background: rgba(124, 58, 237, 0.2);
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  border-color: #FF0000;
+  background: rgba(255, 0, 0, 0.15);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
-/* Payment method card */
+/* Payment method card - Blaze */
 .payment-card {
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(45, 52, 54, 0.5);
 }
 
 .payment-card:hover {
-  border-color: rgba(0, 229, 255, 0.5);
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
 .payment-card.selected {
-  border-color: #00E5FF;
-  background: rgba(0, 229, 255, 0.1);
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.1);
 }
 
 /* Status badges */
@@ -129,13 +129,13 @@
   animation: shimmer 2s infinite;
 }
 
-/* Loading skeleton */
+/* Loading skeleton - Blaze */
 .skeleton {
   background: linear-gradient(
     90deg,
-    #0A0A0B 25%,
-    #121214 50%,
-    #0A0A0B 75%
+    #0D1526 25%,
+    #1a2338 50%,
+    #0D1526 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -143,11 +143,32 @@
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 2px solid #7C3AED;
+  outline: 2px solid #FF0000;
   outline-offset: 2px;
 }
 
 /* Prevent layout shift */
 [data-debug-wrapper="true"] {
   display: contents !important;
+}
+
+/* Blaze fire border effect */
+.fire-border {
+  position: relative;
+}
+
+.fire-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #FF0000, #FFD700, #FF0000, #FFD700);
+  background-size: 400% 400%;
+  border-radius: inherit;
+  z-index: -1;
+  animation: fireBorder 3s ease infinite;
+}
+
+@keyframes fireBorder {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }

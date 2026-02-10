@@ -10,42 +10,51 @@ module.exports = {
         'mono': ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        background: '#050505',
-        foreground: '#FAFAFA',
+        // Blaze Brand Colors
+        background: '#050A18', // Deep Midnight
+        foreground: '#FFFFFF', // Electric White
         card: {
-          DEFAULT: '#0A0A0B',
-          foreground: '#FAFAFA',
+          DEFAULT: '#0D1526', // Slightly lighter than background
+          foreground: '#FFFFFF',
         },
         popover: {
-          DEFAULT: '#0A0A0B',
-          foreground: '#FAFAFA',
+          DEFAULT: '#0D1526',
+          foreground: '#FFFFFF',
         },
         primary: {
-          DEFAULT: '#7C3AED',
+          DEFAULT: '#FF0000', // Blaze Red
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: '#00E5FF',
-          foreground: '#000000',
+          DEFAULT: '#FFFFFF', // Electric White
+          foreground: '#050A18',
         },
         muted: {
-          DEFAULT: '#18181B',
+          DEFAULT: '#2D3436', // Circuit Grey
           foreground: '#A1A1AA',
         },
         accent: {
-          DEFAULT: '#FACC15',
-          foreground: '#000000',
+          DEFAULT: '#FFD700', // Golden Coin
+          foreground: '#050A18',
         },
         success: {
-          DEFAULT: '#00FF94',
+          DEFAULT: '#22C55E',
         },
         destructive: {
           DEFAULT: '#FF3B30',
           foreground: '#FFFFFF',
         },
-        border: '#27272A',
-        input: '#27272A',
-        ring: '#7C3AED',
+        border: '#2D3436', // Circuit Grey
+        input: '#2D3436',
+        ring: '#FF0000', // Blaze Red
+        // Additional Blaze colors
+        blaze: {
+          red: '#FF0000',
+          white: '#FFFFFF',
+          gold: '#FFD700',
+          midnight: '#050A18',
+          grey: '#2D3436',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -53,18 +62,23 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        'neon-purple': '0 0 20px rgba(124, 58, 237, 0.4)',
-        'neon-cyan': '0 0 20px rgba(0, 229, 255, 0.4)',
-        'neon-yellow': '0 0 20px rgba(250, 204, 21, 0.4)',
+        'neon-red': '0 0 20px rgba(255, 0, 0, 0.4)',
+        'neon-gold': '0 0 20px rgba(255, 215, 0, 0.4)',
+        'neon-white': '0 0 20px rgba(255, 255, 255, 0.2)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'flame': 'flame 1.5s ease-in-out infinite alternate',
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 5px rgba(124, 58, 237, 0.2)' },
-          '100%': { boxShadow: '0 0 20px rgba(124, 58, 237, 0.6)' },
+          '0%': { boxShadow: '0 0 5px rgba(255, 0, 0, 0.2)' },
+          '100%': { boxShadow: '0 0 20px rgba(255, 0, 0, 0.6)' },
+        },
+        flame: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '100%': { transform: 'scale(1.05)', opacity: '0.9' },
         },
       },
     },
