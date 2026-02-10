@@ -161,8 +161,8 @@ export default function ResellerDashboard() {
   };
 
   const handleDeployWebsite = async () => {
-    if (!websiteSetup.storeName || !websiteSetup.subdomain) {
-      toast.error('Lengkapi nama toko dan subdomain');
+    if (!websiteSetup.storeName || !websiteSetup.customDomain) {
+      toast.error('Lengkapi nama toko dan domain');
       return;
     }
 
