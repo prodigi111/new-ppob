@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import {
   Table,
@@ -13,6 +14,13 @@ import {
   TableHeader,
   TableRow,
 } from '../components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { formatPrice, formatDate, getStatusColor, getStatusText } from '../lib/utils';
 import { toast } from 'sonner';
 import {
@@ -34,10 +42,33 @@ import {
   Download,
   Calendar,
   DollarSign,
-  Package
+  Package,
+  Rocket,
+  Palette,
+  Image,
+  Type,
+  CheckCircle2,
+  Loader2,
+  Eye,
+  Smartphone,
+  Monitor,
+  Zap,
+  Upload,
+  Store,
+  Sparkles
 } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Theme options for website
+const THEMES = [
+  { id: 'neon', name: 'Neon Cyber', primary: '#7C3AED', secondary: '#00E5FF', bg: '#050505' },
+  { id: 'sunset', name: 'Sunset Blaze', primary: '#F97316', secondary: '#FACC15', bg: '#0A0A0A' },
+  { id: 'ocean', name: 'Ocean Wave', primary: '#0EA5E9', secondary: '#06B6D4', bg: '#0C1222' },
+  { id: 'forest', name: 'Forest Green', primary: '#22C55E', secondary: '#84CC16', bg: '#0A1A0A' },
+  { id: 'rose', name: 'Rose Gold', primary: '#EC4899', secondary: '#F472B6', bg: '#1A0A14' },
+  { id: 'classic', name: 'Classic Dark', primary: '#6366F1', secondary: '#8B5CF6', bg: '#111111' },
+];
 
 export default function ResellerDashboard() {
   const navigate = useNavigate();
@@ -48,12 +79,38 @@ export default function ResellerDashboard() {
   const [topupAmount, setTopupAmount] = useState('');
   const [topupLoading, setTopupLoading] = useState(false);
 
+  // Website Deploy States
+  const [websiteSetup, setWebsiteSetup] = useState({
+    storeName: '',
+    subdomain: '',
+    tagline: 'Top Up Game Murah & Cepat',
+    whatsapp: '',
+    theme: 'neon',
+    logo: null,
+    deployed: false,
+    deploying: false,
+    deployedAt: null,
+  });
+  const [setupStep, setSetupStep] = useState(1);
+  const [previewDevice, setPreviewDevice] = useState('desktop');
+
   useEffect(() => {
     if (!user || (user.role !== 'reseller' && user.role !== 'admin')) {
       navigate('/');
       return;
     }
     fetchDashboard();
+    // Load saved website config
+    const savedConfig = localStorage.getItem(`website_config_${user.id}`);
+    if (savedConfig) {
+      setWebsiteSetup(JSON.parse(savedConfig));
+    } else {
+      setWebsiteSetup(prev => ({
+        ...prev,
+        storeName: `${user.name}'s Store`,
+        subdomain: user.name.toLowerCase().replace(/\s+/g, ''),
+      }));
+    }
   }, [user, navigate]);
 
   const fetchDashboard = async () => {
@@ -100,6 +157,36 @@ export default function ResellerDashboard() {
     navigator.clipboard.writeText(text);
     toast.success('Berhasil disalin!');
   };
+
+  const handleDeployWebsite = async () => {
+    if (!websiteSetup.storeName || !websiteSetup.subdomain) {
+      toast.error('Lengkapi nama toko dan subdomain');
+      return;
+    }
+
+    setWebsiteSetup(prev => ({ ...prev, deploying: true }));
+    
+    // Simulate deployment process
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    const newConfig = {
+      ...websiteSetup,
+      deployed: true,
+      deploying: false,
+      deployedAt: new Date().toISOString(),
+    };
+    
+    setWebsiteSetup(newConfig);
+    localStorage.setItem(`website_config_${user.id}`, JSON.stringify(newConfig));
+    toast.success('Website berhasil di-deploy! 🚀');
+  };
+
+  const handleSaveConfig = () => {
+    localStorage.setItem(`website_config_${user.id}`, JSON.stringify(websiteSetup));
+    toast.success('Konfigurasi tersimpan');
+  };
+
+  const selectedTheme = THEMES.find(t => t.id === websiteSetup.theme) || THEMES[0];
 
   if (!user || (user.role !== 'reseller' && user.role !== 'admin')) return null;
 
@@ -196,14 +283,18 @@ export default function ResellerDashboard() {
           <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl p-6 border border-accent/20">
             <div className="flex items-center justify-between mb-3">
               <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-accent" />
+                <Globe className="w-6 h-6 text-accent" />
               </div>
-              <span className="text-xs text-muted-foreground">{completedOrders} selesai</span>
+              {websiteSetup.deployed ? (
+                <span className="text-xs text-success bg-success/10 px-2 py-1 rounded-full">Online</span>
+              ) : (
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Offline</span>
+              )}
             </div>
-            <p className="font-mono text-2xl md:text-3xl font-bold text-white">
-              {dashboard?.pending_orders || 0}
+            <p className="font-mono text-lg font-bold text-white truncate">
+              {websiteSetup.subdomain || 'belum-setup'}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">Pending</p>
+            <p className="text-sm text-muted-foreground mt-1">.voucherverse.com</p>
           </div>
         </div>
 
@@ -222,9 +313,9 @@ export default function ResellerDashboard() {
               <CreditCard className="w-4 h-4 mr-2" />
               Top Up Saldo
             </TabsTrigger>
-            <TabsTrigger value="website" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-              <Globe className="w-4 h-4 mr-2" />
-              Website
+            <TabsTrigger value="deploy" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Rocket className="w-4 h-4 mr-2" />
+              Deploy Website
             </TabsTrigger>
           </TabsList>
 
@@ -273,10 +364,10 @@ export default function ResellerDashboard() {
                   </Button>
                   <Button 
                     className="w-full justify-start bg-white/5 hover:bg-white/10 text-white"
-                    onClick={() => setActiveTab('website')}
+                    onClick={() => setActiveTab('deploy')}
                   >
-                    <Globe className="w-4 h-4 mr-3 text-secondary" />
-                    Kelola Website
+                    <Rocket className="w-4 h-4 mr-3 text-secondary" />
+                    {websiteSetup.deployed ? 'Kelola Website' : 'Deploy Website'}
                   </Button>
                   <Button 
                     className="w-full justify-start bg-white/5 hover:bg-white/10 text-white"
@@ -507,62 +598,352 @@ export default function ResellerDashboard() {
             </div>
           </TabsContent>
 
-          {/* Website Tab */}
-          <TabsContent value="website">
+          {/* Deploy Website Tab */}
+          <TabsContent value="deploy" className="space-y-6">
+            {/* Status Banner */}
+            {websiteSetup.deployed && (
+              <div className="bg-success/10 border border-success/30 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 text-success" />
+                    </div>
+                    <div>
+                      <h3 className="font-rajdhani font-semibold text-lg text-white">Website Online!</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Deployed pada {formatDate(websiteSetup.deployedAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      className="border-success/30 text-success hover:bg-success/10"
+                      onClick={() => window.open(`https://${websiteSetup.subdomain}.voucherverse.com`, '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Buka Website
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-border"
+                      onClick={() => copyToClipboard(`https://${websiteSetup.subdomain}.voucherverse.com`)}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Salin URL
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Configuration */}
               <div className="bg-card rounded-2xl p-6 border border-border">
-                <h3 className="font-rajdhani font-semibold text-lg text-white uppercase mb-6">
-                  Website Anda
-                </h3>
-                <div className="space-y-4">
-                  <div className="bg-black/20 rounded-xl p-4">
-                    <p className="text-xs text-muted-foreground mb-1">URL Website</p>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        value={`https://${user?.name?.toLowerCase().replace(/\s/g, '')}.voucherverse.com`}
-                        readOnly
-                        className="bg-transparent border-0 text-white font-mono p-0"
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-rajdhani font-semibold text-lg text-white uppercase">
+                      Konfigurasi Website
+                    </h3>
+                    <p className="text-sm text-muted-foreground">Sesuaikan tampilan toko Anda</p>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Store Name */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-2">
+                      <Store className="w-4 h-4" />
+                      Nama Toko
+                    </Label>
+                    <Input
+                      placeholder="Nama toko Anda"
+                      className="bg-black/50 border-white/10 text-white"
+                      value={websiteSetup.storeName}
+                      onChange={(e) => setWebsiteSetup(prev => ({ ...prev, storeName: e.target.value }))}
+                    />
+                  </div>
+
+                  {/* Subdomain */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      Subdomain
+                    </Label>
+                    <div className="flex">
+                      <Input
+                        placeholder="namatoko"
+                        className="bg-black/50 border-white/10 text-white rounded-r-none"
+                        value={websiteSetup.subdomain}
+                        onChange={(e) => setWebsiteSetup(prev => ({ 
+                          ...prev, 
+                          subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') 
+                        }))}
                       />
-                      <Button size="icon" variant="ghost" onClick={() => copyToClipboard(`https://${user?.name?.toLowerCase().replace(/\s/g, '')}.voucherverse.com`)}>
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost">
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
+                      <div className="px-4 bg-black/30 border border-l-0 border-white/10 rounded-r-lg flex items-center">
+                        <span className="text-muted-foreground text-sm">.voucherverse.com</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-black/20 rounded-xl p-4">
-                      <p className="text-xs text-muted-foreground mb-1">Pengunjung Hari Ini</p>
-                      <p className="font-mono text-2xl text-white">127</p>
-                    </div>
-                    <div className="bg-black/20 rounded-xl p-4">
-                      <p className="text-xs text-muted-foreground mb-1">Total Pengunjung</p>
-                      <p className="font-mono text-2xl text-white">3,842</p>
+                  {/* Tagline */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-2">
+                      <Type className="w-4 h-4" />
+                      Tagline
+                    </Label>
+                    <Input
+                      placeholder="Slogan toko Anda"
+                      className="bg-black/50 border-white/10 text-white"
+                      value={websiteSetup.tagline}
+                      onChange={(e) => setWebsiteSetup(prev => ({ ...prev, tagline: e.target.value }))}
+                    />
+                  </div>
+
+                  {/* WhatsApp */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      WhatsApp Support
+                    </Label>
+                    <Input
+                      placeholder="08xxxxxxxxxx"
+                      className="bg-black/50 border-white/10 text-white"
+                      value={websiteSetup.whatsapp}
+                      onChange={(e) => setWebsiteSetup(prev => ({ ...prev, whatsapp: e.target.value }))}
+                    />
+                  </div>
+
+                  {/* Theme Selection */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-2">
+                      <Palette className="w-4 h-4" />
+                      Tema Website
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {THEMES.map((theme) => (
+                        <button
+                          key={theme.id}
+                          className={`p-3 rounded-xl border transition-all ${
+                            websiteSetup.theme === theme.id 
+                              ? 'border-primary bg-primary/10' 
+                              : 'border-white/10 hover:border-white/30'
+                          }`}
+                          onClick={() => setWebsiteSetup(prev => ({ ...prev, theme: theme.id }))}
+                        >
+                          <div className="flex gap-1 mb-2">
+                            <div 
+                              className="w-4 h-4 rounded-full" 
+                              style={{ backgroundColor: theme.primary }}
+                            />
+                            <div 
+                              className="w-4 h-4 rounded-full" 
+                              style={{ backgroundColor: theme.secondary }}
+                            />
+                          </div>
+                          <p className="text-xs text-white text-left">{theme.name}</p>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <Button className="w-full bg-white/10 hover:bg-white/20 text-white">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Kustomisasi Website
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-border"
+                      onClick={handleSaveConfig}
+                    >
+                      Simpan Draft
+                    </Button>
+                    <Button
+                      className="flex-1 bg-primary hover:bg-primary/90 text-white"
+                      onClick={handleDeployWebsite}
+                      disabled={websiteSetup.deploying}
+                    >
+                      {websiteSetup.deploying ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Deploying...
+                        </>
+                      ) : websiteSetup.deployed ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Update Website
+                        </>
+                      ) : (
+                        <>
+                          <Rocket className="w-4 h-4 mr-2" />
+                          Deploy Website
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
+              {/* Preview */}
               <div className="bg-card rounded-2xl p-6 border border-border">
-                <h3 className="font-rajdhani font-semibold text-lg text-white uppercase mb-6">
-                  Custom Domain
-                </h3>
-                <div className="text-center py-8">
-                  <Globe className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-white font-medium mb-2">Upgrade ke Paket Legend</p>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Dapatkan custom domain sendiri untuk website Anda
-                  </p>
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
-                    Upgrade Sekarang
-                  </Button>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
+                      <Eye className="w-5 h-5 text-secondary" />
+                    </div>
+                    <div>
+                      <h3 className="font-rajdhani font-semibold text-lg text-white uppercase">
+                        Preview Website
+                      </h3>
+                      <p className="text-sm text-muted-foreground">Lihat tampilan website Anda</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 bg-black/30 rounded-lg p-1">
+                    <button
+                      className={`p-2 rounded ${previewDevice === 'desktop' ? 'bg-white/10' : ''}`}
+                      onClick={() => setPreviewDevice('desktop')}
+                    >
+                      <Monitor className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      className={`p-2 rounded ${previewDevice === 'mobile' ? 'bg-white/10' : ''}`}
+                      onClick={() => setPreviewDevice('mobile')}
+                    >
+                      <Smartphone className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview Frame */}
+                <div 
+                  className={`rounded-xl overflow-hidden border-4 border-white/10 transition-all mx-auto ${
+                    previewDevice === 'mobile' ? 'w-[280px]' : 'w-full'
+                  }`}
+                  style={{ backgroundColor: selectedTheme.bg }}
+                >
+                  {/* Preview Header */}
+                  <div 
+                    className="p-4 border-b border-white/10"
+                    style={{ backgroundColor: `${selectedTheme.primary}10` }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: selectedTheme.primary }}
+                        >
+                          <Zap className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-bold text-white text-sm">
+                          {websiteSetup.storeName || 'Nama Toko'}
+                        </span>
+                      </div>
+                      {previewDevice === 'desktop' && (
+                        <div className="flex items-center gap-4 text-xs text-white/70">
+                          <span>Home</span>
+                          <span>Produk</span>
+                          <span>Cek Transaksi</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Preview Hero */}
+                  <div className="p-6 text-center">
+                    <h2 
+                      className="font-bold text-lg mb-2"
+                      style={{ color: selectedTheme.primary }}
+                    >
+                      {websiteSetup.storeName || 'Nama Toko'}
+                    </h2>
+                    <p className="text-white/70 text-xs mb-4">
+                      {websiteSetup.tagline}
+                    </p>
+                    <div 
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs"
+                      style={{ backgroundColor: `${selectedTheme.secondary}20`, color: selectedTheme.secondary }}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Proses Instant 24 Jam
+                    </div>
+                  </div>
+
+                  {/* Preview Products */}
+                  <div className="p-4">
+                    <p className="text-white/50 text-xs mb-3 uppercase tracking-wider">Produk Populer</p>
+                    <div className={`grid gap-2 ${previewDevice === 'mobile' ? 'grid-cols-2' : 'grid-cols-4'}`}>
+                      {['ML', 'FF', 'PUBG', 'GI'].map((game) => (
+                        <div 
+                          key={game}
+                          className="p-3 rounded-lg border border-white/10 text-center"
+                          style={{ backgroundColor: `${selectedTheme.primary}10` }}
+                        >
+                          <div 
+                            className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center text-xs font-bold"
+                            style={{ backgroundColor: selectedTheme.primary, color: 'white' }}
+                          >
+                            {game}
+                          </div>
+                          <p className="text-white/70 text-xs">{game}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preview Footer */}
+                  <div className="p-4 border-t border-white/10">
+                    <p className="text-white/30 text-xs text-center">
+                      © 2026 {websiteSetup.storeName || 'Nama Toko'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Preview URL */}
+                <div className="mt-4 p-3 bg-black/20 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-mono text-white">
+                      {websiteSetup.subdomain || 'namatoko'}.voucherverse.com
+                    </span>
+                  </div>
+                  {websiteSetup.deployed && (
+                    <span className="text-xs text-success flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Live
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Features Info */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-card rounded-xl p-4 border border-border flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-white mb-1">Instant Deploy</h4>
+                  <p className="text-xs text-muted-foreground">Website langsung online dalam hitungan detik</p>
+                </div>
+              </div>
+              <div className="bg-card rounded-xl p-4 border border-border flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-white mb-1">SSL Gratis</h4>
+                  <p className="text-xs text-muted-foreground">HTTPS otomatis untuk keamanan website Anda</p>
+                </div>
+              </div>
+              <div className="bg-card rounded-xl p-4 border border-border flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="w-5 h-5 text-success" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-white mb-1">Auto Sync</h4>
+                  <p className="text-xs text-muted-foreground">Produk & harga sinkron otomatis dengan VoucherVerse</p>
                 </div>
               </div>
             </div>
