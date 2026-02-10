@@ -82,7 +82,8 @@ export default function ResellerDashboard() {
   // Website Deploy States
   const [websiteSetup, setWebsiteSetup] = useState({
     storeName: '',
-    subdomain: '',
+    customDomain: '',
+    domainExtension: '.com',
     tagline: 'Top Up Game Murah & Cepat',
     whatsapp: '',
     theme: 'neon',
@@ -90,6 +91,7 @@ export default function ResellerDashboard() {
     deployed: false,
     deploying: false,
     deployedAt: null,
+    dnsConfigured: false,
   });
   const [setupStep, setSetupStep] = useState(1);
   const [previewDevice, setPreviewDevice] = useState('desktop');
