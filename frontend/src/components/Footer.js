@@ -14,7 +14,7 @@ export const Footer = () => {
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <span className="font-rajdhani font-bold text-xl text-white uppercase tracking-wider">
-                VoucherVerse
+                <span className="text-primary">Blaze</span>Store
               </span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-md">
