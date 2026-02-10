@@ -48,7 +48,7 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - **Reseller Landing Page (Uniplay-style):**
   - Hero with social proof stats (Total Omzet, Transaksi, Reseller Aktif)
   - 6 Benefit cards (Tanpa Deposit, Sistem Otomatis, Website Sendiri, dll)
-  - **Domain Checker** - Cek ketersediaan domain dengan saran alternatif
+  - **Domain Checker** - Cek ketersediaan domain independent (.com, .id, .co.id, .net, .store, .shop) dengan harga
   - Interactive Profit Calculator with sliders
   - 3-Tier Pricing (Pro, Legend, Supreme) with billing toggle
   - Wall of Fame testimonials
