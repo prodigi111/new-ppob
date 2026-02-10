@@ -111,6 +111,7 @@ export default function ResellerDashboard() {
         ...prev,
         storeName: `${user.name}'s Store`,
         customDomain: user.name.toLowerCase().replace(/\s+/g, ''),
+        theme: 'blaze', // Default to Blaze theme
       }));
     }
   }, [user, navigate]);
