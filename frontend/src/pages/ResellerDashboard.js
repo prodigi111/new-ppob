@@ -939,7 +939,7 @@ export default function ResellerDashboard() {
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm font-mono text-white">
-                      {websiteSetup.subdomain || 'namatoko'}.voucherverse.com
+                      {websiteSetup.customDomain || 'namatoko'}{websiteSetup.domainExtension}
                     </span>
                   </div>
                   {websiteSetup.deployed && (
@@ -968,8 +968,8 @@ export default function ResellerDashboard() {
                   <Globe className="w-5 h-5 text-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-white mb-1">SSL Gratis</h4>
-                  <p className="text-xs text-muted-foreground">HTTPS otomatis untuk keamanan website Anda</p>
+                  <h4 className="font-medium text-white mb-1">Custom Domain</h4>
+                  <p className="text-xs text-muted-foreground">Domain sendiri (.com, .id, .store) dengan SSL gratis</p>
                 </div>
               </div>
               <div className="bg-card rounded-xl p-4 border border-border flex items-start gap-3">
