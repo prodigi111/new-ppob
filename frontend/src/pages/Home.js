@@ -198,17 +198,18 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-16 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 to-secondary/20 p-8 md:p-12">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 to-accent/10 p-8 md:p-12 border border-primary/20">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
             <div className="relative z-10 max-w-xl">
               <h2 className="font-rajdhani font-bold text-2xl md:text-3xl text-white uppercase mb-4">
-                Jadi Reseller Sekarang!
+                Jadi Reseller <span className="text-primary">Blaze</span>Store!
               </h2>
               <p className="text-gray-300 mb-6">
-                Dapatkan harga spesial dan tingkatkan penghasilan Anda dengan menjadi reseller VoucherVerse.
+                Dapatkan harga spesial dan tingkatkan penghasilan Anda dengan menjadi reseller BlazeStore.
               </p>
               <Button 
-                className="bg-white text-black hover:bg-gray-100 font-rajdhani uppercase tracking-wider"
+                className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider blaze-btn"
                 onClick={() => window.location.href = '/reseller'}
                 data-testid="cta-reseller-btn"
               >
