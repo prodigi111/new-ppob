@@ -332,50 +332,62 @@ const DomainChecker = () => {
       {result && (
         <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           {/* Main Result */}
-          <div className={`p-4 rounded-xl border ${
-            result.available 
+          <div className={`p-5 rounded-xl border ${
+            result.mainAvailable 
               ? 'bg-success/10 border-success/30' 
               : 'bg-destructive/10 border-destructive/30'
           }`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                {result.available ? (
-                  <CheckCircle2 className="w-6 h-6 text-success" />
+                {result.mainAvailable ? (
+                  <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-success" />
+                  </div>
                 ) : (
-                  <X className="w-6 h-6 text-destructive" />
+                  <div className="w-12 h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
+                    <X className="w-6 h-6 text-destructive" />
+                  </div>
                 )}
                 <div>
-                  <p className="font-mono text-lg text-white">
-                    {result.domain}.voucherverse.com
+                  <p className="font-mono text-xl text-white font-bold">
+                    {result.domain}{result.selectedExt}
                   </p>
-                  <p className={`text-sm ${result.available ? 'text-success' : 'text-destructive'}`}>
-                    {result.available ? 'Domain tersedia!' : 'Domain sudah digunakan'}
+                  <p className={`text-sm ${result.mainAvailable ? 'text-success' : 'text-destructive'}`}>
+                    {result.mainAvailable ? '✓ Domain tersedia untuk didaftarkan!' : '✗ Domain sudah terdaftar'}
                   </p>
                 </div>
               </div>
-              {result.available && (
-                <Button 
-                  className="bg-success hover:bg-success/90 text-black font-rajdhani uppercase"
-                  onClick={() => document.getElementById('register-form').scrollIntoView({ behavior: 'smooth' })}
-                >
-                  Pilih Domain Ini
-                </Button>
+              {result.mainAvailable && (
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Harga per tahun</p>
+                    <p className="font-mono text-lg font-bold text-white">
+                      {formatPrice(DOMAIN_EXTENSIONS.find(e => e.ext === result.selectedExt)?.price || 0)}
+                    </p>
+                  </div>
+                  <Button 
+                    className="bg-success hover:bg-success/90 text-black font-rajdhani uppercase px-6"
+                    onClick={() => document.getElementById('register-form').scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    Daftarkan Domain
+                  </Button>
+                </div>
               )}
             </div>
           </div>
 
           {/* Suggestions if taken */}
-          {!result.available && result.suggestions.length > 0 && (
+          {!result.mainAvailable && result.suggestions.length > 0 && (
             <div className="bg-black/20 rounded-xl p-4">
-              <p className="text-sm text-muted-foreground mb-3">Saran domain alternatif:</p>
-              <div className="grid grid-cols-2 gap-2">
+              <p className="text-sm text-muted-foreground mb-3">Saran nama domain alternatif:</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {result.suggestions.map((suggestion, idx) => (
                   <button
                     key={idx}
                     className="flex items-center justify-between p-3 bg-black/30 rounded-lg hover:bg-success/10 hover:border-success/30 border border-transparent transition-colors group"
                     onClick={() => setDomainInput(suggestion)}
                   >
-                    <span className="font-mono text-sm text-white">{suggestion}.voucherverse.com</span>
+                    <span className="font-mono text-sm text-white">{suggestion}{result.selectedExt}</span>
                     <Check className="w-4 h-4 text-success opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
@@ -383,16 +395,16 @@ const DomainChecker = () => {
             </div>
           )}
 
-          {/* Other Extensions */}
+          {/* All Extensions Availability */}
           <div className="bg-black/20 rounded-xl p-4">
-            <p className="text-sm text-muted-foreground mb-3">Domain ekstensi lainnya:</p>
-            <div className="space-y-2">
+            <p className="text-sm text-muted-foreground mb-3">Ketersediaan ekstensi lainnya untuk "{result.domain}":</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {result.extensions.map((ext, idx) => (
                 <div 
                   key={idx}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
+                  className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
                     ext.available 
-                      ? 'bg-black/30 border border-white/5' 
+                      ? 'bg-black/30 border border-white/5 hover:border-success/30' 
                       : 'bg-black/20 opacity-50'
                   }`}
                 >
@@ -402,25 +414,49 @@ const DomainChecker = () => {
                     ) : (
                       <X className="w-4 h-4 text-muted-foreground" />
                     )}
-                    <span className="font-mono text-sm text-white">{result.domain}{ext.ext}</span>
-                    {ext.type === 'subdomain' && (
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Gratis</span>
+                    <span className="font-mono text-sm text-white">{ext.fullDomain}</span>
+                    {ext.popular && ext.available && (
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Populer</span>
                     )}
                   </div>
                   <div className="flex items-center gap-3">
-                    {ext.price && ext.available && (
-                      <span className="font-mono text-sm text-muted-foreground">
-                        {formatPrice(ext.price)}/tahun
-                      </span>
+                    {ext.available && (
+                      <>
+                        <span className="font-mono text-sm text-muted-foreground">
+                          {formatPrice(ext.price)}/thn
+                        </span>
+                        <Button 
+                          size="sm" 
+                          className="text-xs h-7 bg-success/20 text-success hover:bg-success/30 border-0"
+                          onClick={() => {
+                            setSelectedExt(ext.ext);
+                            document.getElementById('register-form').scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          Pilih
+                        </Button>
+                      </>
                     )}
-                    {ext.available && ext.type === 'domain' && (
-                      <Button size="sm" variant="outline" className="text-xs h-7 border-border">
-                        Beli
-                      </Button>
+                    {!ext.available && (
+                      <span className="text-xs text-muted-foreground">Tidak tersedia</span>
                     )}
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Domain Package Info */}
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-4 border border-primary/20">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-primary mt-0.5" />
+              <div>
+                <p className="text-white font-medium mb-1">Domain Sudah Termasuk dalam Paket!</p>
+                <p className="text-sm text-muted-foreground">
+                  Pilih paket Legend atau Supreme untuk mendapatkan domain gratis selama 1 tahun pertama. 
+                  Kami akan membantu setup DNS dan SSL untuk website Anda.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -429,11 +465,15 @@ const DomainChecker = () => {
       {/* Tips */}
       {!result && (
         <div className="bg-black/20 rounded-xl p-4">
-          <p className="text-sm text-muted-foreground mb-2">Tips memilih nama domain:</p>
-          <ul className="text-xs text-muted-foreground space-y-1">
+          <p className="text-sm text-muted-foreground mb-3">Tips memilih nama domain:</p>
+          <ul className="text-xs text-muted-foreground space-y-2">
             <li className="flex items-center gap-2">
               <Check className="w-3 h-3 text-success" />
-              Gunakan nama yang mudah diingat
+              Gunakan nama yang mudah diingat dan dieja
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-3 h-3 text-success" />
+              Pilih ekstensi .com atau .id untuk pasar Indonesia
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-3 h-3 text-success" />
@@ -441,7 +481,7 @@ const DomainChecker = () => {
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-3 h-3 text-success" />
-              Pilih nama yang mencerminkan bisnis Anda
+              Pilih nama yang mencerminkan bisnis game/voucher Anda
             </li>
           </ul>
         </div>
