@@ -176,6 +176,228 @@ const STATS = [
   { label: 'Rating Kepuasan', value: '4.9', suffix: '/5' },
 ];
 
+// Simulated taken domains for demo
+const TAKEN_DOMAINS = ['topupgame', 'diamondstore', 'gg-topup', 'gamevoucher', 'topupku', 'vouchergame'];
+
+// Domain Checker Component
+const DomainChecker = () => {
+  const [domainInput, setDomainInput] = useState('');
+  const [checking, setChecking] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const checkDomain = async () => {
+    if (!domainInput.trim()) {
+      toast.error('Masukkan nama domain');
+      return;
+    }
+
+    // Clean domain input (remove spaces, special chars)
+    const cleanDomain = domainInput.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    
+    setChecking(true);
+    setResult(null);
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const isTaken = TAKEN_DOMAINS.includes(cleanDomain);
+    
+    // Generate suggestions
+    const suggestions = [
+      `${cleanDomain}-store`,
+      `${cleanDomain}id`,
+      `my${cleanDomain}`,
+      `${cleanDomain}shop`,
+    ].filter(s => !TAKEN_DOMAINS.includes(s));
+
+    setResult({
+      domain: cleanDomain,
+      available: !isTaken,
+      suggestions: isTaken ? suggestions : [],
+      extensions: [
+        { ext: '.voucherverse.com', available: !isTaken, type: 'subdomain' },
+        { ext: '.com', available: Math.random() > 0.5, type: 'domain', price: 150000 },
+        { ext: '.id', available: Math.random() > 0.3, type: 'domain', price: 250000 },
+        { ext: '.co.id', available: Math.random() > 0.4, type: 'domain', price: 200000 },
+      ]
+    });
+
+    setChecking(false);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      checkDomain();
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-2xl p-6 md:p-8 border border-border">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
+          <Globe className="w-6 h-6 text-secondary" />
+        </div>
+        <div>
+          <h3 className="font-rajdhani font-bold text-xl text-white uppercase">Cek Domain</h3>
+          <p className="text-sm text-muted-foreground">Temukan domain impianmu</p>
+        </div>
+      </div>
+
+      {/* Search Input */}
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Input
+            type="text"
+            placeholder="Masukkan nama domain impianmu..."
+            className="bg-black/50 border-white/10 text-white pl-4 pr-32 py-6 text-lg"
+            value={domainInput}
+            onChange={(e) => setDomainInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            data-testid="domain-input"
+          />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+            .voucherverse.com
+          </span>
+        </div>
+        <Button
+          className="bg-secondary hover:bg-secondary/90 text-black font-rajdhani uppercase px-6"
+          onClick={checkDomain}
+          disabled={checking}
+          data-testid="check-domain-btn"
+        >
+          {checking ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              <Search className="w-5 h-5 mr-2" />
+              Cek
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Results */}
+      {result && (
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          {/* Main Result */}
+          <div className={`p-4 rounded-xl border ${
+            result.available 
+              ? 'bg-success/10 border-success/30' 
+              : 'bg-destructive/10 border-destructive/30'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {result.available ? (
+                  <CheckCircle2 className="w-6 h-6 text-success" />
+                ) : (
+                  <X className="w-6 h-6 text-destructive" />
+                )}
+                <div>
+                  <p className="font-mono text-lg text-white">
+                    {result.domain}.voucherverse.com
+                  </p>
+                  <p className={`text-sm ${result.available ? 'text-success' : 'text-destructive'}`}>
+                    {result.available ? 'Domain tersedia!' : 'Domain sudah digunakan'}
+                  </p>
+                </div>
+              </div>
+              {result.available && (
+                <Button 
+                  className="bg-success hover:bg-success/90 text-black font-rajdhani uppercase"
+                  onClick={() => document.getElementById('register-form').scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Pilih Domain Ini
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Suggestions if taken */}
+          {!result.available && result.suggestions.length > 0 && (
+            <div className="bg-black/20 rounded-xl p-4">
+              <p className="text-sm text-muted-foreground mb-3">Saran domain alternatif:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {result.suggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    className="flex items-center justify-between p-3 bg-black/30 rounded-lg hover:bg-success/10 hover:border-success/30 border border-transparent transition-colors group"
+                    onClick={() => setDomainInput(suggestion)}
+                  >
+                    <span className="font-mono text-sm text-white">{suggestion}.voucherverse.com</span>
+                    <Check className="w-4 h-4 text-success opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Other Extensions */}
+          <div className="bg-black/20 rounded-xl p-4">
+            <p className="text-sm text-muted-foreground mb-3">Domain ekstensi lainnya:</p>
+            <div className="space-y-2">
+              {result.extensions.map((ext, idx) => (
+                <div 
+                  key={idx}
+                  className={`flex items-center justify-between p-3 rounded-lg ${
+                    ext.available 
+                      ? 'bg-black/30 border border-white/5' 
+                      : 'bg-black/20 opacity-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {ext.available ? (
+                      <CheckCircle2 className="w-4 h-4 text-success" />
+                    ) : (
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    <span className="font-mono text-sm text-white">{result.domain}{ext.ext}</span>
+                    {ext.type === 'subdomain' && (
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Gratis</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {ext.price && ext.available && (
+                      <span className="font-mono text-sm text-muted-foreground">
+                        {formatPrice(ext.price)}/tahun
+                      </span>
+                    )}
+                    {ext.available && ext.type === 'domain' && (
+                      <Button size="sm" variant="outline" className="text-xs h-7 border-border">
+                        Beli
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tips */}
+      {!result && (
+        <div className="bg-black/20 rounded-xl p-4">
+          <p className="text-sm text-muted-foreground mb-2">Tips memilih nama domain:</p>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            <li className="flex items-center gap-2">
+              <Check className="w-3 h-3 text-success" />
+              Gunakan nama yang mudah diingat
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-3 h-3 text-success" />
+              Hindari angka dan tanda hubung berlebihan
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-3 h-3 text-success" />
+              Pilih nama yang mencerminkan bisnis Anda
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Reseller() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
