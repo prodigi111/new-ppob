@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, MessageCircle, Instagram, Twitter } from 'lucide-react';
+import { MessageCircle, Instagram, Twitter } from 'lucide-react';
+import BlazeLogo from '../assets/logo-blaze.svg';
 
 export const Footer = () => {
   return (
@@ -10,12 +11,11 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-rajdhani font-bold text-xl text-white uppercase tracking-wider">
-                <span className="text-primary">Blaze</span>Store
-              </span>
+              <img 
+                src={BlazeLogo} 
+                alt="Blaze Store" 
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="text-muted-foreground text-sm max-w-md">
               Platform top-up game dan voucher digital terpercaya di Indonesia. 
