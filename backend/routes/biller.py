@@ -220,23 +220,91 @@ async def check_transaction_status(
     }
 
 
-@router.post("/webhook")
-async def digiflazz_webhook(payload: dict):
-    """Webhook endpoint for DigiFlazz callbacks"""
-    logger.info(f"DigiFlazz Webhook received: {payload}")
-    data = payload.get("data", {})
-    ref_id = data.get("ref_id")
-    status = data.get("status")
-    sn = data.get("sn")
+DIGIFLAZZ_WEBHOOK_SECRET = os.environ.get("DIGIFLAZZ_WEBHOOK_SECRET", "")
 
-    if ref_id:
-        update = {"digiflazz_status": status, "digiflazz_sn": sn}
-        if status == "Sukses":
-            update["status"] = "completed"
-            update["completed_at"] = datetime.now(timezone.utc).isoformat()
-        elif status == "Gagal":
-            update["status"] = "failed"
-        await _db.orders.update_one({"id": ref_id}, {"$set": update})
+
+@router.post("/webhook")
+async def digiflazz_webhook(request: Request):
+    """
+    DigiFlazz Webhook - receives transaction status updates.
+    Verifies X-Hub-Signature (HMAC-SHA1) and updates order with SN/voucher code.
+    
+    Headers:
+    - X-Digiflazz-Event: create | update
+    - X-Hub-Signature: sha1=<hmac_hex>
+    - User-Agent: Digiflazz-Hookshot (prepaid) | Digiflazz-Pasca-Hookshot (postpaid)
+    """
+    import hashlib as _hl, hmac as _hm
+
+    raw_body = await request.body()
+    body_str = raw_body.decode("utf-8")
+
+    # Verify signature
+    sig_header = request.headers.get("X-Hub-Signature", "")
+    event_type = request.headers.get("X-Digiflazz-Event", "")
+    user_agent = request.headers.get("User-Agent", "")
+
+    if DIGIFLAZZ_WEBHOOK_SECRET and sig_header:
+        expected = "sha1=" + _hm.new(DIGIFLAZZ_WEBHOOK_SECRET.encode(), raw_body, _hl.sha1).hexdigest()
+        if sig_header != expected:
+            logger.warning(f"[DigiFlazz Webhook] Invalid signature: got={sig_header} expected={expected}")
+            return {"status": "invalid_signature"}
+
+    try:
+        payload = json.loads(body_str)
+    except Exception:
+        logger.error(f"[DigiFlazz Webhook] Invalid JSON body")
+        return {"status": "invalid_body"}
+
+    data = payload.get("data", {})
+    ref_id = data.get("ref_id", "")
+    customer_no = data.get("customer_no", "")
+    sku = data.get("buyer_sku_code", "")
+    message = data.get("message", "")
+    status = data.get("status", "")
+    rc = data.get("rc", "")
+    sn = data.get("sn", "")
+    price = data.get("price", 0)
+    buyer_saldo = data.get("buyer_last_saldo", 0)
+
+    is_postpaid = "Pasca" in user_agent
+    trx_type = "postpaid" if is_postpaid else "prepaid"
+
+    logger.info(
+        f"[DigiFlazz Webhook] event={event_type} type={trx_type} ref={ref_id} "
+        f"sku={sku} status={status} rc={rc} sn={sn} customer={customer_no}"
+    )
+
+    if not ref_id:
+        logger.warning("[DigiFlazz Webhook] No ref_id in payload")
+        return {"status": "ok"}
+
+    # Build update for the order
+    update = {
+        "digiflazz_event": event_type,
+        "digiflazz_status": status,
+        "digiflazz_rc": rc,
+        "digiflazz_sn": sn,
+        "digiflazz_message": message,
+        "digiflazz_price": price,
+        "digiflazz_saldo": buyer_saldo,
+        "digiflazz_type": trx_type,
+        "digiflazz_webhook_at": datetime.now(timezone.utc).isoformat(),
+        "digiflazz_raw": data,
+    }
+
+    if status == "Sukses":
+        update["topup_status"] = "success"
+        update["status"] = "completed"
+        update["completed_at"] = datetime.now(timezone.utc).isoformat()
+    elif status == "Pending":
+        update["topup_status"] = "pending"
+    elif status == "Gagal":
+        update["topup_status"] = "failed"
+        update["status"] = "failed"
+
+    await _db.orders.update_one({"id": ref_id}, {"$set": update})
+    logger.info(f"[DigiFlazz Webhook] Order {ref_id} updated: status={status} sn={sn}")
 
     return {"status": "ok"}
 
