@@ -129,6 +129,16 @@ class OrderCreate(BaseModel):
     email: str
     payment_method: str
 
+class DigiFlazzOrderCreate(BaseModel):
+    brand: str
+    sku_code: str
+    product_name: str
+    game_user_id: str
+    game_server_id: Optional[str] = None
+    email: str
+    payment_method: str
+    price: float
+
 class TopUpBalance(BaseModel):
     amount: float
 
