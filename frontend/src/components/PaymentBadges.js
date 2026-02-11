@@ -14,14 +14,19 @@ export function PaymentBadges({ size = 'md' }) {
 
   if (!icons.length) return null;
 
-  const h = size === 'sm' ? 'h-5' : size === 'lg' ? 'h-8' : 'h-6';
-  const pad = size === 'sm' ? 'px-1.5 py-1' : size === 'lg' ? 'px-3 py-2' : 'px-2 py-1.5';
+  const dims = size === 'sm' 
+    ? 'h-8 min-w-[80px]' 
+    : size === 'lg' 
+    ? 'h-12 min-w-[110px]' 
+    : 'h-10 min-w-[90px]';
+
+  const imgH = size === 'sm' ? 'h-5' : size === 'lg' ? 'h-8' : 'h-6';
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {icons.map((ic, i) => (
-        <div key={i} className={`bg-white rounded-md ${pad} flex items-center justify-center`}>
-          <img src={ic.icon} alt={ic.name} title={ic.name} className={`${h} object-contain`} />
+        <div key={i} className={`bg-white rounded-md ${dims} px-3 flex items-center justify-center`}>
+          <img src={ic.icon} alt={ic.name} title={ic.name} className={`${imgH} max-w-full object-contain`} />
         </div>
       ))}
     </div>
