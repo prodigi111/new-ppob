@@ -280,12 +280,11 @@ async def get_catalog():
         {"_id": 0},
     ).to_list(500)
 
-    # If cache empty, try a live fetch
+    # If cache empty, try a live fetch (all prepaid)
     if not products:
-        result = await digiflazz_service.get_game_products()
+        result = await digiflazz_service.get_price_list()
         if result.get("success"):
             products = [p for p in result.get("products", []) if isinstance(p, dict) and p.get("seller_product_status")]
-            # Cache them
             for p in products:
                 await _db.digiflazz_products.update_one(
                     {"buyer_sku_code": p.get("buyer_sku_code")},
