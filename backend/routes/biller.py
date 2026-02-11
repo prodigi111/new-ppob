@@ -239,8 +239,8 @@ async def digiflazz_webhook(payload: dict):
 
 @router.post("/catalog/sync")
 async def sync_catalog():
-    """Fetch DigiFlazz game products and cache in MongoDB"""
-    result = await digiflazz_service.get_game_products()
+    """Fetch ALL DigiFlazz prepaid products and cache in MongoDB"""
+    result = await digiflazz_service.get_price_list()
     if not result.get("success"):
         return {"success": False, "error": result.get("error", "Failed to fetch")}
 
@@ -249,6 +249,7 @@ async def sync_catalog():
         return {"success": False, "error": "No products returned"}
 
     # Store each product
+    count = 0
     for p in products:
         if not isinstance(p, dict):
             continue
@@ -257,13 +258,14 @@ async def sync_catalog():
             {"$set": {**p, "cached_at": datetime.now(timezone.utc).isoformat()}},
             upsert=True,
         )
+        count += 1
 
     await _db.digiflazz_meta.update_one(
         {"key": "last_sync"},
-        {"$set": {"key": "last_sync", "at": datetime.now(timezone.utc).isoformat(), "count": len(products)}},
+        {"$set": {"key": "last_sync", "at": datetime.now(timezone.utc).isoformat(), "count": count}},
         upsert=True,
     )
-    return {"success": True, "synced": len(products)}
+    return {"success": True, "synced": count}
 
 
 @router.get("/catalog")
