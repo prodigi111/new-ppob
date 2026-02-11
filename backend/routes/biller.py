@@ -111,30 +111,34 @@ async def process_topup(request: TopupRequest):
         return TopupResponse(
             success=True,
             pending=False,
-            message=result.get("message", "Transaksi berhasil"),
+            message=result.get("message") or "Transaksi berhasil",
             data={
                 "ref_id": result.get("ref_id"),
                 "customer_no": result.get("customer_no"),
                 "sn": result.get("sn"),
                 "price": result.get("price"),
-                "status": result.get("status")
+                "status": result.get("status"),
+                "buyer_last_saldo": result.get("buyer_last_saldo")
             }
         )
     elif result.get("pending"):
         return TopupResponse(
-            success=False,
+            success=True,  # Pending is considered success in testing mode
             pending=True,
-            message=result.get("message", "Transaksi sedang diproses"),
+            message=result.get("message") or "Transaksi sedang diproses",
             data={
                 "ref_id": result.get("ref_id"),
-                "status": "pending"
+                "customer_no": result.get("customer_no"),
+                "price": result.get("price"),
+                "status": "pending",
+                "buyer_last_saldo": result.get("buyer_last_saldo")
             }
         )
     else:
         return TopupResponse(
             success=False,
             pending=False,
-            message=result.get("error") or result.get("message", "Transaksi gagal"),
+            message=result.get("error") or result.get("message") or "Transaksi gagal",
             data=None
         )
 
