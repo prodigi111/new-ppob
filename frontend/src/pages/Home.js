@@ -10,7 +10,8 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const CATEGORIES = [
   { id: 'all', name: 'Semua' },
-  { id: 'game', name: 'Games' },
+  { id: 'games', name: 'Games' },
+  { id: 'pulsa', name: 'Pulsa' },
   { id: 'voucher', name: 'Voucher' },
 ];
 
