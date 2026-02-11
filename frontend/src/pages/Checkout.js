@@ -423,12 +423,17 @@ export default function Checkout() {
                   <span className="font-medium text-white">QRIS</span>
                 </div>
 
-                <div className="bg-white rounded-lg p-4 mb-4 flex justify-center">
-                  {paymentData.qr_url ? (
-                    <img src={paymentData.qr_url} alt="QRIS" className="w-48 h-48" />
+                <div className="bg-white rounded-xl p-6 mb-4 flex justify-center">
+                  {paymentData.qr_content ? (
+                    <QRCodeCanvas
+                      value={paymentData.qr_content}
+                      size={220}
+                      level="M"
+                      marginSize={2}
+                    />
                   ) : (
-                    <div className="w-48 h-48 flex items-center justify-center">
-                      <QrCode className="w-32 h-32 text-black" />
+                    <div className="w-[220px] h-[220px] flex items-center justify-center">
+                      <QrCode className="w-32 h-32 text-gray-300" />
                     </div>
                   )}
                 </div>
