@@ -22,22 +22,35 @@ _db = _client[os.environ['DB_NAME']]
 
 # Brand image mapping for popular games
 BRAND_IMAGES = {
-    "MOBILE LEGENDS": "https://ui-avatars.com/api/?name=ML&background=4267B2&color=fff&size=200&bold=true&font-size=0.4",
-    "FREE FIRE": "https://ui-avatars.com/api/?name=FF&background=FF6B00&color=fff&size=200&bold=true&font-size=0.4",
-    "PUBG MOBILE": "https://play-lh.googleusercontent.com/JRd05pyBH41qjgsJuWduRJpDeZG0Hnb0yjf2nWqO7VaGKL10-G5UIygxED-WNOc3pg=w240-h480-rw",
-    "GENSHIN IMPACT": "https://ui-avatars.com/api/?name=GI&background=6366F1&color=fff&size=200&bold=true&font-size=0.4",
-    "Genshin Impact": "https://ui-avatars.com/api/?name=GI&background=6366F1&color=fff&size=200&bold=true&font-size=0.4",
-    "VALORANT": "https://ui-avatars.com/api/?name=VA&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
-    "Valorant": "https://ui-avatars.com/api/?name=VA&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
-    "HONKAI STAR RAIL": "https://ui-avatars.com/api/?name=HSR&background=9333EA&color=fff&size=200&bold=true&font-size=0.4",
-    "Call of Duty MOBILE": "https://ui-avatars.com/api/?name=COD&background=1a1a1a&color=fff&size=200&bold=true&font-size=0.4",
-    "CALL OF DUTY": "https://ui-avatars.com/api/?name=COD&background=1a1a1a&color=fff&size=200&bold=true&font-size=0.4",
-    "ARENA OF VALOR": "https://ui-avatars.com/api/?name=AOV&background=0066cc&color=fff&size=200&bold=true&font-size=0.4",
-    "RAGNAROK": "https://ui-avatars.com/api/?name=RO&background=663399&color=fff&size=200&bold=true&font-size=0.4",
-    "POINT BLANK": "https://ui-avatars.com/api/?name=PB&background=cc3300&color=fff&size=200&bold=true&font-size=0.4",
-    "GARENA": "https://ui-avatars.com/api/?name=GR&background=E14B00&color=fff&size=200&bold=true&font-size=0.4",
-    "Nintendo eShop": "https://ui-avatars.com/api/?name=NS&background=E60012&color=fff&size=200&bold=true&font-size=0.4",
-    "Unipin Voucher": "https://ui-avatars.com/api/?name=UP&background=FFB800&color=000&size=200&bold=true&font-size=0.4",
+    "MOBILE LEGENDS": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/cee16accebeee5f4f3e4600e7b22ae4ccf875422c90de0b267e5e8f3e47a5656.png",
+    "FREE FIRE": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/6a096a6814120c873f79e4868339be4d303089099a90b6160bfc2845cdfce341.png",
+    "PUBG MOBILE": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/91cfd5a5f41e04ef15b79a59eac5fe9b7b7445c2d424ae727177255aeea319a5.png",
+    "Genshin Impact": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/76a037f815dcb24d2faf5b13c3771f3cedcf730f1c8e56e6aaf9b7bf2875e505.png",
+    "Valorant": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/f4fc57e7c68e201a2b57693574a22a718d0036c88dc2aecd0a29bfec88020982.png",
+    "Call of Duty MOBILE": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/73dcb067d112b688b0a80567fbfdd0bf584856fd62553cf9522d65c73f3ac548.png",
+    "ARENA OF VALOR": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/6a4c09713b27707761c16d2962d8c098e6808ff7ed25e46d16a56e75603a5fa4.png",
+    "POINT BLANK": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/458b69a60833211a415d03f28ea74f8717ffc2be1bac868c1d13440881e33761.png",
+    "GARENA": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/e59f95df993f2c175e1b4621ee7840e669b8e856a24a33ad54aff4e13a7bce13.png",
+    "Nintendo eShop": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/e38681ff8bddb25445ce44e21d47fa992b5b678a0b3d86cf9cae8c34afbc48b5.png",
+    "Unipin Voucher": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/552d28a6510055c6139d6f6e39003ecb3fac105fa15c2d461b0aa60faeb50246.png",
+    "TELKOMSEL": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/847b9aa84734db88cafdf81115a4d8fc624e029791f9eedde53fbd9080dd269a.png",
+    "XL": "https://static.prod-images.emergentagent.com/jobs/81317519-044e-44f8-94cc-ed69b802fa9e/images/53c3be9e9cd7dc926a2d298a17887be059c84f365d7a3080f1b7e1691d5203c5.png",
+}
+
+# Map DigiFlazz categories to our 3 categories: games, pulsa, voucher
+CATEGORY_MAP = {
+    "Games": "games",
+    "Voucher": "voucher",
+    "Aktivasi Voucher": "pulsa",
+}
+# Brand overrides for correct classification
+BRAND_CATEGORY_OVERRIDE = {
+    "XL": "pulsa",
+    "TELKOMSEL": "pulsa",
+    "POINT BLANK": "games",
+    "GARENA": "voucher",
+    "Nintendo eShop": "voucher",
+    "Unipin Voucher": "voucher",
 }
 
 router = APIRouter(prefix="/biller", tags=["Biller"])
