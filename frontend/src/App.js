@@ -9,6 +9,7 @@ import { Footer } from './components/Footer';
 // Pages
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
+import DigiFlazzProduct from './pages/DigiFlazzProduct';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
