@@ -58,12 +58,17 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
+    if (loading) return;
+    if (!user) {
+      navigate('/login?redirect=/admin');
+      return;
+    }
+    if (user.role !== 'admin') {
       navigate('/');
       return;
     }
     fetchData();
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const fetchData = async () => {
     try {
