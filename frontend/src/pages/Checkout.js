@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '../components/ui/button';
+import { PaymentBadges } from '../components/PaymentBadges';
 import { formatPrice } from '../lib/utils';
 import { toast } from 'sonner';
 import { 
