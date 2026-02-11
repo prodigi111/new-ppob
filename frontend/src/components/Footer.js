@@ -69,23 +69,16 @@ function PaymentIcons() {
   React.useEffect(() => {
     const API_URL = process.env.REACT_APP_BACKEND_URL;
     fetch(`${API_URL}/api/payment-icons`).then(r => r.json()).then(d => {
-      if (d.icons?.length) setIcons(d.icons);
+      if (d.icons?.length) setIcons(d.icons.filter(ic => ic.icon));
     }).catch(() => {});
   }, []);
 
-  if (!icons.length) {
-    return (
-      <div className="flex items-center gap-4">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/QRIS_logo.svg/200px-QRIS_logo.svg.png" alt="QRIS" className="h-6 opacity-50" />
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Central_Asia.svg/200px-Bank_Central_Asia.svg.png" alt="BCA" className="h-6 opacity-50" />
-      </div>
-    );
-  }
+  if (!icons.length) return null;
 
   return (
     <div className="flex items-center gap-4">
       {icons.map((ic, i) => (
-        <img key={i} src={ic.url} alt={ic.name} className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+        <img key={i} src={ic.icon} alt={ic.name} title={ic.name} className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
       ))}
     </div>
   );
