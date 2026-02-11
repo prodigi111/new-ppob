@@ -15,6 +15,7 @@ import {
   Loader2,
   RefreshCw
 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
