@@ -517,6 +517,19 @@ export default function AdminDashboard() {
                           Rp {Math.min(...brand.items.map(i => i.price)).toLocaleString('id-ID')}
                         </TableCell>
                         <TableCell>
+                          <button
+                            onClick={() => handleToggleBrand(brand.slug, brand.active)}
+                            className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
+                              brand.active !== false
+                                ? 'bg-success/20 text-success hover:bg-success/30'
+                                : 'bg-destructive/20 text-destructive hover:bg-destructive/30'
+                            }`}
+                            data-testid={`toggle-${brand.slug}`}
+                          >
+                            {brand.active !== false ? 'Aktif' : 'Nonaktif'}
+                          </button>
+                        </TableCell>
+                        <TableCell>
                           {editingIcon === brand.slug ? (
                             <div className="space-y-2 min-w-[300px]">
                               <div className="flex items-center gap-2">
