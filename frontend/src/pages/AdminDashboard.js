@@ -820,6 +820,137 @@ export default function AdminDashboard() {
               </div>
             </div>
           </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <div className="space-y-6">
+              {/* CMS Pages */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="p-6 border-b border-border">
+                  <h2 className="font-rajdhani font-semibold text-lg text-white uppercase flex items-center gap-2">
+                    <FileText className="w-5 h-5" /> Halaman CMS
+                  </h2>
+                  <p className="text-muted-foreground text-sm mt-1">Edit konten Tentang Kami, Kebijakan Privasi, dll</p>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    { slug: 'tentang-kami', label: 'Tentang Kami' },
+                    { slug: 'kebijakan-privasi', label: 'Kebijakan Privasi' },
+                    { slug: 'syarat-ketentuan', label: 'Syarat & Ketentuan' },
+                    { slug: 'hubungi-kami', label: 'Hubungi Kami' },
+                  ].map((pg) => (
+                    <div key={pg.slug} className="border border-border rounded-lg p-4">
+                      {editingCms === pg.slug ? (
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <Label className="text-gray-300 text-sm">Judul</Label>
+                            <Input
+                              className="bg-black/50 border-white/10 text-white"
+                              value={cmsTitle}
+                              onChange={(e) => setCmsTitle(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-gray-300 text-sm">Konten</Label>
+                            <textarea
+                              className="w-full bg-black/50 border border-white/10 text-white rounded-md p-3 text-sm min-h-[150px] focus:outline-none focus:border-primary"
+                              value={cmsContent}
+                              onChange={(e) => setCmsContent(e.target.value)}
+                              placeholder="Tulis konten halaman... (gunakan enter untuk paragraf baru)"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" className="bg-success hover:bg-success/90" onClick={() => handleSaveCms(pg.slug)} disabled={savingCms}>
+                              <Save className="w-3 h-3 mr-1" /> {savingCms ? 'Menyimpan...' : 'Simpan'}
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setEditingCms(null)}>
+                              Batal
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">{pg.label}</p>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                              {cmsPages[pg.slug]?.content || 'Belum ada konten'}
+                            </p>
+                          </div>
+                          <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-white"
+                            onClick={() => {
+                              setEditingCms(pg.slug);
+                              setCmsTitle(cmsPages[pg.slug]?.title || pg.label);
+                              setCmsContent(cmsPages[pg.slug]?.content || '');
+                            }}>
+                            <Pencil className="w-3 h-3 mr-1" /> Edit
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment Method Icons */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="p-6 border-b border-border">
+                  <h2 className="font-rajdhani font-semibold text-lg text-white uppercase flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" /> Icon Payment Method
+                  </h2>
+                  <p className="text-muted-foreground text-sm mt-1">Icon yang tampil di footer website</p>
+                </div>
+                <div className="p-6">
+                  {/* Current icons */}
+                  <div className="flex flex-wrap gap-4 mb-6">
+                    {payIcons.map((ic, i) => (
+                      <div key={i} className="relative group bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                        <img src={ic.url} alt={ic.name} className="h-8 object-contain" />
+                        <span className="text-xs text-gray-300">{ic.name}</span>
+                        <button
+                          onClick={() => handleRemovePayIcon(i)}
+                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {!payIcons.length && <p className="text-muted-foreground text-sm">Belum ada icon (menggunakan default)</p>}
+                  </div>
+
+                  {/* Add new */}
+                  <div className="border border-border rounded-lg p-4 space-y-3">
+                    <p className="text-white text-sm font-medium">Tambah Icon</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Input placeholder="Nama (cth: QRIS)" className="bg-black/50 border-white/10 text-white"
+                        value={newIconName} onChange={(e) => setNewIconName(e.target.value)} />
+                      <div className="flex gap-2">
+                        <Input placeholder="URL icon..." className="bg-black/50 border-white/10 text-white"
+                          value={newIconUrl} onChange={(e) => setNewIconUrl(e.target.value)} />
+                      </div>
+                      <div className="flex gap-2">
+                        <label className="flex items-center gap-1 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-primary/50 hover:border-primary bg-primary/5 text-xs text-primary whitespace-nowrap">
+                          <Image className="w-3 h-3" />
+                          {uploadingPayIcon ? 'Uploading...' : 'Upload'}
+                          <input type="file" accept="image/*" className="hidden"
+                            onChange={(e) => handleUploadPayIcon(e.target.files[0])} disabled={uploadingPayIcon} />
+                        </label>
+                        <Button className="bg-primary hover:bg-primary/90" onClick={handleAddPayIcon}
+                          disabled={!newIconName.trim() || !newIconUrl.trim()}>
+                          <Plus className="w-4 h-4 mr-1" /> Tambah
+                        </Button>
+                      </div>
+                    </div>
+                    {newIconUrl && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-muted-foreground">Preview:</span>
+                        <img src={newIconUrl} alt="preview" className="h-8 object-contain bg-white/10 rounded p-1" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
