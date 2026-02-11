@@ -77,8 +77,8 @@ export default function AdminDashboard() {
   const [savingCms, setSavingCms] = useState(false);
   // Payment Icons
   const [payIcons, setPayIcons] = useState([]);
-  const [newIconName, setNewIconName] = useState('');
-  const [newIconUrl, setNewIconUrl] = useState('');
+  const [editingPayIcon, setEditingPayIcon] = useState(null);
+  const [payIconUrl, setPayIconUrl] = useState('');
   const [uploadingPayIcon, setUploadingPayIcon] = useState(false);
 
   useEffect(() => {
