@@ -42,6 +42,12 @@ CATEGORY_MAP = {
     "Games": "games",
     "Voucher": "voucher",
     "Aktivasi Voucher": "pulsa",
+    "Pulsa": "pulsa",
+    "Data": "pulsa",
+    "E-Money": "voucher",
+    "PLN": "voucher",
+    "PDAM": "voucher",
+    "Paket SMS & Telepon": "pulsa",
 }
 # Brand overrides for correct classification
 BRAND_CATEGORY_OVERRIDE = {
