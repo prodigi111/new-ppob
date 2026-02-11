@@ -41,7 +41,12 @@ import {
   Pencil,
   Trash2,
   Check,
-  X
+  X,
+  Settings,
+  FileText,
+  CreditCard,
+  Save,
+  Image,
 } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
