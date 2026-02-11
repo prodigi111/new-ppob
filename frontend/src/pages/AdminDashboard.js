@@ -69,6 +69,17 @@ export default function AdminDashboard() {
   const [editingMargin, setEditingMargin] = useState(null);
   const [marginType, setMarginType] = useState('percent');
   const [marginValue, setMarginValue] = useState(10);
+  // CMS
+  const [cmsPages, setCmsPages] = useState({});
+  const [editingCms, setEditingCms] = useState(null);
+  const [cmsTitle, setCmsTitle] = useState('');
+  const [cmsContent, setCmsContent] = useState('');
+  const [savingCms, setSavingCms] = useState(false);
+  // Payment Icons
+  const [payIcons, setPayIcons] = useState([]);
+  const [newIconName, setNewIconName] = useState('');
+  const [newIconUrl, setNewIconUrl] = useState('');
+  const [uploadingPayIcon, setUploadingPayIcon] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
