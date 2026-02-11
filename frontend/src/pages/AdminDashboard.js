@@ -210,6 +210,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleToggleBrand = async (slug, currentActive) => {
+    try {
+      await axios.put(`${API_URL}/api/biller/catalog/${slug}/status`, { active: !currentActive });
+      toast.success(!currentActive ? 'Brand diaktifkan' : 'Brand dinonaktifkan');
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal mengubah status');
+    }
+  };
+
   if (!user || user.role !== 'admin') return null;
 
   if (loading) {
