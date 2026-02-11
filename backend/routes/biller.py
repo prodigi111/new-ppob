@@ -323,6 +323,103 @@ def _calc_sell_price(cost: float, margin_type: str, margin_value: float) -> int:
         return math.ceil(cost + margin_value)
 
 
+def _get_input_config(raw_category: str, brand: str, desc: str) -> dict:
+    """
+    Determine what input fields to show based on DigiFlazz category/brand/desc.
+    Returns config for frontend form.
+    """
+    desc_lower = (desc or "").lower()
+
+    # Voucher types that don't need customer input (code returned as SN)
+    no_input_brands = {"Steam Wallet (IDR)", "Nintendo eShop", "Unipin Voucher", "XBOX", "Razer Gold", "GOOGLE PLAY INDONESIA"}
+    if brand in no_input_brands or (raw_category == "Voucher" and not desc_lower):
+        return {
+            "type": "voucher_code",
+            "id_label": "Email (opsional)",
+            "id_placeholder": "Email untuk menerima kode voucher",
+            "id_required": False,
+            "show_id2": False,
+            "instruction": "Kode voucher akan ditampilkan setelah pembayaran berhasil. Tidak perlu memasukkan data tambahan.",
+            "success_label": "Email",
+        }
+
+    # PLN
+    if raw_category == "PLN" or brand == "PLN":
+        return {
+            "type": "pln",
+            "id_label": "No. Meter / ID Pelanggan",
+            "id_placeholder": "Masukkan nomor meter PLN",
+            "id_required": True,
+            "show_id2": False,
+            "instruction": desc or "Masukkan nomor meter atau ID pelanggan PLN Anda.",
+            "success_label": "No. Meter",
+        }
+
+    # Pulsa & Data
+    if raw_category in ("Pulsa", "Data", "Aktivasi Voucher"):
+        return {
+            "type": "phone",
+            "id_label": "Nomor HP",
+            "id_placeholder": "Contoh: 08123456789",
+            "id_required": True,
+            "show_id2": False,
+            "instruction": f"Masukkan nomor HP {brand} yang akan diisi pulsa/paket data.",
+            "success_label": "Nomor HP",
+        }
+
+    # E-Money (GoPay, OVO, Dana, ShopeePay)
+    if raw_category == "E-Money":
+        return {
+            "type": "phone",
+            "id_label": "Nomor HP / Akun",
+            "id_placeholder": "Masukkan nomor HP terdaftar",
+            "id_required": True,
+            "show_id2": False,
+            "instruction": desc if desc and desc != "-" else f"Masukkan nomor HP yang terdaftar di {brand}.",
+            "success_label": "Nomor HP",
+        }
+
+    # TV / Streaming
+    if raw_category in ("TV", "Streaming"):
+        return {
+            "type": "customer_id",
+            "id_label": "No. Pelanggan",
+            "id_placeholder": "Masukkan nomor pelanggan",
+            "id_required": True,
+            "show_id2": False,
+            "instruction": desc if desc and desc != "-" else "Masukkan nomor pelanggan Anda.",
+            "success_label": "No. Pelanggan",
+        }
+
+    # Gas
+    if raw_category == "Gas":
+        return {
+            "type": "customer_id",
+            "id_label": "No. Pelanggan",
+            "id_placeholder": "Masukkan nomor pelanggan gas",
+            "id_required": True,
+            "show_id2": False,
+            "instruction": "Masukkan nomor pelanggan Pertamina Gas.",
+            "success_label": "No. Pelanggan",
+        }
+
+    # Games - check if needs server ID
+    needs_server = any(k in desc_lower for k in ["server", "zone", "gabungan"])
+    hint = desc if desc and desc != "-" else "Masukkan User ID game Anda."
+
+    return {
+        "type": "game_id",
+        "id_label": "User ID",
+        "id_placeholder": "Masukkan User ID",
+        "id_required": True,
+        "show_id2": needs_server,
+        "id2_label": "Server / Zone ID",
+        "id2_placeholder": "Masukkan Server ID",
+        "instruction": hint,
+        "success_label": "User ID",
+    }
+
+
 @router.get("/pricing")
 async def get_all_pricing():
     """Get margin settings for all brands"""
