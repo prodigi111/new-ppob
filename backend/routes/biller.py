@@ -358,6 +358,11 @@ async def get_catalog():
     async for pr in _db.brand_pricing.find({}, {"_id": 0}):
         pricing_map[pr["brand"]] = pr
 
+    # Load brand active status
+    status_map = {}
+    async for bs in _db.brand_status.find({}, {"_id": 0}):
+        status_map[bs["brand"]] = bs.get("active", True)
+
     # Group by brand
     brands_map = {}
     for p in products:
@@ -366,6 +371,7 @@ async def get_catalog():
             raw_cat = p.get("category", "Games")
             mapped_cat = BRAND_CATEGORY_OVERRIDE.get(brand, CATEGORY_MAP.get(raw_cat, "games"))
             pr = pricing_map.get(brand, {})
+            is_active = status_map.get(brand, True)
             brands_map[brand] = {
                 "brand": brand,
                 "slug": brand.lower().replace(" ", "-").replace(":", ""),
@@ -373,6 +379,7 @@ async def get_catalog():
                 "category": mapped_cat,
                 "margin_type": pr.get("margin_type", "percent"),
                 "margin_value": pr.get("margin_value", 10),
+                "active": is_active,
                 "items": [],
             }
 
