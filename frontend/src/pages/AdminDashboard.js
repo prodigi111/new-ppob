@@ -429,7 +429,7 @@ export default function AdminDashboard() {
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="p-6 border-b border-border">
                 <h2 className="font-rajdhani font-semibold text-lg text-white uppercase">
-                  Semua Order
+                  Semua Order ({orders.length})
                 </h2>
               </div>
               <div className="overflow-x-auto">
@@ -438,9 +438,11 @@ export default function AdminDashboard() {
                     <TableRow className="border-border">
                       <TableHead className="text-muted-foreground">Order</TableHead>
                       <TableHead className="text-muted-foreground">Produk</TableHead>
-                      <TableHead className="text-muted-foreground">User ID</TableHead>
+                      <TableHead className="text-muted-foreground">Tujuan</TableHead>
                       <TableHead className="text-muted-foreground">Total</TableHead>
-                      <TableHead className="text-muted-foreground">Status</TableHead>
+                      <TableHead className="text-muted-foreground">Payment</TableHead>
+                      <TableHead className="text-muted-foreground">DigiFlazz</TableHead>
+                      <TableHead className="text-muted-foreground">SN / Voucher</TableHead>
                       <TableHead className="text-muted-foreground">Tanggal</TableHead>
                       <TableHead className="text-muted-foreground">Aksi</TableHead>
                     </TableRow>
@@ -448,36 +450,91 @@ export default function AdminDashboard() {
                   <TableBody>
                     {orders.map((order) => (
                       <TableRow key={order.id} className="border-border">
-                        <TableCell className="font-mono text-sm">{order.order_number}</TableCell>
                         <TableCell>
-                          <div>
-                            <p className="text-white">{order.product_name}</p>
-                            <p className="text-xs text-muted-foreground">{order.denomination_name}</p>
-                          </div>
+                          <p className="font-mono text-xs text-white">{order.order_number}</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-[120px]">{order.user_email}</p>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{order.game_user_id}</TableCell>
-                        <TableCell className="font-mono text-primary">{formatPrice(order.price)}</TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                            {getStatusText(order.status)}
+                          <p className="text-white text-sm">{order.product_name}</p>
+                          <p className="text-xs text-muted-foreground">{order.denomination_name}</p>
+                          {order.digiflazz_sku && <p className="text-xs font-mono text-muted-foreground">SKU: {order.digiflazz_sku}</p>}
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-mono text-xs text-white">{order.game_user_id}</p>
+                          {order.game_server_id && order.game_server_id !== 'null' && (
+                            <p className="text-xs text-muted-foreground">Server: {order.game_server_id}</p>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-primary text-sm">{formatPrice(order.price)}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${
+                            order.payment_status_code === '00' ? 'bg-green-500/20 text-green-400' :
+                            order.payment_status_code === '05' ? 'bg-red-500/20 text-red-400' :
+                            order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                            getStatusColor(order.status)
+                          }`}>
+                            {order.payment_status_code === '00' ? 'Paid' :
+                             order.payment_status_code === '05' ? 'Cancelled' :
+                             order.status === 'pending' ? 'Waiting' :
+                             getStatusText(order.status)}
                           </span>
+                          {order.payment_callback_channel && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{order.payment_callback_channel}</p>
+                          )}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell>
+                          {order.topup_status ? (
+                            <div>
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                order.topup_status === 'success' ? 'bg-green-500/20 text-green-400' :
+                                order.topup_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-red-500/20 text-red-400'
+                              }`}>
+                                {order.topup_status === 'success' ? 'Sukses' :
+                                 order.topup_status === 'pending' ? 'Pending' : 'Gagal'}
+                              </span>
+                              {order.topup_error && (
+                                <p className="text-xs text-red-400 mt-0.5 max-w-[140px] truncate" title={order.topup_error}>
+                                  {order.topup_error}
+                                </p>
+                              )}
+                              {order.digiflazz_message && order.topup_status === 'success' && (
+                                <p className="text-xs text-green-400 mt-0.5">{order.digiflazz_message}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {order.digiflazz_sn ? (
+                            <div className="flex items-center gap-1">
+                              <span className="font-mono text-xs text-green-400 max-w-[130px] truncate block" title={order.digiflazz_sn}>
+                                {order.digiflazz_sn}
+                              </span>
+                              <button onClick={() => { navigator.clipboard.writeText(order.digiflazz_sn); toast.success('SN disalin!'); }}
+                                className="text-muted-foreground hover:text-white p-0.5 flex-shrink-0">
+                                <Copy className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                           {formatDate(order.created_at)}
                         </TableCell>
                         <TableCell>
-                          <Select
-                            value={order.status}
-                            onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
-                          >
-                            <SelectTrigger className="w-32 h-8 bg-black/50 border-border text-xs">
+                          <Select value={order.status} onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}>
+                            <SelectTrigger className="w-28 h-7 bg-black/50 border-border text-xs">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="processing">Processing</SelectItem>
+                              <SelectItem value="paid">Paid</SelectItem>
                               <SelectItem value="completed">Completed</SelectItem>
                               <SelectItem value="failed">Failed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
