@@ -716,6 +716,10 @@ app.include_router(api_router)
 from routes.payment import router as payment_router
 app.include_router(payment_router, prefix="/api")
 
+# Include biller routes (DigiFlazz)
+from routes.biller import router as biller_router
+app.include_router(biller_router, prefix="/api")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
