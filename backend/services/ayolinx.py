@@ -18,8 +18,18 @@ from Crypto.Hash import SHA256
 AYOLINX_CLIENT_KEY = os.environ.get("AYOLINX_CLIENT_KEY", "")
 AYOLINX_CLIENT_SECRET = os.environ.get("AYOLINX_CLIENT_SECRET", "")
 AYOLINX_CUSTOMER_NO = os.environ.get("AYOLINX_CUSTOMER_NO", "")
-AYOLINX_PRIVATE_KEY = os.environ.get("AYOLINX_PRIVATE_KEY", "")
-AYOLINX_PUBLIC_KEY = os.environ.get("AYOLINX_PUBLIC_KEY", "")
+AYOLINX_PRIVATE_KEY_PATH = os.environ.get("AYOLINX_PRIVATE_KEY_PATH", "")
+AYOLINX_PUBLIC_KEY_PATH = os.environ.get("AYOLINX_PUBLIC_KEY_PATH", "")
+
+# Load keys from files
+def load_key_from_file(path: str) -> str:
+    if path and os.path.exists(path):
+        with open(path, 'r') as f:
+            return f.read()
+    return ""
+
+AYOLINX_PRIVATE_KEY = load_key_from_file(AYOLINX_PRIVATE_KEY_PATH)
+AYOLINX_PUBLIC_KEY = load_key_from_file(AYOLINX_PUBLIC_KEY_PATH)
 
 # API URLs
 SANDBOX_URL = "https://sandbox.ayolinx.id"
