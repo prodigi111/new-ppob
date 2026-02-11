@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   };
 
   const handleUpdateIcon = async (slug) => {
-    if (!iconUrl.trim()) return toast.error('Masukkan URL icon');
+    if (!iconUrl.trim()) return toast.error('Masukkan URL icon atau upload file');
     try {
       await axios.put(`${API_URL}/api/biller/catalog/${slug}/icon`, { icon: iconUrl });
       toast.success('Icon berhasil diupdate');
@@ -168,6 +168,28 @@ export default function AdminDashboard() {
       fetchData();
     } catch (error) {
       toast.error('Gagal update icon');
+    }
+  };
+
+  const handleUploadIcon = async (slug, file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await axios.post(`${API_URL}/api/upload/icon`, formData);
+      if (uploadRes.data.success) {
+        const fullUrl = `${API_URL}${uploadRes.data.url}`;
+        await axios.put(`${API_URL}/api/biller/catalog/${slug}/icon`, { icon: fullUrl });
+        toast.success('Icon berhasil diupload & diupdate');
+        setEditingIcon(null);
+        setIconUrl('');
+        fetchData();
+      }
+    } catch (error) {
+      toast.error('Gagal upload icon');
+    } finally {
+      setUploading(false);
     }
   };
 
