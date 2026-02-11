@@ -30,7 +30,9 @@ export default function Login() {
       const user = await login(email, password);
       toast.success(`Selamat datang, ${user.name}!`);
       
-      if (user.role === 'admin') {
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else if (user.role === 'admin') {
         navigate('/admin');
       } else if (user.role === 'reseller') {
         navigate('/reseller/dashboard');
