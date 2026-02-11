@@ -48,6 +48,14 @@ VA_CHANNELS = {
     "cimb": "VIRTUAL_ACCOUNT_CIMB",
 }
 
+# PartnerServiceId per channel (sandbox values)
+VA_PARTNER_SERVICE_ID = {
+    "bni": "98829172",
+    "bri": "15573",
+    "mandiri": "87319",
+    "cimb": "2056",
+}
+
 class AyolinxService:
     def __init__(self):
         self.client_key = AYOLINX_CLIENT_KEY
