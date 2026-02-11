@@ -323,11 +323,7 @@ async def get_catalog():
 
 @router.get("/catalog/{brand_slug}")
 async def get_brand_products(brand_slug: str):
-    """
-    Return all active products for a specific brand.
-    Frontend uses this for the product detail / denomination page.
-    """
-    # Reconstruct brand name from slug
+    """Return all active products for a specific brand."""
     all_brands = await _db.digiflazz_products.distinct("brand")
     brand_name = None
     for b in all_brands:
@@ -343,11 +339,15 @@ async def get_brand_products(brand_slug: str):
         {"_id": 0},
     ).sort("price", 1).to_list(100)
 
+    # Check for custom icon
+    custom = await _db.brand_icons.find_one({"brand": brand_name}, {"_id": 0})
+    image = (custom or {}).get("icon") or BRAND_IMAGES.get(brand_name, f"https://ui-avatars.com/api/?name={brand_name[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5")
+
     return {
         "success": True,
         "brand": brand_name,
         "slug": brand_slug,
-        "image": BRAND_IMAGES.get(brand_name, f"https://ui-avatars.com/api/?name={brand_name[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
+        "image": image,
         "products": [{
             "sku": p.get("buyer_sku_code"),
             "name": p.get("product_name"),
@@ -355,3 +355,27 @@ async def get_brand_products(brand_slug: str):
             "desc": p.get("desc", ""),
         } for p in products],
     }
+
+
+@router.put("/catalog/{brand_slug}/icon")
+async def update_brand_icon(brand_slug: str, payload: dict):
+    """Update icon URL for a brand. Body: { "icon": "https://..." }"""
+    icon_url = payload.get("icon", "").strip()
+    if not icon_url:
+        raise HTTPException(status_code=400, detail="icon URL required")
+
+    all_brands = await _db.digiflazz_products.distinct("brand")
+    brand_name = None
+    for b in all_brands:
+        if b.lower().replace(" ", "-").replace(":", "") == brand_slug:
+            brand_name = b
+            break
+    if not brand_name:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    await _db.brand_icons.update_one(
+        {"brand": brand_name},
+        {"$set": {"brand": brand_name, "slug": brand_slug, "icon": icon_url}},
+        upsert=True,
+    )
+    return {"success": True, "brand": brand_name, "icon": icon_url}
