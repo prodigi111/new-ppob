@@ -426,7 +426,6 @@ export default function DigiFlazzProduct() {
   }
 
   // ==================== FORM ====================
-  const CatIcon = cfg.icon;
 
   return (
     <div className="min-h-screen pt-16">
