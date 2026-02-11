@@ -299,11 +299,13 @@ async def get_catalog():
     for p in products:
         brand = p.get("brand", "Other")
         if brand not in brands_map:
+            raw_cat = p.get("category", "Games")
+            mapped_cat = BRAND_CATEGORY_OVERRIDE.get(brand, CATEGORY_MAP.get(raw_cat, "games"))
             brands_map[brand] = {
                 "brand": brand,
                 "slug": brand.lower().replace(" ", "-").replace(":", ""),
                 "image": BRAND_IMAGES.get(brand, f"https://ui-avatars.com/api/?name={brand[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
-                "category": p.get("category", "Games"),
+                "category": mapped_cat,
                 "items": [],
             }
         brands_map[brand]["items"].append({
