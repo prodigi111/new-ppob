@@ -742,6 +742,32 @@ async def seed_data():
 async def root():
     return {"message": "VoucherVerse API v1.0"}
 
+# ===================== FILE UPLOAD =====================
+
+UPLOAD_DIR = Path(__file__).parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+@api_router.post("/upload/icon")
+async def upload_icon(file: UploadFile = File(...)):
+    """Upload an image file and return its URL"""
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "png"
+    if ext not in ("png", "jpg", "jpeg", "webp", "gif", "svg"):
+        raise HTTPException(status_code=400, detail="Format file tidak didukung")
+
+    filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+    filepath = UPLOAD_DIR / filename
+
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File terlalu besar (max 5MB)")
+
+    with open(filepath, "wb") as f:
+        f.write(contents)
+
+    backend_url = os.environ.get("BACKEND_URL", "")
+    url = f"/api/static/uploads/{filename}"
+    return {"success": True, "url": url, "filename": filename}
+
 # Include the router
 app.include_router(api_router)
 
@@ -752,6 +778,9 @@ app.include_router(payment_router, prefix="/api")
 # Include biller routes (DigiFlazz)
 from routes.biller import router as biller_router
 app.include_router(biller_router, prefix="/api")
+
+# Serve uploaded files
+app.mount("/api/static/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
