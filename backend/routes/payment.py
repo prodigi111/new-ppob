@@ -59,6 +59,15 @@ class PaymentResponse(BaseModel):
 async def create_payment(request: CreatePaymentRequest):
     """Create a new payment transaction (VA / QRIS / Payment Link)"""
     try:
+        # Store DigiFlazz fields FIRST (before Ayolinx call)
+        if request.digiflazz_sku or request.customer_game_id:
+            pre_update = {}
+            if request.digiflazz_sku:
+                pre_update["digiflazz_sku"] = request.digiflazz_sku
+            if request.customer_game_id:
+                pre_update["digiflazz_customer_no"] = request.customer_game_id
+            await _db.orders.update_one({"id": request.order_id}, {"$set": pre_update})
+
         if request.payment_method == "va":
             result = await ayolinx_service.create_virtual_account(
                 order_id=request.order_id,
