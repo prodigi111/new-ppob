@@ -470,6 +470,13 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell className="font-mono text-primary text-sm">{formatPrice(order.price)}</TableCell>
                         <TableCell>
+                          {order.payment_ayolinx_ref ? (
+                            <span className="font-mono text-xs text-gray-300 max-w-[100px] truncate block" title={order.payment_ayolinx_ref}>
+                              {order.payment_ayolinx_ref.substring(0, 12)}...
+                            </span>
+                          ) : <span className="text-xs text-muted-foreground">-</span>}
+                        </TableCell>
+                        <TableCell>
                           <span className={`px-2 py-0.5 text-xs rounded-full ${
                             order.payment_status_code === '00' ? 'bg-green-500/20 text-green-400' :
                             order.payment_status_code === '05' ? 'bg-red-500/20 text-red-400' :
