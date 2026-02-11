@@ -50,8 +50,6 @@ export const Footer = () => {
 
         {/* Payment Methods */}
         <div className="border-t border-border mt-8 pt-6">
-          <p className="text-xs text-muted-foreground mb-3">Metode Pembayaran</p>
-          <PaymentBadges size="md" />
         </div>
 
         <div className="border-t border-border mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
