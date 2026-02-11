@@ -162,6 +162,76 @@ export default function DigiFlazzProduct() {
 
   if (!brand) return null;
 
+  // ==================== SUCCESS STEP ====================
+  if (paymentStep === 'success') {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="max-w-lg mx-auto px-4 text-center">
+          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-green-500" />
+          </div>
+          <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">
+            Pembayaran Berhasil!
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            Top-up sedang diproses. Terima kasih telah menggunakan BlazeStore.
+          </p>
+
+          <div className="bg-card rounded-xl p-6 border border-border mb-6 text-left">
+            <div className="flex items-center gap-3 mb-4">
+              <img src={brand?.image} alt={brand?.brand} className="w-12 h-12 rounded-lg object-cover" />
+              <div>
+                <p className="font-medium text-white">{brand?.brand}</p>
+                <p className="text-sm text-primary">{selectedSku?.name}</p>
+              </div>
+            </div>
+            <div className="space-y-3 border-t border-border pt-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">User ID</span>
+                <span className="font-mono text-white">{userId}{serverId ? ` (${serverId})` : ''}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Status Pembayaran</span>
+                <span className="text-green-500 font-medium">Berhasil</span>
+              </div>
+              {orderStatus?.topup_status && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Status Top-up</span>
+                  <span className={`font-medium ${orderStatus.topup_status === 'success' ? 'text-green-500' : 'text-yellow-500'}`}>
+                    {orderStatus.topup_status === 'success' ? 'Berhasil' : orderStatus.topup_status === 'pending' ? 'Diproses' : orderStatus.topup_status}
+                  </span>
+                </div>
+              )}
+              {orderStatus?.digiflazz_sn && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Serial Number</span>
+                  <span className="font-mono text-white">{orderStatus.digiflazz_sn}</span>
+                </div>
+              )}
+            </div>
+            <div className="border-t border-border mt-4 pt-4 flex justify-between items-center">
+              <span className="text-gray-400">Total</span>
+              <span className="font-mono text-xl font-bold text-green-500">
+                Rp {selectedSku?.price?.toLocaleString('id-ID')}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1 border-border text-white hover:bg-white/5"
+              onClick={() => navigate('/track')}>
+              Cek Transaksi
+            </Button>
+            <Button className="flex-1 bg-primary hover:bg-primary/90 text-white"
+              onClick={() => navigate('/')}>
+              Kembali ke Home
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ==================== PAYING STEP ====================
   if (paymentStep === 'paying' && paymentData) {
     const isVA = paymentData.payment_method === 'virtual_account';
