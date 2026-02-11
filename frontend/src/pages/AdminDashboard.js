@@ -86,7 +86,7 @@ export default function AdminDashboard() {
         axios.get(`${API_URL}/api/admin/orders`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/products`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/reseller-applications`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`${API_URL}/api/biller/catalog`),
+        axios.get(`${API_URL}/api/biller/catalog?show_all=true`),
       ]);
       setDashboard(dashboardRes.data);
       setUsers(usersRes.data.users);
