@@ -345,6 +345,10 @@ export default function AdminDashboard() {
               <UserPlus className="w-4 h-4 mr-2" />
               Reseller
             </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
