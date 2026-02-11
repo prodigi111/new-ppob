@@ -300,6 +300,21 @@ export default function AdminDashboard() {
 
   if (!user || user.role !== 'admin') return null;
 
+  const CopyId = ({ label, value, color = 'text-gray-300' }) => {
+    if (!value) return null;
+    const short = value.length > 16 ? value.substring(0, 14) + '...' : value;
+    return (
+      <div className="flex items-center gap-1 mb-0.5">
+        <span className="text-xs text-muted-foreground">{label}:</span>
+        <span className={`font-mono text-xs ${color} truncate max-w-[110px]`} title={value}>{short}</span>
+        <button onClick={() => { navigator.clipboard.writeText(value); toast.success(`${label} ID disalin!`); }}
+          className="text-muted-foreground hover:text-primary p-0.5 flex-shrink-0">
+          <Copy className="w-2.5 h-2.5" />
+        </button>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
