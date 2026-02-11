@@ -250,16 +250,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Payment Methods */}
-      <section className="py-8 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">Metode Pembayaran</p>
-          <div className="flex justify-center">
-            <PaymentBadges size="lg" />
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
