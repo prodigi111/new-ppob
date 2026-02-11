@@ -290,6 +290,31 @@ async def set_brand_pricing(brand_slug: str, payload: dict):
     )
     return {"success": True, "brand": brand_name, "margin_type": margin_type, "margin_value": margin_value}
 
+
+@router.put("/catalog/{brand_slug}/status")
+async def toggle_brand_status(brand_slug: str, payload: dict):
+    """
+    Toggle brand active/inactive. Body: { "active": true/false }
+    Inactive brands are hidden from customers on homepage.
+    """
+    active = payload.get("active", True)
+
+    all_brands = await _db.digiflazz_products.distinct("brand")
+    brand_name = None
+    for b in all_brands:
+        if b.lower().replace(" ", "-").replace(":", "") == brand_slug:
+            brand_name = b
+            break
+    if not brand_name:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    await _db.brand_status.update_one(
+        {"brand": brand_name},
+        {"$set": {"brand": brand_name, "slug": brand_slug, "active": active}},
+        upsert=True,
+    )
+    return {"success": True, "brand": brand_name, "active": active}
+
 @router.post("/catalog/sync")
 async def sync_catalog():
     """Fetch ALL DigiFlazz prepaid products and cache in MongoDB"""
