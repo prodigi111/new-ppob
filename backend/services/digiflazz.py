@@ -118,24 +118,38 @@ class DigiFlazzService:
                 
                 data = response.json()
                 
+                # Check if data is a list (success) or dict (error/rate limit)
                 if "data" in data:
-                    products = data["data"]
+                    products_data = data["data"]
                     
-                    # Filter by category if specified
-                    if category:
-                        products = [p for p in products if category.lower() in p.get("category", "").lower()]
+                    # Handle error responses (dict with rc/message)
+                    if isinstance(products_data, dict):
+                        if products_data.get("rc") or products_data.get("message"):
+                            return {
+                                "success": False,
+                                "error": products_data.get("message", "Unknown error"),
+                                "raw_response": data
+                            }
                     
-                    return {
-                        "success": True,
-                        "total": len(products),
-                        "products": products,
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": data.get("message", "Unknown error"),
-                        "raw_response": data
-                    }
+                    # Handle successful response (list of products)
+                    if isinstance(products_data, list):
+                        products = products_data
+                        
+                        # Filter by category if specified
+                        if category:
+                            products = [p for p in products if isinstance(p, dict) and category.lower() in p.get("category", "").lower()]
+                        
+                        return {
+                            "success": True,
+                            "total": len(products),
+                            "products": products,
+                        }
+                    
+                return {
+                    "success": False,
+                    "error": "Unexpected response format",
+                    "raw_response": data
+                }
         except Exception as e:
             print(f"Error getting price list: {e}")
             return {"success": False, "error": str(e)}
