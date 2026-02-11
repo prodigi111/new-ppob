@@ -265,6 +265,8 @@ class DigiFlazzService:
             game_products = []
             
             for p in products:
+                if not isinstance(p, dict):
+                    continue
                 product_name = (p.get("product_name", "") + " " + p.get("brand", "")).lower()
                 if any(keyword in product_name for keyword in game_keywords):
                     game_products.append(p)
