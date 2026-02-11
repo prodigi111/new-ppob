@@ -764,20 +764,40 @@ async def update_cms_page(page_slug: str, payload: dict, user: dict = Depends(ge
 
 # ===================== PAYMENT METHOD ICONS =====================
 
+PAYMENT_METHODS_LIST = [
+    {"code": "qris", "name": "QRIS"},
+    {"code": "bca", "name": "BCA Virtual Account"},
+    {"code": "bni", "name": "BNI Virtual Account"},
+    {"code": "bri", "name": "BRI Virtual Account"},
+    {"code": "mandiri", "name": "Mandiri Virtual Account"},
+    {"code": "permata", "name": "Permata Virtual Account"},
+    {"code": "cimb", "name": "CIMB Niaga Virtual Account"},
+]
+
 @api_router.get("/payment-icons")
 async def get_payment_icons():
-    """Get all payment method icons"""
-    icons = await db.payment_icons.find({}, {"_id": 0}).to_list(20)
-    return {"icons": icons}
+    """Get all payment method icons (with defaults)"""
+    saved = {}
+    async for ic in db.payment_icons.find({}, {"_id": 0}):
+        saved[ic["code"]] = ic.get("icon", "")
+    result = []
+    for pm in PAYMENT_METHODS_LIST:
+        result.append({**pm, "icon": saved.get(pm["code"], "")})
+    return {"icons": result}
 
-@api_router.put("/payment-icons")
-async def update_payment_icons(payload: dict, user: dict = Depends(get_admin_user)):
-    """Update payment method icons. Body: { "icons": [{"name":"QRIS","url":"..."},{"name":"BCA","url":"..."}] }"""
-    icons = payload.get("icons", [])
-    await db.payment_icons.delete_many({})
-    if icons:
-        await db.payment_icons.insert_many([{**ic} for ic in icons])
-    return {"success": True}
+@api_router.put("/payment-icons/{code}")
+async def update_payment_icon(code: str, payload: dict, user: dict = Depends(get_admin_user)):
+    """Update icon for a single payment method. Body: { "icon": "https://..." }"""
+    icon_url = payload.get("icon", "").strip()
+    valid_codes = [pm["code"] for pm in PAYMENT_METHODS_LIST]
+    if code not in valid_codes:
+        raise HTTPException(status_code=404, detail="Payment method not found")
+    await db.payment_icons.update_one(
+        {"code": code},
+        {"$set": {"code": code, "icon": icon_url}},
+        upsert=True,
+    )
+    return {"success": True, "code": code, "icon": icon_url}
 
 # ===================== FILE UPLOAD =====================
 
