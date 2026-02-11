@@ -335,31 +335,14 @@ class AyolinxService:
             return {"success": False, "error": str(e)}
     
     def verify_callback_signature(self, signature: str, method: str, url: str, body: str, timestamp: str) -> bool:
-        """
-        Verify callback signature from Ayolinx
-        
-        Args:
-            signature: X-SIGNATURE from header
-            method: HTTP method
-            url: Request URL path
-            body: Raw request body
-            timestamp: X-TIMESTAMP from header
-        
-        Returns:
-            True if signature is valid
-        """
+        """Verify callback signature from Ayolinx (METHOD:URL:BODYHASH:TIMESTAMP)"""
         if not self.public_key:
-            # Skip verification in test mode
             return True
         
         try:
-            # Hash the body
-            body_hash = hashlib.sha256(body.encode('utf-8')).hexdigest().lower()
-            
-            # String to verify
+            body_hash = hashlib.sha256(body.encode('utf-8')).hexdigest()
             string_to_verify = f"{method}:{url}:{body_hash}:{timestamp}"
             
-            # Verify with public key
             key = RSA.import_key(self.public_key)
             h = SHA256.new(string_to_verify.encode('utf-8'))
             
@@ -371,6 +354,87 @@ class AyolinxService:
         except Exception as e:
             print(f"Error verifying callback signature: {e}")
             return False
+
+    async def create_payment_link(
+        self,
+        order_id: str,
+        amount: float,
+        customer_name: str,
+        customer_email: str,
+        customer_phone: str,
+        item_name: str,
+        channels: list = None,
+        callback_url: str = ""
+    ) -> Dict[str, Any]:
+        """Create a Payment Link for hosted checkout"""
+        token = await self.get_access_token()
+        if not token:
+            return {"success": False, "error": "Failed to get access token"}
+        
+        timestamp = self._get_timestamp()
+        external_id = self._generate_external_id()
+        
+        if channels is None:
+            channels = ["VIRTUAL_ACCOUNT_BNI", "BNC_QRIS"]
+        
+        body = {
+            "partnerReferenceNo": order_id,
+            "customerName": customer_name,
+            "customerEmail": customer_email,
+            "customerPhoneNumber": customer_phone,
+            "customerPhoneNumberCountryCode": "+62",
+            "listItem": [{"name": item_name, "price": str(int(amount)), "qty": "1"}],
+            "listPaymentChannel": channels,
+            "description": f"BlazeStore - {item_name}",
+            "expiryTime": (datetime.now(timezone(timedelta(hours=7))) + timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%S+07:00"),
+            "urlParams": [{"type": "NOTIFICATION", "url": callback_url}] if callback_url else []
+        }
+        
+        url = "/v1.0/payment-link/create"
+        body_str = json.dumps(body, separators=(',', ':'))
+        signature = self._sign_for_api("POST", url, body_str, token, timestamp)
+        
+        headers = {
+            "Content-Type": "application/json",
+            "X-TIMESTAMP": timestamp,
+            "X-SIGNATURE": signature,
+            "X-PARTNER-ID": self.client_key,
+            "X-EXTERNAL-ID": external_id,
+            "CHANNEL-ID": "H2H",
+            "Authorization": f"Bearer {token}",
+        }
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}{url}",
+                    content=body_str.encode('utf-8'),
+                    headers=headers,
+                    timeout=30.0
+                )
+                
+                data = response.json()
+                
+                if data.get("responseCode") == "2000100":
+                    return {
+                        "success": True,
+                        "payment_method": "payment_link",
+                        "payment_link": data.get("paymentLink"),
+                        "order_id": order_id,
+                        "partner_reference": data.get("partnerReferenceNo"),
+                        "expired_at": data.get("expiryDate"),
+                        "raw_response": data
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "error": data.get("responseMessage", "Unknown error"),
+                        "response_code": data.get("responseCode"),
+                        "raw_response": data
+                    }
+        except Exception as e:
+            print(f"Error creating payment link: {e}")
+            return {"success": False, "error": str(e)}
 
 
 # Singleton instance
