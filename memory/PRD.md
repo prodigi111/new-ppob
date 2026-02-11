@@ -58,8 +58,8 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - [x] Custom brand assets (Logo + Mascots)
 - [x] Ayolinx payment integration (VA + QRIS + Payment Link)
 - [x] DigiFlazz biller integration
+- [x] Frontend connected to DigiFlazz catalog (cached)
 - [ ] Google OAuth login
-- [ ] Connect Frontend to Biller API
 - [ ] Email notifications
 
 ## Key API Endpoints
