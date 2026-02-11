@@ -97,7 +97,7 @@ export default function ResellerDashboard() {
   const [previewDevice, setPreviewDevice] = useState('desktop');
 
   useEffect(() => {
-    if (loading) return;
+    if (authLoading) return;
     if (!user) {
       navigate('/login?redirect=/reseller/dashboard');
       return;
