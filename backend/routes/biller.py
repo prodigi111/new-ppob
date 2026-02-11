@@ -526,11 +526,16 @@ async def get_brand_products(brand_slug: str):
     mt = pr.get("margin_type", "percent")
     mv = pr.get("margin_value", 10)
 
+    # Determine category
+    raw_cat = products[0].get("category", "Games") if products else "Games"
+    category = BRAND_CATEGORY_OVERRIDE.get(brand_name, CATEGORY_MAP.get(raw_cat, "games"))
+
     return {
         "success": True,
         "brand": brand_name,
         "slug": brand_slug,
         "image": image,
+        "category": category,
         "margin_type": mt,
         "margin_value": mv,
         "products": [{
