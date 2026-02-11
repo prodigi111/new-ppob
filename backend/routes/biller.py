@@ -107,6 +107,8 @@ async def process_topup(request: TopupRequest):
         testing=True  # Set to False for production
     )
     
+    print(f"[Route] Topup result - success: {result.get('success')}, pending: {result.get('pending')}, status: {result.get('status')}")
+    
     if result.get("success"):
         return TopupResponse(
             success=True,
