@@ -454,8 +454,8 @@ export default function AdminDashboard() {
                     {orders.map((order) => (
                       <TableRow key={order.id} className="border-border">
                         <TableCell>
-                          <p className="font-mono text-xs text-white">{order.order_number}</p>
-                          <p className="text-xs text-muted-foreground truncate max-w-[120px]">{order.user_email}</p>
+                          <CopyId label="Order" value={order.order_number} />
+                          <p className="text-xs text-muted-foreground truncate max-w-[130px]">{order.user_email}</p>
                         </TableCell>
                         <TableCell>
                           <p className="text-white text-sm">{order.product_name}</p>
@@ -470,11 +470,8 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell className="font-mono text-primary text-sm">{formatPrice(order.price)}</TableCell>
                         <TableCell>
-                          {order.payment_ayolinx_ref ? (
-                            <span className="font-mono text-xs text-gray-300 max-w-[100px] truncate block" title={order.payment_ayolinx_ref}>
-                              {order.payment_ayolinx_ref.substring(0, 12)}...
-                            </span>
-                          ) : <span className="text-xs text-muted-foreground">-</span>}
+                          <CopyId label="Merchant" value={order.id} />
+                          {order.payment_ayolinx_ref && <CopyId label="Ayolinx" value={order.payment_ayolinx_ref} />}
                         </TableCell>
                         <TableCell>
                           <span className={`px-2 py-0.5 text-xs rounded-full ${
