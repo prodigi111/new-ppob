@@ -282,8 +282,9 @@ class AyolinxService:
                 "value": f"{amount:.2f}",
                 "currency": "IDR"
             },
-            "merchantId": self.customer_no,
-            "terminalId": "001",
+            "additionalInfo": {
+                "channel": "BNC_QRIS"
+            }
         }
         
         url = "/v1.0/qr/qr-mpm-generate"
