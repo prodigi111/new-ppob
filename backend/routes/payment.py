@@ -99,17 +99,13 @@ async def create_payment(request: CreatePaymentRequest):
         if result.get("success"):
             data = {k: v for k, v in result.items() if k != "raw_response"}
 
-            # Store payment info + DigiFlazz SKU in order for auto top-up
+            # Store payment info in order
             update_doc = {
                 "payment_gateway": "ayolinx",
                 "payment_method_detail": request.payment_method,
                 "payment_channel": request.va_channel if request.payment_method == "va" else request.payment_method,
                 "payment_data": data,
             }
-            if request.digiflazz_sku:
-                update_doc["digiflazz_sku"] = request.digiflazz_sku
-            if request.customer_game_id:
-                update_doc["digiflazz_customer_no"] = request.customer_game_id
 
             await _db.orders.update_one(
                 {"id": request.order_id},
