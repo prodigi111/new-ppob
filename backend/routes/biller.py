@@ -4,10 +4,35 @@ DigiFlazz Biller Routes
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
+from motor.motor_asyncio import AsyncIOMotorClient
 import uuid
+import os
+import logging
 
 from services.digiflazz import digiflazz_service
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/biller", tags=["Biller"])
+
+# DB access
+_client = AsyncIOMotorClient(os.environ['MONGO_URL'])
+_db = _client[os.environ['DB_NAME']]
+
+# Brand image mapping for popular games
+BRAND_IMAGES = {
+    "MOBILE LEGENDS": "https://play-lh.googleusercontent.com/Dz0-CSP7GEYdN1GVklYnyYSaVp4oYrRQxjofLOjIYEOjMb3yGQsJGMaU2KsnGC6CjyI=w240-h480-rw",
+    "FREE FIRE": "https://play-lh.googleusercontent.com/sE68bCHL7RZ9iMNSRFhvk4t_2MFbJcAfRYTNsXZ_LIBhqwdeelOPKPaAA5avnFa6ng=w240-h480-rw",
+    "PUBG MOBILE": "https://play-lh.googleusercontent.com/JRd05pyBH41qjgsJuWduRJpDeZG0Hnb0yjf2nWqO7VaGKL10-G5UIygxED-WNOc3pg=w240-h480-rw",
+    "GENSHIN IMPACT": "https://play-lh.googleusercontent.com/nca-yl_JpVMFEo7MXSV-ZMYRhFzNkJz9YtanYi9Xf7x_5bJ1pUZIlno7gSa3lFFP0c=w240-h480-rw",
+    "VALORANT": "https://ui-avatars.com/api/?name=VAL&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
+    "HONKAI STAR RAIL": "https://ui-avatars.com/api/?name=HSR&background=9333EA&color=fff&size=200&bold=true&font-size=0.4",
+    "CALL OF DUTY": "https://ui-avatars.com/api/?name=COD&background=1a1a1a&color=fff&size=200&bold=true&font-size=0.4",
+    "ARENA OF VALOR": "https://ui-avatars.com/api/?name=AOV&background=0066cc&color=fff&size=200&bold=true&font-size=0.4",
+    "RAGNAROK": "https://ui-avatars.com/api/?name=RO&background=663399&color=fff&size=200&bold=true&font-size=0.4",
+    "POINT BLANK": "https://ui-avatars.com/api/?name=PB&background=cc3300&color=fff&size=200&bold=true&font-size=0.4",
+}
 
 router = APIRouter(prefix="/biller", tags=["Biller"])
 
