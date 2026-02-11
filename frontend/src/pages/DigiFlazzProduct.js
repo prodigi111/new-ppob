@@ -60,8 +60,6 @@ export default function DigiFlazzProduct() {
   const [paymentStep, setPaymentStep] = useState('form');
   const [orderStatus, setOrderStatus] = useState(null);
 
-  const cfg = CAT_CONFIG[category] || CAT_CONFIG.games;
-
   useEffect(() => { fetchBrand(); }, [brandSlug]);
   useEffect(() => { if (user?.email) setEmail(user.email); }, [user]);
 
