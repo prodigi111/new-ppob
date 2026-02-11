@@ -74,6 +74,10 @@ export default function DigiFlazzProduct() {
         setOrderStatus(s);
         if (s.status === 'paid' || s.status === 'completed') {
           setPaymentStep('success');
+          // Keep polling on success page to get SN from DigiFlazz webhook
+          if (s.status !== 'completed' || !s.digiflazz_sn) {
+            if (active) setTimeout(poll, 5000);
+          }
           return;
         }
       } catch {}
