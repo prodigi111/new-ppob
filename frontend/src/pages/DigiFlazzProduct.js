@@ -7,16 +7,8 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import {
-  ChevronLeft,
-  Zap,
-  AlertCircle,
-  QrCode,
-  Building2,
-  Loader2,
-  Copy,
-  Clock,
-  CheckCircle2,
-  RefreshCw,
+  ChevronLeft, Zap, AlertCircle, QrCode, Building2, Loader2,
+  Copy, Clock, CheckCircle2, RefreshCw, Phone, Gamepad2, ShoppingBag,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { PaymentBadges } from '../components/PaymentBadges';
@@ -36,6 +28,36 @@ const BANK_INFO = {
   mandiri: { name: 'Mandiri', color: '#003366' },
 };
 
+// Category-based config
+const CAT_CONFIG = {
+  games: {
+    icon: Gamepad2,
+    idLabel: 'User ID',
+    idPlaceholder: 'Masukkan User ID',
+    id2Label: 'Server / Zone ID',
+    id2Placeholder: 'Masukkan Server ID',
+    showId2: true,
+    instruction: 'Masukkan User ID dan Server/Zone ID sesuai akun game Anda.',
+    successLabel: 'User ID',
+  },
+  pulsa: {
+    icon: Phone,
+    idLabel: 'Nomor HP',
+    idPlaceholder: 'Contoh: 08123456789',
+    showId2: false,
+    instruction: 'Masukkan nomor HP yang akan diisi pulsa/paket data.',
+    successLabel: 'Nomor HP',
+  },
+  voucher: {
+    icon: ShoppingBag,
+    idLabel: 'Nomor Pelanggan / Meter',
+    idPlaceholder: 'Masukkan nomor pelanggan',
+    showId2: false,
+    instruction: 'Masukkan nomor pelanggan atau ID akun tujuan. Untuk voucher digital, kode akan dikirim setelah pembayaran.',
+    successLabel: 'Nomor Tujuan',
+  },
+};
+
 export default function DigiFlazzProduct() {
   const { brandSlug } = useParams();
   const navigate = useNavigate();
@@ -43,6 +65,7 @@ export default function DigiFlazzProduct() {
 
   const [brand, setBrand] = useState(null);
   const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState('games');
   const [loading, setLoading] = useState(true);
   const [selectedSku, setSelectedSku] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -51,31 +74,27 @@ export default function DigiFlazzProduct() {
   const [email, setEmail] = useState(user?.email || '');
   const [submitting, setSubmitting] = useState(false);
 
-  // Payment state
   const [paymentData, setPaymentData] = useState(null);
-  const [paymentStep, setPaymentStep] = useState('form'); // form | paying | success
+  const [paymentStep, setPaymentStep] = useState('form');
   const [orderStatus, setOrderStatus] = useState(null);
 
-  useEffect(() => {
-    fetchBrand();
-  }, [brandSlug]);
+  const cfg = CAT_CONFIG[category] || CAT_CONFIG.games;
 
+  useEffect(() => { fetchBrand(); }, [brandSlug]);
   useEffect(() => { if (user?.email) setEmail(user.email); }, [user]);
 
-  // Poll payment status when in "paying" step
+  // Poll payment status
   useEffect(() => {
     if (paymentStep !== 'paying' || !paymentData?.orderId) return;
     let active = true;
     const poll = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/payment/status/${paymentData.orderId}`);
-        const s = res.data;
         if (!active) return;
-        setOrderStatus(s);
-        if (s.status === 'paid' || s.status === 'completed') {
+        setOrderStatus(res.data);
+        if (res.data.status === 'paid' || res.data.status === 'completed') {
           setPaymentStep('success');
-          // Keep polling on success page to get SN from DigiFlazz webhook
-          if (s.status !== 'completed' || !s.digiflazz_sn) {
+          if (res.data.status !== 'completed' || !res.data.digiflazz_sn) {
             if (active) setTimeout(poll, 5000);
           }
           return;
@@ -83,11 +102,11 @@ export default function DigiFlazzProduct() {
       } catch {}
       if (active) setTimeout(poll, 4000);
     };
-    const timer = setTimeout(poll, 4000);
-    return () => { active = false; clearTimeout(timer); };
+    setTimeout(poll, 4000);
+    return () => { active = false; };
   }, [paymentStep, paymentData?.orderId]);
 
-  // Keep polling on success page for SN updates from DigiFlazz webhook
+  // Keep polling on success for SN
   useEffect(() => {
     if (paymentStep !== 'success' || !paymentData?.orderId) return;
     if (orderStatus?.digiflazz_sn && orderStatus?.status === 'completed') return;
@@ -101,8 +120,8 @@ export default function DigiFlazzProduct() {
       } catch {}
       if (active) setTimeout(poll, 5000);
     };
-    const timer = setTimeout(poll, 3000);
-    return () => { active = false; clearTimeout(timer); };
+    setTimeout(poll, 3000);
+    return () => { active = false; };
   }, [paymentStep, paymentData?.orderId, orderStatus?.digiflazz_sn]);
 
   const fetchBrand = async () => {
@@ -110,6 +129,7 @@ export default function DigiFlazzProduct() {
       const res = await axios.get(`${API_URL}/api/biller/catalog/${brandSlug}`);
       setBrand(res.data);
       setProducts(res.data.products || []);
+      setCategory(res.data.category || 'games');
     } catch {
       toast.error('Produk tidak ditemukan');
       navigate('/');
@@ -122,12 +142,11 @@ export default function DigiFlazzProduct() {
     e.preventDefault();
     if (!selectedSku) return toast.error('Pilih item terlebih dahulu');
     if (!selectedPayment) return toast.error('Pilih metode pembayaran');
-    if (!userId) return toast.error('Masukkan User ID');
+    if (!userId) return toast.error(`Masukkan ${cfg.idLabel}`);
     if (!email) return toast.error('Masukkan email');
 
     setSubmitting(true);
     try {
-      // 1. Create order for DigiFlazz product
       const orderRes = await axios.post(`${API_URL}/api/orders/digiflazz`, {
         brand: brand.brand,
         sku_code: selectedSku.sku,
@@ -138,10 +157,8 @@ export default function DigiFlazzProduct() {
         payment_method: selectedPayment.id,
         price: selectedSku.price,
       });
-
       const orderId = orderRes.data.order.id;
 
-      // 2. Create payment via Ayolinx (with DigiFlazz SKU for auto top-up)
       const isQris = selectedPayment.id === 'qris';
       const payRes = await axios.post(`${API_URL}/api/payment/create`, {
         order_id: orderId,
@@ -152,7 +169,7 @@ export default function DigiFlazzProduct() {
         va_channel: selectedPayment.channel || 'bni',
         item_name: `${brand?.brand} - ${selectedSku.name}`,
         digiflazz_sku: selectedSku.sku,
-        customer_game_id: serverId ? `${userId}${serverId}` : userId,
+        customer_game_id: cfg.showId2 && serverId ? `${userId}${serverId}` : userId,
       });
 
       if (payRes.data.success) {
@@ -185,20 +202,54 @@ export default function DigiFlazzProduct() {
 
   if (!brand) return null;
 
-  // ==================== SUCCESS STEP ====================
+  // ==================== SUCCESS ====================
   if (paymentStep === 'success') {
+    const isVoucher = category === 'voucher';
+    const hasSn = orderStatus?.digiflazz_sn;
+    const topupDone = orderStatus?.topup_status === 'success';
+
     return (
       <div className="min-h-screen pt-24 pb-12">
         <div className="max-w-lg mx-auto px-4 text-center">
           <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-green-500" />
           </div>
-          <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">
-            Pembayaran Berhasil!
-          </h1>
+          <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">Pembayaran Berhasil!</h1>
           <p className="text-muted-foreground mb-8">
-            Top-up sedang diproses. Terima kasih telah menggunakan BlazeStore.
+            {isVoucher && !hasSn ? 'Kode voucher sedang diproses...' :
+             category === 'pulsa' ? 'Pulsa sedang dikirim ke nomor tujuan.' :
+             'Top-up sedang diproses. Terima kasih!'}
           </p>
+
+          {/* SN / Voucher Code - prominent display */}
+          {hasSn && (
+            <div className="bg-green-500/10 border-2 border-green-500/40 rounded-xl p-5 mb-6">
+              <p className="text-xs text-green-400 mb-2 uppercase tracking-wider">
+                {isVoucher ? 'Kode Voucher' : category === 'pulsa' ? 'Serial Number' : 'SN / Token'}
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <span className="font-mono text-white font-bold text-lg break-all">{orderStatus.digiflazz_sn}</span>
+                <button onClick={() => copyText(orderStatus.digiflazz_sn)}
+                  className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 flex-shrink-0">
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+              {isVoucher && (
+                <p className="text-xs text-muted-foreground mt-3">Simpan kode ini. Gunakan untuk redeem di platform terkait.</p>
+              )}
+            </div>
+          )}
+
+          {!hasSn && orderStatus?.topup_status === 'pending' && (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-center justify-center gap-3">
+              <Loader2 className="w-4 h-4 animate-spin text-yellow-500" />
+              <span className="text-yellow-400 text-sm">
+                {isVoucher ? 'Menunggu kode voucher dari provider...' :
+                 category === 'pulsa' ? 'Mengirim pulsa ke nomor tujuan...' :
+                 'Menunggu konfirmasi dari provider...'}
+              </span>
+            </div>
+          )}
 
           <div className="bg-card rounded-xl p-6 border border-border mb-6 text-left">
             <div className="flex items-center gap-3 mb-4">
@@ -210,8 +261,8 @@ export default function DigiFlazzProduct() {
             </div>
             <div className="space-y-3 border-t border-border pt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">User ID</span>
-                <span className="font-mono text-white">{userId}{serverId ? ` (${serverId})` : ''}</span>
+                <span className="text-gray-400">{cfg.successLabel}</span>
+                <span className="font-mono text-white">{userId}{cfg.showId2 && serverId ? ` (${serverId})` : ''}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Status Pembayaran</span>
@@ -219,55 +270,29 @@ export default function DigiFlazzProduct() {
               </div>
               {orderStatus?.topup_status && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Status Top-up</span>
-                  <span className={`font-medium ${orderStatus.topup_status === 'success' ? 'text-green-500' : 'text-yellow-500'}`}>
-                    {orderStatus.topup_status === 'success' ? 'Berhasil' : orderStatus.topup_status === 'pending' ? 'Diproses' : orderStatus.topup_status}
+                  <span className="text-gray-400">Status {isVoucher ? 'Voucher' : category === 'pulsa' ? 'Pengiriman' : 'Top-up'}</span>
+                  <span className={`font-medium ${topupDone ? 'text-green-500' : 'text-yellow-500'}`}>
+                    {topupDone ? 'Berhasil' : orderStatus.topup_status === 'pending' ? 'Diproses' : orderStatus.topup_status}
                   </span>
-                </div>
-              )}
-              {orderStatus?.digiflazz_sn && (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mt-2">
-                  <p className="text-xs text-green-400 mb-1">Kode Voucher / Token / SN</p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-white font-bold text-sm break-all">{orderStatus.digiflazz_sn}</span>
-                    <button onClick={() => copyText(orderStatus.digiflazz_sn)}
-                      className="ml-2 p-1.5 rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 flex-shrink-0">
-                      <Copy className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-              {orderStatus?.topup_status === 'pending' && !orderStatus?.digiflazz_sn && (
-                <div className="flex items-center gap-2 text-xs text-yellow-500 mt-2">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  Menunggu kode voucher dari provider...
                 </div>
               )}
             </div>
             <div className="border-t border-border mt-4 pt-4 flex justify-between items-center">
               <span className="text-gray-400">Total</span>
-              <span className="font-mono text-xl font-bold text-green-500">
-                Rp {selectedSku?.price?.toLocaleString('id-ID')}
-              </span>
+              <span className="font-mono text-xl font-bold text-green-500">Rp {selectedSku?.price?.toLocaleString('id-ID')}</span>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 border-border text-white hover:bg-white/5"
-              onClick={() => navigate('/track')}>
-              Cek Transaksi
-            </Button>
-            <Button className="flex-1 bg-primary hover:bg-primary/90 text-white"
-              onClick={() => navigate('/')}>
-              Kembali ke Home
-            </Button>
+            <Button variant="outline" className="flex-1 border-border text-white hover:bg-white/5" onClick={() => navigate('/track')}>Cek Transaksi</Button>
+            <Button className="flex-1 bg-primary hover:bg-primary/90 text-white" onClick={() => navigate('/')}>Kembali ke Home</Button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ==================== PAYING STEP ====================
+  // ==================== PAYING ====================
   if (paymentStep === 'paying' && paymentData) {
     const isVA = paymentData.payment_method === 'virtual_account';
     return (
@@ -281,7 +306,6 @@ export default function DigiFlazzProduct() {
             <p className="text-muted-foreground">Selesaikan pembayaran dalam waktu 24 jam</p>
           </div>
 
-          {/* Order summary */}
           <div className="bg-card rounded-xl p-6 border border-border mb-6">
             <div className="flex items-center gap-3 mb-4">
               <img src={brand.image} alt={brand.brand} className="w-12 h-12 rounded-lg object-cover" />
@@ -290,15 +314,15 @@ export default function DigiFlazzProduct() {
                 <p className="text-sm text-primary">{selectedSku?.name}</p>
               </div>
             </div>
+            <div className="text-sm text-gray-400 mb-3">
+              {cfg.successLabel}: <span className="text-white font-mono">{userId}{cfg.showId2 && serverId ? ` (${serverId})` : ''}</span>
+            </div>
             <div className="border-t border-border pt-4 flex justify-between items-center">
               <span className="text-gray-400">Total</span>
-              <span className="font-mono text-2xl font-bold text-primary">
-                Rp {selectedSku?.price?.toLocaleString('id-ID')}
-              </span>
+              <span className="font-mono text-2xl font-bold text-primary">Rp {selectedSku?.price?.toLocaleString('id-ID')}</span>
             </div>
           </div>
 
-          {/* Payment info */}
           {isVA ? (
             <div className="bg-card rounded-xl p-6 border border-border mb-6">
               <div className="flex items-center gap-3 mb-4">
@@ -342,17 +366,17 @@ export default function DigiFlazzProduct() {
             onClick={() => { setPaymentStep('form'); setPaymentData(null); }}>
             <RefreshCw className="w-4 h-4 mr-2" /> Ganti Metode Pembayaran
           </Button>
-
           <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-2">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            Menunggu konfirmasi pembayaran...
+            <Loader2 className="w-3 h-3 animate-spin" /> Menunggu konfirmasi pembayaran...
           </p>
         </div>
       </div>
     );
   }
 
-  // ==================== FORM STEP ====================
+  // ==================== FORM ====================
+  const CatIcon = cfg.icon;
+
   return (
     <div className="min-h-screen pt-16">
       {/* Banner */}
@@ -374,30 +398,33 @@ export default function DigiFlazzProduct() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: form */}
           <div className="lg:col-span-2 space-y-8">
             {/* Instructions */}
             <div className="bg-card rounded-xl p-4 border border-border">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-300">Masukkan User ID (dan Server/Zone ID jika ada) sesuai akun game Anda.</p>
+                <p className="text-sm text-gray-300">{cfg.instruction}</p>
               </div>
             </div>
 
-            {/* ID inputs */}
+            {/* ID inputs - adapted per category */}
             <div className="bg-card rounded-xl p-6 border border-border">
-              <h2 className="font-rajdhani font-semibold text-lg text-white uppercase mb-4">1. Data Akun</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="font-rajdhani font-semibold text-lg text-white uppercase mb-4 flex items-center gap-2">
+                <CatIcon className="w-5 h-5 text-primary" /> 1. {category === 'pulsa' ? 'Nomor Tujuan' : category === 'voucher' ? 'Data Pelanggan' : 'Data Akun'}
+              </h2>
+              <div className={`grid grid-cols-1 ${cfg.showId2 ? 'md:grid-cols-2' : ''} gap-4`}>
                 <div className="space-y-2">
-                  <Label className="text-gray-300">User ID</Label>
-                  <Input placeholder="Masukkan User ID" className="bg-black/50 border-white/10 text-white font-mono"
+                  <Label className="text-gray-300">{cfg.idLabel}</Label>
+                  <Input placeholder={cfg.idPlaceholder} className="bg-black/50 border-white/10 text-white font-mono"
                     value={userId} onChange={(e) => setUserId(e.target.value)} data-testid="df-user-id" />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-gray-300">Server / Zone ID (opsional)</Label>
-                  <Input placeholder="Masukkan Server ID" className="bg-black/50 border-white/10 text-white font-mono"
-                    value={serverId} onChange={(e) => setServerId(e.target.value)} data-testid="df-server-id" />
-                </div>
+                {cfg.showId2 && (
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">{cfg.id2Label}</Label>
+                    <Input placeholder={cfg.id2Placeholder} className="bg-black/50 border-white/10 text-white font-mono"
+                      value={serverId} onChange={(e) => setServerId(e.target.value)} data-testid="df-server-id" />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -446,7 +473,7 @@ export default function DigiFlazzProduct() {
             </div>
           </div>
 
-          {/* Right: summary */}
+          {/* Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-xl p-6 border border-border">
               <h2 className="font-rajdhani font-semibold text-lg text-white uppercase mb-4">Ringkasan</h2>
@@ -460,8 +487,8 @@ export default function DigiFlazzProduct() {
                 </div>
                 {userId && (
                   <div className="bg-black/30 rounded-lg p-3 font-mono text-sm">
-                    <p className="text-gray-300">User ID: <span className="text-white">{userId}</span></p>
-                    {serverId && <p className="text-gray-300">Server: <span className="text-white">{serverId}</span></p>}
+                    <p className="text-gray-300">{cfg.idLabel}: <span className="text-white">{userId}</span></p>
+                    {cfg.showId2 && serverId && <p className="text-gray-300">{cfg.id2Label}: <span className="text-white">{serverId}</span></p>}
                   </div>
                 )}
               </div>
