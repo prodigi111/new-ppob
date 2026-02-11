@@ -111,6 +111,7 @@ export default function DigiFlazzProduct() {
       setBrand(res.data);
       setProducts(res.data.products || []);
       setCategory(res.data.category || 'games');
+      if (res.data.input_config) setCfg(res.data.input_config);
     } catch {
       toast.error('Produk tidak ditemukan');
       navigate('/');
