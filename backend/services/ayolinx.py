@@ -268,17 +268,7 @@ class AyolinxService:
         amount: float,
         customer_name: str = "Customer"
     ) -> Dict[str, Any]:
-        """
-        Generate QRIS payment code
-        
-        Args:
-            order_id: Unique order/transaction ID
-            amount: Payment amount in IDR
-            customer_name: Customer name
-        
-        Returns:
-            Dict with QRIS details or error
-        """
+        """Generate QRIS payment code"""
         token = await self.get_access_token()
         if not token:
             return {"success": False, "error": "Failed to get access token"}
@@ -294,13 +284,11 @@ class AyolinxService:
             },
             "merchantId": self.customer_no,
             "terminalId": "001",
-            "additionalInfo": {
-                "customerName": customer_name
-            }
         }
         
         url = "/v1.0/qr/qr-mpm-generate"
-        signature = self._sign_for_api("POST", url, body, token, timestamp)
+        body_str = json.dumps(body, separators=(',', ':'))
+        signature = self._sign_for_api("POST", url, body_str, token, timestamp)
         
         headers = {
             "Content-Type": "application/json",
@@ -308,6 +296,7 @@ class AyolinxService:
             "X-SIGNATURE": signature,
             "X-PARTNER-ID": self.client_key,
             "X-EXTERNAL-ID": external_id,
+            "CHANNEL-ID": "H2H",
             "Authorization": f"Bearer {token}",
         }
         
@@ -315,8 +304,8 @@ class AyolinxService:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.base_url}{url}",
+                    content=body_str.encode('utf-8'),
                     headers=headers,
-                    json=body,
                     timeout=30.0
                 )
                 
