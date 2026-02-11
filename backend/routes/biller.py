@@ -135,7 +135,7 @@ async def process_topup(request: TopupRequest):
         ref_id=ref_id,
         buyer_sku_code=request.buyer_sku_code,
         customer_no=request.customer_no,
-        testing=True  # Set to False for production
+        testing=False  # Production mode
     )
     
     print(f"[Route] Topup result - success: {result.get('success')}, pending: {result.get('pending')}, status: {result.get('status')}")
