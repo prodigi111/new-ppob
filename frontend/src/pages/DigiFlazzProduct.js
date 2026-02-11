@@ -82,42 +82,19 @@ export default function DigiFlazzProduct() {
 
     setSubmitting(true);
     try {
-      // 1. Create order in DB
-      const orderData = {
-        product_id: `df-${brandSlug}`,
-        denomination_id: selectedSku.sku,
+      // 1. Create order for DigiFlazz product
+      const orderRes = await axios.post(`${API_URL}/api/orders/digiflazz`, {
+        brand: brand.brand,
+        sku_code: selectedSku.sku,
+        product_name: selectedSku.name,
         game_user_id: userId,
         game_server_id: serverId || null,
         email,
         payment_method: selectedPayment.id,
-      };
+        price: selectedSku.price,
+      });
 
-      const endpoint = user ? `${API_URL}/api/orders/authenticated` : `${API_URL}/api/orders/guest`;
-      const headers = user ? { Authorization: `Bearer ${token}` } : {};
-
-      // We need the product to exist — use a dynamic product name
-      const orderRes = await axios.post(endpoint, {
-        ...orderData,
-        product_id: orderData.product_id,
-        denomination_id: orderData.denomination_id,
-      }, { headers }).catch(() => null);
-
-      // If order creation from seed fails, create a simple order entry
-      let orderId;
-      if (!orderRes?.data?.order) {
-        // Insert directly as a lightweight order
-        const fallbackRes = await axios.post(`${API_URL}/api/orders/guest`, {
-          product_id: 'digiflazz',
-          denomination_id: selectedSku.sku,
-          game_user_id: userId,
-          game_server_id: serverId || null,
-          email,
-          payment_method: selectedPayment.id,
-        }).catch(() => null);
-        orderId = fallbackRes?.data?.order?.id || `BLZ-${Date.now()}`;
-      } else {
-        orderId = orderRes.data.order.id;
-      }
+      const orderId = orderRes.data.order.id;
 
       // 2. Create payment via Ayolinx (with DigiFlazz SKU for auto top-up)
       const isQris = selectedPayment.id === 'qris';
