@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Instagram, Twitter } from 'lucide-react';
 import BlazeLogo from '../assets/logo-blaze.svg';
+import { PaymentBadges } from './PaymentBadges';
 
 export const Footer = () => {
   return (
@@ -18,15 +19,9 @@ export const Footer = () => {
               Proses cepat, harga terbaik, dan layanan 24/7.
             </p>
             <div className="flex items-center gap-4 mt-4">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-success transition-colors">
-                <MessageCircle className="w-5 h-5" />
-              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="w-5 h-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Twitter className="w-5 h-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-success transition-colors"><MessageCircle className="w-5 h-5" /></a>
             </div>
           </div>
 
@@ -53,33 +48,18 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Payment Methods */}
+        <div className="border-t border-border mt-8 pt-6">
+          <p className="text-xs text-muted-foreground mb-3">Metode Pembayaran</p>
+          <PaymentBadges size="md" />
+        </div>
+
+        <div className="border-t border-border mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
             © 2026 PT SENTOSA AWAN ABADI. All rights reserved.
           </p>
-          <PaymentIcons />
         </div>
       </div>
     </footer>
   );
 };
-
-function PaymentIcons() {
-  const [icons, setIcons] = React.useState([]);
-  React.useEffect(() => {
-    const API_URL = process.env.REACT_APP_BACKEND_URL;
-    fetch(`${API_URL}/api/payment-icons`).then(r => r.json()).then(d => {
-      if (d.icons?.length) setIcons(d.icons.filter(ic => ic.icon));
-    }).catch(() => {});
-  }, []);
-
-  if (!icons.length) return null;
-
-  return (
-    <div className="flex items-center gap-4">
-      {icons.map((ic, i) => (
-        <img key={i} src={ic.icon} alt={ic.name} title={ic.name} className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
-      ))}
-    </div>
-  );
-}
