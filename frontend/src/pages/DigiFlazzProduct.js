@@ -398,6 +398,10 @@ export default function DigiFlazzProduct() {
                   );
                 })}
               </div>
+              <div className="mt-4 pt-3 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-2">Didukung oleh</p>
+                <PaymentBadges size="sm" />
+              </div>
             </div>
 
             {/* Email */}
