@@ -61,6 +61,9 @@ export default function AdminDashboard() {
   const [editingIcon, setEditingIcon] = useState(null);
   const [iconUrl, setIconUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [editingMargin, setEditingMargin] = useState(null);
+  const [marginType, setMarginType] = useState('percent');
+  const [marginValue, setMarginValue] = useState(10);
 
   useEffect(() => {
     if (authLoading) return;
