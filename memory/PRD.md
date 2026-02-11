@@ -81,9 +81,9 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - [ ] Connect Frontend to DigiFlazz Biller API (product list, checkout flow)
 
 ### P1 - Important
-- [ ] Payment callback webhooks (update order status)
 - [ ] Product search with filters
 - [ ] Reseller pricing tiers
+- [ ] Configure callback URL in Ayolinx merchant dashboard
 
 ### P2 - Nice to Have
 - [ ] Email notifications for orders
