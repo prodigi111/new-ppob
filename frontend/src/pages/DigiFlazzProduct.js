@@ -238,21 +238,58 @@ export default function DigiFlazzProduct() {
     const isVoucher = category === 'voucher';
     const hasSn = orderStatus?.digiflazz_sn;
     const topupDone = orderStatus?.topup_status === 'success';
+    const topupFailed = orderStatus?.topup_status === 'failed';
+    const isProcessing = !hasSn && !topupFailed;
 
     return (
       <div className="min-h-screen pt-24 pb-12">
         <div className="max-w-lg mx-auto px-4 text-center">
-          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
-          </div>
-          <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">Pembayaran Berhasil!</h1>
-          <p className="text-muted-foreground mb-8">
-            {isVoucher && !hasSn ? 'Kode voucher sedang diproses...' :
-             category === 'pulsa' ? 'Pulsa sedang dikirim ke nomor tujuan.' :
-             'Top-up sedang diproses. Terima kasih!'}
-          </p>
 
-          {/* SN / Voucher Code - prominent display */}
+          {/* Header - changes based on state */}
+          {isProcessing ? (
+            <>
+              <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6">
+                <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+              </div>
+              <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">Memproses Pesanan...</h1>
+              <p className="text-muted-foreground mb-4">
+                Pembayaran berhasil! Sedang memproses {isVoucher ? 'kode voucher' : category === 'pulsa' ? 'pengiriman pulsa' : 'top-up'} Anda.
+              </p>
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6">
+                <div className="flex items-center justify-center gap-2 text-yellow-400 text-sm font-medium mb-1">
+                  <AlertCircle className="w-4 h-4" />
+                  Jangan tinggalkan halaman ini
+                </div>
+                <p className="text-xs text-yellow-400/70">
+                  {isVoucher ? 'Kode voucher akan muncul di halaman ini dalam beberapa saat.' :
+                   category === 'pulsa' ? 'Konfirmasi pengiriman pulsa akan muncul di halaman ini.' :
+                   'Hasil top-up akan muncul di halaman ini dalam beberapa saat.'}
+                </p>
+              </div>
+
+              {/* Processing animation */}
+              <div className="flex justify-center gap-1 mb-6">
+                {[0,1,2,3,4].map(i => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-500" />
+              </div>
+              <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">
+                {topupFailed ? 'Pembayaran Berhasil' : 'Transaksi Selesai!'}
+              </h1>
+              <p className="text-muted-foreground mb-6">
+                {topupFailed ? 'Pembayaran berhasil namun top-up gagal. Hubungi admin.' :
+                 'Terima kasih telah menggunakan BlazeStore!'}
+              </p>
+            </>
+          )}
+
+          {/* SN / Voucher Code */}
           {hasSn && (
             <div className="bg-green-500/10 border-2 border-green-500/40 rounded-xl p-5 mb-6">
               <p className="text-xs text-green-400 mb-2 uppercase tracking-wider">
@@ -271,17 +308,18 @@ export default function DigiFlazzProduct() {
             </div>
           )}
 
-          {!hasSn && orderStatus?.topup_status === 'pending' && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-center justify-center gap-3">
-              <Loader2 className="w-4 h-4 animate-spin text-yellow-500" />
-              <span className="text-yellow-400 text-sm">
-                {isVoucher ? 'Menunggu kode voucher dari provider...' :
-                 category === 'pulsa' ? 'Mengirim pulsa ke nomor tujuan...' :
-                 'Menunggu konfirmasi dari provider...'}
-              </span>
+          {/* Top-up failed warning */}
+          {topupFailed && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <p className="text-red-400 text-sm font-medium">Top-up gagal diproses</p>
+              {orderStatus?.topup_error && (
+                <p className="text-xs text-red-400/70 mt-1">{orderStatus.topup_error}</p>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">Silakan hubungi admin untuk proses manual atau refund.</p>
             </div>
           )}
 
+          {/* Order details */}
           <div className="bg-card rounded-xl p-6 border border-border mb-6 text-left">
             <div className="flex items-center gap-3 mb-4">
               <img src={brand?.image} alt={brand?.brand} className="w-12 h-12 rounded-lg object-cover" />
@@ -299,14 +337,12 @@ export default function DigiFlazzProduct() {
                 <span className="text-gray-400">Status Pembayaran</span>
                 <span className="text-green-500 font-medium">Berhasil</span>
               </div>
-              {orderStatus?.topup_status && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Status {isVoucher ? 'Voucher' : category === 'pulsa' ? 'Pengiriman' : 'Top-up'}</span>
-                  <span className={`font-medium ${topupDone ? 'text-green-500' : 'text-yellow-500'}`}>
-                    {topupDone ? 'Berhasil' : orderStatus.topup_status === 'pending' ? 'Diproses' : orderStatus.topup_status}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Status {isVoucher ? 'Voucher' : category === 'pulsa' ? 'Pengiriman' : 'Top-up'}</span>
+                <span className={`font-medium ${topupDone ? 'text-green-500' : topupFailed ? 'text-red-500' : 'text-yellow-500'}`}>
+                  {topupDone ? 'Berhasil' : topupFailed ? 'Gagal' : 'Diproses...'}
+                </span>
+              </div>
             </div>
             <div className="border-t border-border mt-4 pt-4 flex justify-between items-center">
               <span className="text-gray-400">Total</span>
@@ -314,10 +350,13 @@ export default function DigiFlazzProduct() {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 border-border text-white hover:bg-white/5" onClick={() => navigate('/track')}>Cek Transaksi</Button>
-            <Button className="flex-1 bg-primary hover:bg-primary/90 text-white" onClick={() => navigate('/')}>Kembali ke Home</Button>
-          </div>
+          {/* Buttons - only show when processing is done */}
+          {!isProcessing && (
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 border-border text-white hover:bg-white/5" onClick={() => navigate('/track')}>Cek Transaksi</Button>
+              <Button className="flex-1 bg-primary hover:bg-primary/90 text-white" onClick={() => navigate('/')}>Kembali ke Home</Button>
+            </div>
+          )}
         </div>
       </div>
     );
