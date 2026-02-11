@@ -294,6 +294,11 @@ async def get_catalog():
     if not products:
         return {"success": True, "brands": [], "total": 0}
 
+    # Load custom icons
+    custom_icons = {}
+    async for ci in _db.brand_icons.find({}, {"_id": 0}):
+        custom_icons[ci["brand"]] = ci["icon"]
+
     # Group by brand
     brands_map = {}
     for p in products:
@@ -304,7 +309,7 @@ async def get_catalog():
             brands_map[brand] = {
                 "brand": brand,
                 "slug": brand.lower().replace(" ", "-").replace(":", ""),
-                "image": BRAND_IMAGES.get(brand, f"https://ui-avatars.com/api/?name={brand[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
+                "image": custom_icons.get(brand) or BRAND_IMAGES.get(brand, f"https://ui-avatars.com/api/?name={brand[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
                 "category": mapped_cat,
                 "items": [],
             }
