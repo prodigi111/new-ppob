@@ -192,6 +192,8 @@ class DigiFlazzService:
         if max_price:
             payload["max_price"] = max_price
         
+        print(f"[DigiFlazz] Topup request: {payload}")
+        
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
@@ -201,23 +203,36 @@ class DigiFlazzService:
                 )
                 
                 data = response.json()
+                print(f"[DigiFlazz] Topup response: {data}")
                 
                 if "data" in data:
                     trx_data = data["data"]
-                    status = trx_data.get("status", "").lower()
+                    
+                    # Handle error response (dict with rc/message)
+                    if isinstance(trx_data, dict) and "rc" in trx_data:
+                        return {
+                            "success": False,
+                            "pending": False,
+                            "failed": True,
+                            "error": trx_data.get("message", "Transaction failed"),
+                            "rc": trx_data.get("rc"),
+                            "raw_response": data
+                        }
+                    
+                    status = trx_data.get("status", "").lower() if isinstance(trx_data, dict) else ""
                     
                     return {
                         "success": status == "sukses",
                         "pending": status == "pending",
                         "failed": status == "gagal",
-                        "ref_id": trx_data.get("ref_id"),
-                        "customer_no": trx_data.get("customer_no"),
-                        "buyer_sku_code": trx_data.get("buyer_sku_code"),
-                        "message": trx_data.get("message", ""),
+                        "ref_id": trx_data.get("ref_id") if isinstance(trx_data, dict) else ref_id,
+                        "customer_no": trx_data.get("customer_no") if isinstance(trx_data, dict) else customer_no,
+                        "buyer_sku_code": trx_data.get("buyer_sku_code") if isinstance(trx_data, dict) else buyer_sku_code,
+                        "message": trx_data.get("message", "") if isinstance(trx_data, dict) else "",
                         "status": status,
-                        "sn": trx_data.get("sn", ""),  # Serial number (for vouchers)
-                        "price": trx_data.get("price", 0),
-                        "buyer_last_saldo": trx_data.get("buyer_last_saldo", 0),
+                        "sn": trx_data.get("sn", "") if isinstance(trx_data, dict) else "",
+                        "price": trx_data.get("price", 0) if isinstance(trx_data, dict) else 0,
+                        "buyer_last_saldo": trx_data.get("buyer_last_saldo", 0) if isinstance(trx_data, dict) else 0,
                         "raw_response": data
                     }
                 else:
