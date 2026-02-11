@@ -712,6 +712,10 @@ async def root():
 # Include the router
 app.include_router(api_router)
 
+# Include payment routes
+from routes.payment import router as payment_router
+app.include_router(payment_router, prefix="/api")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
