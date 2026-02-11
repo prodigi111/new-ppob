@@ -180,20 +180,7 @@ class AyolinxService:
         customer_email: str = "",
         customer_phone: str = ""
     ) -> Dict[str, Any]:
-        """
-        Create Virtual Account for payment
-        
-        Args:
-            order_id: Unique order/transaction ID
-            amount: Payment amount in IDR
-            customer_name: Customer name
-            channel: Bank channel (bca, bni, bri, mandiri, permata, cimb)
-            customer_email: Customer email (optional)
-            customer_phone: Customer phone (optional)
-        
-        Returns:
-            Dict with VA details or error
-        """
+        """Create Virtual Account for payment"""
         token = await self.get_access_token()
         if not token:
             return {"success": False, "error": "Failed to get access token"}
@@ -201,17 +188,16 @@ class AyolinxService:
         timestamp = self._get_timestamp()
         external_id = self._generate_external_id()
         
-        # Get channel code
         channel_code = VA_CHANNELS.get(channel.lower(), "VIRTUAL_ACCOUNT_BNI")
+        partner_service_id = VA_PARTNER_SERVICE_ID.get(channel.lower(), "98829172")
         
-        # Build request body
         body = {
-            "partnerServiceId": self.customer_no,
-            "customerNo": str(external_id)[:20],
-            "virtualAccountNo": "",  # Let Ayolinx generate
+            "partnerServiceId": partner_service_id,
+            "customerNo": str(external_id).ljust(20, '0')[:20],
+            "virtualAccountNo": "",
             "virtualAccountName": customer_name[:50],
             "trxId": order_id,
-            "virtualAccountTrxType": "C",  # Close payment (one-time)
+            "virtualAccountTrxType": "C",
             "totalAmount": {
                 "value": f"{amount:.2f}",
                 "currency": "IDR"
@@ -227,7 +213,8 @@ class AyolinxService:
             body["virtualAccountPhone"] = customer_phone
         
         url = "/v1.0/transfer-va/create-va"
-        signature = self._sign_for_api("POST", url, body, token, timestamp)
+        body_str = json.dumps(body, separators=(',', ':'))
+        signature = self._sign_for_api("POST", url, body_str, token, timestamp)
         
         headers = {
             "Content-Type": "application/json",
@@ -243,8 +230,8 @@ class AyolinxService:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.base_url}{url}",
+                    content=body_str.encode('utf-8'),
                     headers=headers,
-                    json=body,
                     timeout=30.0
                 )
                 
