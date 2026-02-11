@@ -119,7 +119,7 @@ export default function DigiFlazzProduct() {
         orderId = orderRes.data.order.id;
       }
 
-      // 2. Create payment via Ayolinx
+      // 2. Create payment via Ayolinx (with DigiFlazz SKU for auto top-up)
       const isQris = selectedPayment.id === 'qris';
       const payRes = await axios.post(`${API_URL}/api/payment/create`, {
         order_id: orderId,
@@ -129,6 +129,8 @@ export default function DigiFlazzProduct() {
         payment_method: isQris ? 'qris' : 'va',
         va_channel: selectedPayment.channel || 'bni',
         item_name: `${brand?.brand} - ${selectedSku.name}`,
+        digiflazz_sku: selectedSku.sku,
+        customer_game_id: serverId ? `${userId}${serverId}` : userId,
       });
 
       if (payRes.data.success) {
