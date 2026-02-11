@@ -94,9 +94,10 @@ export default function DigiFlazzProduct() {
         setOrderStatus(res.data);
         if (res.data.status === 'paid' || res.data.status === 'completed') {
           setPaymentStep('success');
-          if (res.data.status !== 'completed' || !res.data.digiflazz_sn) {
-            if (active) setTimeout(poll, 5000);
-          }
+          return;
+        }
+        if (res.data.status === 'failed' || res.data.status === 'cancelled') {
+          setPaymentStep('failed');
           return;
         }
       } catch {}
