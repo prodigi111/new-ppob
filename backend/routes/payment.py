@@ -18,8 +18,9 @@ class CreatePaymentRequest(BaseModel):
     customer_name: str = Field(..., min_length=1, max_length=50)
     customer_email: Optional[str] = None
     customer_phone: Optional[str] = None
-    payment_method: Literal["va", "qris"] = Field(default="va", description="Payment method")
-    va_channel: Optional[str] = Field(default="bni", description="VA bank channel (bca, bni, bri, mandiri, permata, cimb)")
+    payment_method: Literal["va", "qris", "payment_link"] = Field(default="va", description="Payment method")
+    va_channel: Optional[str] = Field(default="bni", description="VA bank channel")
+    item_name: Optional[str] = None
 
 
 class PaymentResponse(BaseModel):
