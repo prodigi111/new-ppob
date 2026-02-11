@@ -432,7 +432,9 @@ export default function AdminDashboard() {
                       <TableHead className="text-muted-foreground">Brand</TableHead>
                       <TableHead className="text-muted-foreground">Kategori</TableHead>
                       <TableHead className="text-muted-foreground">Produk</TableHead>
-                      <TableHead className="text-muted-foreground">Harga Mulai</TableHead>
+                      <TableHead className="text-muted-foreground">Harga Modal</TableHead>
+                      <TableHead className="text-muted-foreground">Margin</TableHead>
+                      <TableHead className="text-muted-foreground">Harga Jual</TableHead>
                       <TableHead className="text-muted-foreground">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
