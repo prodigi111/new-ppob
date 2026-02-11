@@ -28,34 +28,15 @@ const BANK_INFO = {
   mandiri: { name: 'Mandiri', color: '#003366' },
 };
 
-// Category-based config
-const CAT_CONFIG = {
-  games: {
-    icon: Gamepad2,
-    idLabel: 'User ID',
-    idPlaceholder: 'Masukkan User ID',
-    id2Label: 'Server / Zone ID',
-    id2Placeholder: 'Masukkan Server ID',
-    showId2: true,
-    instruction: 'Masukkan User ID dan Server/Zone ID sesuai akun game Anda.',
-    successLabel: 'User ID',
-  },
-  pulsa: {
-    icon: Phone,
-    idLabel: 'Nomor HP',
-    idPlaceholder: 'Contoh: 08123456789',
-    showId2: false,
-    instruction: 'Masukkan nomor HP yang akan diisi pulsa/paket data.',
-    successLabel: 'Nomor HP',
-  },
-  voucher: {
-    icon: ShoppingBag,
-    idLabel: 'Nomor Pelanggan / Meter',
-    idPlaceholder: 'Masukkan nomor pelanggan',
-    showId2: false,
-    instruction: 'Masukkan nomor pelanggan atau ID akun tujuan. Untuk voucher digital, kode akan dikirim setelah pembayaran.',
-    successLabel: 'Nomor Tujuan',
-  },
+// Default fallback config
+const DEFAULT_CFG = {
+  type: 'game_id',
+  id_label: 'User ID',
+  id_placeholder: 'Masukkan User ID',
+  id_required: true,
+  show_id2: false,
+  instruction: 'Masukkan data akun Anda.',
+  success_label: 'User ID',
 };
 
 export default function DigiFlazzProduct() {
@@ -66,6 +47,7 @@ export default function DigiFlazzProduct() {
   const [brand, setBrand] = useState(null);
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState('games');
+  const [cfg, setCfg] = useState(DEFAULT_CFG);
   const [loading, setLoading] = useState(true);
   const [selectedSku, setSelectedSku] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
