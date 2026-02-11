@@ -56,6 +56,10 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dfBrands, setDfBrands] = useState([]);
+  const [syncing, setSyncing] = useState(false);
+  const [editingIcon, setEditingIcon] = useState(null);
+  const [iconUrl, setIconUrl] = useState('');
 
   useEffect(() => {
     if (authLoading) return;
