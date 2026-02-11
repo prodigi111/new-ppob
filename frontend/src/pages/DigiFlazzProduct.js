@@ -226,9 +226,21 @@ export default function DigiFlazzProduct() {
                 </div>
               )}
               {orderStatus?.digiflazz_sn && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Serial Number</span>
-                  <span className="font-mono text-white">{orderStatus.digiflazz_sn}</span>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-green-400 mb-1">Kode Voucher / Token / SN</p>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-white font-bold text-sm break-all">{orderStatus.digiflazz_sn}</span>
+                    <button onClick={() => copyText(orderStatus.digiflazz_sn)}
+                      className="ml-2 p-1.5 rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 flex-shrink-0">
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+              {orderStatus?.topup_status === 'pending' && !orderStatus?.digiflazz_sn && (
+                <div className="flex items-center gap-2 text-xs text-yellow-500 mt-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Menunggu kode voucher dari provider...
                 </div>
               )}
             </div>
