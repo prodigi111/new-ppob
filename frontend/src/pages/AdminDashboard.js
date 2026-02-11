@@ -76,18 +76,20 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [dashboardRes, usersRes, ordersRes, productsRes, appsRes] = await Promise.all([
+      const [dashboardRes, usersRes, ordersRes, productsRes, appsRes, catalogRes] = await Promise.all([
         axios.get(`${API_URL}/api/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/orders`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/products`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/reseller-applications`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_URL}/api/biller/catalog`),
       ]);
       setDashboard(dashboardRes.data);
       setUsers(usersRes.data.users);
       setOrders(ordersRes.data.orders);
       setProducts(productsRes.data.products);
       setApplications(appsRes.data.applications);
+      if (catalogRes.data.success) setDfBrands(catalogRes.data.brands || []);
     } catch (error) {
       console.error('Failed to fetch data:', error);
       toast.error('Gagal memuat data');
