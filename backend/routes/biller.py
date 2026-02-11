@@ -306,6 +306,11 @@ async def get_catalog():
     async for ci in _db.brand_icons.find({}, {"_id": 0}):
         custom_icons[ci["brand"]] = ci["icon"]
 
+    # Load pricing/margin settings
+    pricing_map = {}
+    async for pr in _db.brand_pricing.find({}, {"_id": 0}):
+        pricing_map[pr["brand"]] = pr
+
     # Group by brand
     brands_map = {}
     for p in products:
@@ -313,17 +318,26 @@ async def get_catalog():
         if brand not in brands_map:
             raw_cat = p.get("category", "Games")
             mapped_cat = BRAND_CATEGORY_OVERRIDE.get(brand, CATEGORY_MAP.get(raw_cat, "games"))
+            pr = pricing_map.get(brand, {})
             brands_map[brand] = {
                 "brand": brand,
                 "slug": brand.lower().replace(" ", "-").replace(":", ""),
                 "image": custom_icons.get(brand) or BRAND_IMAGES.get(brand, f"https://ui-avatars.com/api/?name={brand[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
                 "category": mapped_cat,
+                "margin_type": pr.get("margin_type", "percent"),
+                "margin_value": pr.get("margin_value", 10),
                 "items": [],
             }
+
+        cost = p.get("price", 0)
+        pr = pricing_map.get(brand, {})
+        sell = _calc_sell_price(cost, pr.get("margin_type", "percent"), pr.get("margin_value", 10))
+
         brands_map[brand]["items"].append({
             "sku": p.get("buyer_sku_code"),
             "name": p.get("product_name"),
-            "price": p.get("price", 0),
+            "cost": cost,
+            "price": sell,
             "active": p.get("seller_product_status", False),
         })
 
