@@ -344,4 +344,6 @@ async def check_payment_status(order_id: str):
         "topup_status": order.get("topup_status"),
         "digiflazz_status": order.get("digiflazz_status"),
         "digiflazz_sn": order.get("digiflazz_sn"),
+        "digiflazz_message": order.get("digiflazz_message"),
+        "digiflazz_rc": order.get("digiflazz_rc"),
     }
