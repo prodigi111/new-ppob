@@ -440,7 +440,7 @@ async def admin_get_users(user: dict = Depends(get_admin_user)):
 
 @api_router.get("/admin/orders")
 async def admin_get_orders(user: dict = Depends(get_admin_user)):
-    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    orders = await db.orders.find({}, {"_id": 0, "payment_callback_raw": 0, "digiflazz_raw": 0, "digiflazz_response": 0, "payment_data": 0}).sort("created_at", -1).to_list(200)
     return {"orders": orders}
 
 @api_router.put("/admin/orders/{order_id}/status")
