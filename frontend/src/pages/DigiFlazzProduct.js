@@ -124,7 +124,7 @@ export default function DigiFlazzProduct() {
     e.preventDefault();
     if (!selectedSku) return toast.error('Pilih item terlebih dahulu');
     if (!selectedPayment) return toast.error('Pilih metode pembayaran');
-    if (!userId) return toast.error(`Masukkan ${cfg.id_label}`);
+    if (cfg.id_required && !userId) return toast.error(`Masukkan ${cfg.id_label}`);
     if (!email) return toast.error('Masukkan email');
 
     setSubmitting(true);
