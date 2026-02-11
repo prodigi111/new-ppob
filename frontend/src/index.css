@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Emergent badge */
+#emergent-badge { display: none !important; }
+a[href*="emergent"][style*="position: fixed"] { display: none !important; }
+
+
 @layer base {
   :root {
     /* Blaze Brand Colors */
