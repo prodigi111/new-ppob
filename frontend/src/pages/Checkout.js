@@ -298,8 +298,6 @@ export default function Checkout() {
 
             {/* Payment badges */}
             <div className="mb-4">
-              <p className="text-xs text-muted-foreground mb-2">Metode Pembayaran Tersedia</p>
-              <PaymentBadges size="sm" />
             </div>
 
             <Button
