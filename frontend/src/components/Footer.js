@@ -11,11 +11,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <img 
-                src={BlazeLogo} 
-                alt="Blaze Store" 
-                className="h-10 w-auto object-contain"
-              />
+              <img src={BlazeLogo} alt="Blaze Store" className="h-10 w-auto object-contain" />
             </Link>
             <p className="text-muted-foreground text-sm max-w-md">
               Platform top-up game dan voucher digital terpercaya di Indonesia. 
@@ -36,81 +32,61 @@ export const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-rajdhani font-semibold text-white uppercase tracking-wider mb-4">
-              Layanan
-            </h4>
+            <h4 className="font-rajdhani font-semibold text-white uppercase tracking-wider mb-4">Layanan</h4>
             <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Top Up Game
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Voucher Digital
-                </Link>
-              </li>
-              <li>
-                <Link to="/track" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Cek Transaksi
-                </Link>
-              </li>
-              <li>
-                <Link to="/reseller" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Program Reseller
-                </Link>
-              </li>
+              <li><Link to="/" className="text-muted-foreground hover:text-white text-sm transition-colors">Top Up Game</Link></li>
+              <li><Link to="/" className="text-muted-foreground hover:text-white text-sm transition-colors">Voucher Digital</Link></li>
+              <li><Link to="/track" className="text-muted-foreground hover:text-white text-sm transition-colors">Cek Transaksi</Link></li>
+              <li><Link to="/reseller" className="text-muted-foreground hover:text-white text-sm transition-colors">Program Reseller</Link></li>
             </ul>
           </div>
 
           {/* Info */}
           <div>
-            <h4 className="font-rajdhani font-semibold text-white uppercase tracking-wider mb-4">
-              Informasi
-            </h4>
+            <h4 className="font-rajdhani font-semibold text-white uppercase tracking-wider mb-4">Informasi</h4>
             <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Tentang Kami
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Kebijakan Privasi
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Syarat & Ketentuan
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-white text-sm transition-colors">
-                  Hubungi Kami
-                </a>
-              </li>
+              <li><Link to="/page/tentang-kami" className="text-muted-foreground hover:text-white text-sm transition-colors">Tentang Kami</Link></li>
+              <li><Link to="/page/kebijakan-privasi" className="text-muted-foreground hover:text-white text-sm transition-colors">Kebijakan Privasi</Link></li>
+              <li><Link to="/page/syarat-ketentuan" className="text-muted-foreground hover:text-white text-sm transition-colors">Syarat & Ketentuan</Link></li>
+              <li><Link to="/page/hubungi-kami" className="text-muted-foreground hover:text-white text-sm transition-colors">Hubungi Kami</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2026 BlazeStore. All rights reserved.
+            © 2026 PT SENTOSA AWAN ABADI. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/QRIS_logo.svg/200px-QRIS_logo.svg.png" 
-              alt="QRIS" 
-              className="h-6 opacity-50"
-            />
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Central_Asia.svg/200px-Bank_Central_Asia.svg.png" 
-              alt="BCA" 
-              className="h-6 opacity-50"
-            />
-          </div>
+          <PaymentIcons />
         </div>
       </div>
     </footer>
   );
 };
+
+function PaymentIcons() {
+  const [icons, setIcons] = React.useState([]);
+  React.useEffect(() => {
+    const API_URL = process.env.REACT_APP_BACKEND_URL;
+    fetch(`${API_URL}/api/payment-icons`).then(r => r.json()).then(d => {
+      if (d.icons?.length) setIcons(d.icons);
+    }).catch(() => {});
+  }, []);
+
+  if (!icons.length) {
+    return (
+      <div className="flex items-center gap-4">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/QRIS_logo.svg/200px-QRIS_logo.svg.png" alt="QRIS" className="h-6 opacity-50" />
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Central_Asia.svg/200px-Bank_Central_Asia.svg.png" alt="BCA" className="h-6 opacity-50" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      {icons.map((ic, i) => (
+        <img key={i} src={ic.url} alt={ic.name} className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+      ))}
+    </div>
+  );
+}
