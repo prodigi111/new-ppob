@@ -526,9 +526,20 @@ async def get_brand_products(brand_slug: str):
     mt = pr.get("margin_type", "percent")
     mv = pr.get("margin_value", 10)
 
-    # Determine category
+    # Determine category & input config
     raw_cat = products[0].get("category", "Games") if products else "Games"
     category = BRAND_CATEGORY_OVERRIDE.get(brand_name, CATEGORY_MAP.get(raw_cat, "games"))
+
+    # Get first product desc as hint for customer input
+    first_desc = ""
+    for p in products:
+        d = (p.get("desc") or "").strip()
+        if d and d != "-":
+            first_desc = d
+            break
+
+    # Determine input type from DigiFlazz category
+    input_config = _get_input_config(raw_cat, brand_name, first_desc)
 
     return {
         "success": True,
@@ -536,8 +547,10 @@ async def get_brand_products(brand_slug: str):
         "slug": brand_slug,
         "image": image,
         "category": category,
+        "raw_category": raw_cat,
         "margin_type": mt,
         "margin_value": mv,
+        "input_config": input_config,
         "products": [{
             "sku": p.get("buyer_sku_code"),
             "name": p.get("product_name"),
