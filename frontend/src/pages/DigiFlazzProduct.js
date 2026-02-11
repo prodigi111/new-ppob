@@ -124,7 +124,7 @@ export default function DigiFlazzProduct() {
     e.preventDefault();
     if (!selectedSku) return toast.error('Pilih item terlebih dahulu');
     if (!selectedPayment) return toast.error('Pilih metode pembayaran');
-    if (!userId) return toast.error(`Masukkan ${cfg.idLabel}`);
+    if (!userId) return toast.error(`Masukkan ${cfg.id_label}`);
     if (!email) return toast.error('Masukkan email');
 
     setSubmitting(true);
@@ -151,7 +151,7 @@ export default function DigiFlazzProduct() {
         va_channel: selectedPayment.channel || 'bni',
         item_name: `${brand?.brand} - ${selectedSku.name}`,
         digiflazz_sku: selectedSku.sku,
-        customer_game_id: cfg.showId2 && serverId ? `${userId}${serverId}` : userId,
+        customer_game_id: cfg.show_id2 && serverId ? `${userId}${serverId}` : userId,
       });
 
       if (payRes.data.success) {
@@ -311,8 +311,8 @@ export default function DigiFlazzProduct() {
             </div>
             <div className="space-y-3 border-t border-border pt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">{cfg.successLabel}</span>
-                <span className="font-mono text-white">{userId}{cfg.showId2 && serverId ? ` (${serverId})` : ''}</span>
+                <span className="text-gray-400">{cfg.success_label}</span>
+                <span className="font-mono text-white">{userId}{cfg.show_id2 && serverId ? ` (${serverId})` : ''}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Status Pembayaran</span>
@@ -366,7 +366,7 @@ export default function DigiFlazzProduct() {
               </div>
             </div>
             <div className="text-sm text-gray-400 mb-3">
-              {cfg.successLabel}: <span className="text-white font-mono">{userId}{cfg.showId2 && serverId ? ` (${serverId})` : ''}</span>
+              {cfg.success_label}: <span className="text-white font-mono">{userId}{cfg.show_id2 && serverId ? ` (${serverId})` : ''}</span>
             </div>
             <div className="border-t border-border pt-4 flex justify-between items-center">
               <span className="text-gray-400">Total</span>
@@ -463,16 +463,16 @@ export default function DigiFlazzProduct() {
               <h2 className="font-rajdhani font-semibold text-lg text-white uppercase mb-4 flex items-center gap-2">
                 <CatIcon className="w-5 h-5 text-primary" /> 1. {category === 'pulsa' ? 'Nomor Tujuan' : category === 'voucher' ? 'Data Pelanggan' : 'Data Akun'}
               </h2>
-              <div className={`grid grid-cols-1 ${cfg.showId2 ? 'md:grid-cols-2' : ''} gap-4`}>
+              <div className={`grid grid-cols-1 ${cfg.show_id2 ? 'md:grid-cols-2' : ''} gap-4`}>
                 <div className="space-y-2">
-                  <Label className="text-gray-300">{cfg.idLabel}</Label>
-                  <Input placeholder={cfg.idPlaceholder} className="bg-black/50 border-white/10 text-white font-mono"
+                  <Label className="text-gray-300">{cfg.id_label}</Label>
+                  <Input placeholder={cfg.id_placeholder} className="bg-black/50 border-white/10 text-white font-mono"
                     value={userId} onChange={(e) => setUserId(e.target.value)} data-testid="df-user-id" />
                 </div>
-                {cfg.showId2 && (
+                {cfg.show_id2 && (
                   <div className="space-y-2">
-                    <Label className="text-gray-300">{cfg.id2Label}</Label>
-                    <Input placeholder={cfg.id2Placeholder} className="bg-black/50 border-white/10 text-white font-mono"
+                    <Label className="text-gray-300">{cfg.id2_label}</Label>
+                    <Input placeholder={cfg.id2_placeholder} className="bg-black/50 border-white/10 text-white font-mono"
                       value={serverId} onChange={(e) => setServerId(e.target.value)} data-testid="df-server-id" />
                   </div>
                 )}
@@ -538,8 +538,8 @@ export default function DigiFlazzProduct() {
                 </div>
                 {userId && (
                   <div className="bg-black/30 rounded-lg p-3 font-mono text-sm">
-                    <p className="text-gray-300">{cfg.idLabel}: <span className="text-white">{userId}</span></p>
-                    {cfg.showId2 && serverId && <p className="text-gray-300">{cfg.id2Label}: <span className="text-white">{serverId}</span></p>}
+                    <p className="text-gray-300">{cfg.id_label}: <span className="text-white">{userId}</span></p>
+                    {cfg.show_id2 && serverId && <p className="text-gray-300">{cfg.id2_label}: <span className="text-white">{serverId}</span></p>}
                   </div>
                 )}
               </div>
