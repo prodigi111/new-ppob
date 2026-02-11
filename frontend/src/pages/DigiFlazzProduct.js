@@ -203,6 +203,36 @@ export default function DigiFlazzProduct() {
 
   if (!brand) return null;
 
+  // ==================== FAILED / CANCELLED ====================
+  if (paymentStep === 'failed') {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="max-w-lg mx-auto px-4 text-center">
+          <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-red-500" />
+          </div>
+          <h1 className="font-rajdhani font-bold text-2xl text-white uppercase mb-2">
+            {orderStatus?.status === 'cancelled' ? 'Pembayaran Dibatalkan' : 'Pembayaran Gagal'}
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            {orderStatus?.status === 'cancelled'
+              ? 'Pembayaran tidak diselesaikan atau QRIS telah expired. Silakan coba lagi.'
+              : 'Terjadi kesalahan pada pembayaran. Silakan coba lagi.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" className="border-border text-white hover:bg-white/5"
+              onClick={() => { setPaymentStep('form'); setPaymentData(null); setOrderStatus(null); }}>
+              <RefreshCw className="w-4 h-4 mr-2" /> Coba Lagi
+            </Button>
+            <Button className="bg-primary hover:bg-primary/90 text-white" onClick={() => navigate('/')}>
+              Kembali ke Home
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ==================== SUCCESS ====================
   if (paymentStep === 'success') {
     const isVoucher = category === 'voucher';
