@@ -243,6 +243,53 @@ async def digiflazz_webhook(payload: dict):
 
 # ===================== CATALOG (cached DigiFlazz) =====================
 
+import math
+
+def _calc_sell_price(cost: float, margin_type: str, margin_value: float) -> int:
+    """Calculate selling price from cost + margin. Returns rounded integer."""
+    if margin_type == "percent":
+        return math.ceil(cost * (1 + margin_value / 100))
+    else:  # fixed
+        return math.ceil(cost + margin_value)
+
+
+@router.get("/pricing")
+async def get_all_pricing():
+    """Get margin settings for all brands"""
+    pricing = await _db.brand_pricing.find({}, {"_id": 0}).to_list(200)
+    return {"success": True, "pricing": pricing}
+
+
+@router.put("/pricing/{brand_slug}")
+async def set_brand_pricing(brand_slug: str, payload: dict):
+    """
+    Set margin for a brand.
+    Body: { "margin_type": "percent"|"fixed", "margin_value": 10 }
+    percent: sell = cost * (1 + value/100)
+    fixed:   sell = cost + value
+    """
+    margin_type = payload.get("margin_type", "percent")
+    margin_value = payload.get("margin_value", 10)
+
+    if margin_type not in ("percent", "fixed"):
+        raise HTTPException(status_code=400, detail="margin_type must be 'percent' or 'fixed'")
+
+    all_brands = await _db.digiflazz_products.distinct("brand")
+    brand_name = None
+    for b in all_brands:
+        if b.lower().replace(" ", "-").replace(":", "") == brand_slug:
+            brand_name = b
+            break
+    if not brand_name:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    await _db.brand_pricing.update_one(
+        {"brand": brand_name},
+        {"$set": {"brand": brand_name, "slug": brand_slug, "margin_type": margin_type, "margin_value": margin_value}},
+        upsert=True,
+    )
+    return {"success": True, "brand": brand_name, "margin_type": margin_type, "margin_value": margin_value}
+
 @router.post("/catalog/sync")
 async def sync_catalog():
     """Fetch ALL DigiFlazz prepaid products and cache in MongoDB"""
