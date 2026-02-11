@@ -110,6 +110,23 @@ export default function AdminDashboard() {
       setProducts(productsRes.data.products);
       setApplications(appsRes.data.applications);
       if (catalogRes.data.success) setDfBrands(catalogRes.data.brands || []);
+
+      // Fetch CMS pages
+      const slugs = ['tentang-kami', 'kebijakan-privasi', 'syarat-ketentuan', 'hubungi-kami'];
+      const cmsData = {};
+      for (const s of slugs) {
+        try {
+          const r = await axios.get(`${API_URL}/api/cms/${s}`);
+          cmsData[s] = r.data;
+        } catch { cmsData[s] = { slug: s, title: '', content: '' }; }
+      }
+      setCmsPages(cmsData);
+
+      // Fetch payment icons
+      try {
+        const piRes = await axios.get(`${API_URL}/api/payment-icons`);
+        setPayIcons(piRes.data.icons || []);
+      } catch {}
     } catch (error) {
       console.error('Failed to fetch data:', error);
       toast.error('Gagal memuat data');
