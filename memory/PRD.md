@@ -28,14 +28,17 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 
 ## What's Been Implemented
 
-### Feb 11, 2026 - Ayolinx Sandbox Integration Fixed
+### Feb 11, 2026 - Ayolinx Sandbox Integration Fixed + Webhooks
 - **Fixed HMAC signature computation** - StringToSign order corrected to METHOD:URL:TOKEN:BODYHASH:TIMESTAMP
 - **Virtual Account (BNI)** - Fully working, returns VA number with 24h expiry
 - **QRIS** - Fully working, returns QR code content and image URL
 - **Payment Link** - API method added for hosted checkout flow
-- **PartnerServiceId** - Correct sandbox values per bank channel
-- All credentials updated to sandbox environment
-- Merchant public key uploaded to Ayolinx dashboard
+- **Payment Webhooks** - Unified callback handler for all payment types (VA/QRIS/Payment Link)
+  - Callback maps Ayolinx status codes to order statuses (completed/failed/cancelled/refunded)
+  - Updates order in MongoDB with payment details and timestamps
+  - Endpoints: `/api/payment/callback/notify`, `/callback/va`, `/callback/qris`, `/callback/link`
+  - Status check endpoint: `/api/payment/status/{order_id}`
+- Correct PartnerServiceId values per bank channel (sandbox)
 
 ### Previous Implementation
 - **Branding**: Blaze logo + mascots integrated across all pages
