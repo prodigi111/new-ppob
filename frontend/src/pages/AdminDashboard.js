@@ -60,6 +60,7 @@ export default function AdminDashboard() {
   const [syncing, setSyncing] = useState(false);
   const [editingIcon, setEditingIcon] = useState(null);
   const [iconUrl, setIconUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
