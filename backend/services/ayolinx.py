@@ -93,22 +93,21 @@ class AyolinxService:
             print(f"Error generating token signature: {e}")
             return ""
     
-    def _sign_for_api(self, method: str, url: str, body: dict, token: str, timestamp: str) -> str:
+    def _sign_for_api(self, method: str, url: str, body_str: str, token: str, timestamp: str) -> str:
         """
         Generate signature for API calls
-        StringToSign: method + ":" + url + ":" + sha256(body) + ":" + token + ":" + timestamp
+        StringToSign: method + ":" + url + ":" + token + ":" + sha256(body) + ":" + timestamp
         Then HMAC-SHA512 with client_secret
         """
         if not self.client_secret:
             return "dummy_signature_for_testing"
         
         try:
-            # SHA256 hash of body
-            body_json = json.dumps(body, separators=(',', ':'))
-            body_hash = hashlib.sha256(body_json.encode('utf-8')).hexdigest().lower()
+            # SHA256 hash of raw body string
+            body_hash = hashlib.sha256(body_str.encode('utf-8')).hexdigest()
             
-            # String to sign
-            string_to_sign = f"{method}:{url}:{body_hash}:{token}:{timestamp}"
+            # String to sign (correct order: method:url:token:bodyHash:timestamp)
+            string_to_sign = f"{method}:{url}:{token}:{body_hash}:{timestamp}"
             
             # HMAC-SHA512
             signature = hmac.new(
