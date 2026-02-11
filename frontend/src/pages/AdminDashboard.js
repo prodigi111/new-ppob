@@ -140,6 +140,36 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSyncDigiflazz = async () => {
+    setSyncing(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/biller/catalog/sync`);
+      if (res.data.success) {
+        toast.success(`Berhasil sync ${res.data.synced} produk dari DigiFlazz`);
+        fetchData();
+      } else {
+        toast.error(res.data.error || 'Gagal sync (mungkin rate limit, coba lagi nanti)');
+      }
+    } catch (error) {
+      toast.error('Gagal sync DigiFlazz');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleUpdateIcon = async (slug) => {
+    if (!iconUrl.trim()) return toast.error('Masukkan URL icon');
+    try {
+      await axios.put(`${API_URL}/api/biller/catalog/${slug}/icon`, { icon: iconUrl });
+      toast.success('Icon berhasil diupdate');
+      setEditingIcon(null);
+      setIconUrl('');
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal update icon');
+    }
+  };
+
   if (!user || user.role !== 'admin') return null;
 
   if (loading) {
