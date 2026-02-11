@@ -87,6 +87,24 @@ export default function DigiFlazzProduct() {
     return () => { active = false; clearTimeout(timer); };
   }, [paymentStep, paymentData?.orderId]);
 
+  // Keep polling on success page for SN updates from DigiFlazz webhook
+  useEffect(() => {
+    if (paymentStep !== 'success' || !paymentData?.orderId) return;
+    if (orderStatus?.digiflazz_sn && orderStatus?.status === 'completed') return;
+    let active = true;
+    const poll = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/payment/status/${paymentData.orderId}`);
+        if (!active) return;
+        setOrderStatus(res.data);
+        if (res.data.digiflazz_sn && res.data.status === 'completed') return;
+      } catch {}
+      if (active) setTimeout(poll, 5000);
+    };
+    const timer = setTimeout(poll, 3000);
+    return () => { active = false; clearTimeout(timer); };
+  }, [paymentStep, paymentData?.orderId, orderStatus?.digiflazz_sn]);
+
   const fetchBrand = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/biller/catalog/${brandSlug}`);
