@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import DigiFlazzProduct from './pages/DigiFlazzProduct';
+import CmsPage from './pages/CmsPage';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
