@@ -445,7 +445,7 @@ async def admin_get_orders(user: dict = Depends(get_admin_user)):
 
 @api_router.put("/admin/orders/{order_id}/status")
 async def admin_update_order_status(order_id: str, status: str, user: dict = Depends(get_admin_user)):
-    if status not in ["pending", "processing", "completed", "failed"]:
+    if status not in ["pending", "processing", "paid", "completed", "failed", "cancelled"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     
     update_data = {"status": status}
