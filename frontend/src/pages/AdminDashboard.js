@@ -253,6 +253,56 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSaveCms = async (slug) => {
+    setSavingCms(true);
+    try {
+      await axios.put(`${API_URL}/api/cms/${slug}`, { title: cmsTitle, content: cmsContent }, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success('Halaman berhasil disimpan');
+      setEditingCms(null);
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal menyimpan');
+    } finally {
+      setSavingCms(false);
+    }
+  };
+
+  const handleAddPayIcon = async () => {
+    if (!newIconName.trim() || !newIconUrl.trim()) return toast.error('Isi nama dan URL icon');
+    const updated = [...payIcons, { name: newIconName, url: newIconUrl }];
+    try {
+      await axios.put(`${API_URL}/api/payment-icons`, { icons: updated }, { headers: { Authorization: `Bearer ${token}` } });
+      setPayIcons(updated);
+      setNewIconName('');
+      setNewIconUrl('');
+      toast.success('Icon payment ditambahkan');
+    } catch { toast.error('Gagal menambah icon'); }
+  };
+
+  const handleRemovePayIcon = async (idx) => {
+    const updated = payIcons.filter((_, i) => i !== idx);
+    try {
+      await axios.put(`${API_URL}/api/payment-icons`, { icons: updated }, { headers: { Authorization: `Bearer ${token}` } });
+      setPayIcons(updated);
+      toast.success('Icon payment dihapus');
+    } catch { toast.error('Gagal menghapus icon'); }
+  };
+
+  const handleUploadPayIcon = async (file) => {
+    if (!file) return;
+    setUploadingPayIcon(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await axios.post(`${API_URL}/api/upload/icon`, formData);
+      if (res.data.success) {
+        setNewIconUrl(`${API_URL}${res.data.url}`);
+        toast.success('Icon diupload');
+      }
+    } catch { toast.error('Gagal upload'); }
+    finally { setUploadingPayIcon(false); }
+  };
+
   if (!user || user.role !== 'admin') return null;
 
   if (loading) {
