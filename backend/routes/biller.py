@@ -347,10 +347,10 @@ async def sync_catalog():
 
 
 @router.get("/catalog")
-async def get_catalog():
+async def get_catalog(show_all: bool = False):
     """
-    Return cached DigiFlazz game products grouped by brand.
-    Frontend uses this for the homepage product grid.
+    Return cached DigiFlazz products grouped by brand.
+    show_all=true returns inactive brands too (for admin).
     """
     # Try cache first
     products = await _db.digiflazz_products.find(
