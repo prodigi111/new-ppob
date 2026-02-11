@@ -296,6 +296,12 @@ export default function Checkout() {
               </div>
             )}
 
+            {/* Payment badges */}
+            <div className="mb-4">
+              <p className="text-xs text-muted-foreground mb-2">Metode Pembayaran Tersedia</p>
+              <PaymentBadges size="sm" />
+            </div>
+
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider py-6"
               onClick={createPayment}
