@@ -335,12 +335,12 @@ def _get_input_config(raw_category: str, brand: str, desc: str) -> dict:
     if brand in no_input_brands or (raw_category == "Voucher" and not desc_lower):
         return {
             "type": "voucher_code",
-            "id_label": "Email (opsional)",
-            "id_placeholder": "Email untuk menerima kode voucher",
-            "id_required": False,
+            "id_label": "Nomor HP",
+            "id_placeholder": "Masukkan nomor HP",
+            "id_required": True,
             "show_id2": False,
-            "instruction": "Kode voucher akan ditampilkan setelah pembayaran berhasil. Tidak perlu memasukkan data tambahan.",
-            "success_label": "Email",
+            "instruction": "Masukkan nomor HP Anda. Kode voucher akan ditampilkan setelah pembayaran berhasil.",
+            "success_label": "Nomor HP",
         }
 
     # PLN
