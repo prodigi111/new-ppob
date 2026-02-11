@@ -423,6 +423,10 @@ async def get_catalog(show_all: bool = False):
     # Sort brands by item count (most popular first)
     brands = sorted(brands_map.values(), key=lambda b: len(b["items"]), reverse=True)
 
+    # Filter out inactive brands for customer view
+    if not show_all:
+        brands = [b for b in brands if b.get("active", True)]
+
     return {"success": True, "brands": brands, "total": len(brands)}
 
 
