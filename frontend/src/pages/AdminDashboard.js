@@ -891,55 +891,56 @@ export default function AdminDashboard() {
                   <h2 className="font-rajdhani font-semibold text-lg text-white uppercase flex items-center gap-2">
                     <CreditCard className="w-5 h-5" /> Icon Payment Method
                   </h2>
-                  <p className="text-muted-foreground text-sm mt-1">Icon yang tampil di footer website</p>
+                  <p className="text-muted-foreground text-sm mt-1">Upload icon untuk setiap metode pembayaran (tampil di footer & halaman checkout)</p>
                 </div>
                 <div className="p-6">
-                  {/* Current icons */}
-                  <div className="flex flex-wrap gap-4 mb-6">
-                    {payIcons.map((ic, i) => (
-                      <div key={i} className="relative group bg-white/5 rounded-lg p-3 flex items-center gap-2">
-                        <img src={ic.url} alt={ic.name} className="h-8 object-contain" />
-                        <span className="text-xs text-gray-300">{ic.name}</span>
-                        <button
-                          onClick={() => handleRemovePayIcon(i)}
-                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
+                  <div className="space-y-3">
+                    {payIcons.map((pm) => (
+                      <div key={pm.code} className="flex items-center gap-4 border border-border rounded-lg p-3">
+                        {/* Icon preview */}
+                        <div className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {pm.icon ? (
+                            <img src={pm.icon} alt={pm.name} className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <span className="text-xs text-muted-foreground font-mono">{pm.code.toUpperCase()}</span>
+                          )}
+                        </div>
+
+                        {/* Name */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium text-sm">{pm.name}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{pm.code}</p>
+                        </div>
+
+                        {/* Edit area */}
+                        {editingPayIcon === pm.code ? (
+                          <div className="flex items-center gap-2 flex-1">
+                            <Input placeholder="Paste URL icon..."
+                              className="bg-black/50 border-white/10 text-white text-xs h-8"
+                              value={payIconUrl} onChange={(e) => setPayIconUrl(e.target.value)} />
+                            <label className="flex items-center gap-1 cursor-pointer px-2 py-1.5 rounded border border-dashed border-primary/50 hover:border-primary bg-primary/5 text-xs text-primary whitespace-nowrap flex-shrink-0">
+                              <Image className="w-3 h-3" />
+                              {uploadingPayIcon ? '...' : 'Upload'}
+                              <input type="file" accept="image/*" className="hidden"
+                                onChange={(e) => handleUploadPayIcon(pm.code, e.target.files[0])} disabled={uploadingPayIcon} />
+                            </label>
+                            <Button size="sm" className="h-8 bg-success hover:bg-success/90 px-2 flex-shrink-0"
+                              onClick={() => handleSavePayIcon(pm.code)} disabled={!payIconUrl.trim()}>
+                              <Check className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground flex-shrink-0"
+                              onClick={() => { setEditingPayIcon(null); setPayIconUrl(''); }}>
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-white flex-shrink-0"
+                            onClick={() => { setEditingPayIcon(pm.code); setPayIconUrl(pm.icon || ''); }}>
+                            <Pencil className="w-3 h-3 mr-1" /> {pm.icon ? 'Ubah' : 'Upload Icon'}
+                          </Button>
+                        )}
                       </div>
                     ))}
-                    {!payIcons.length && <p className="text-muted-foreground text-sm">Belum ada icon (menggunakan default)</p>}
-                  </div>
-
-                  {/* Add new */}
-                  <div className="border border-border rounded-lg p-4 space-y-3">
-                    <p className="text-white text-sm font-medium">Tambah Icon</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <Input placeholder="Nama (cth: QRIS)" className="bg-black/50 border-white/10 text-white"
-                        value={newIconName} onChange={(e) => setNewIconName(e.target.value)} />
-                      <div className="flex gap-2">
-                        <Input placeholder="URL icon..." className="bg-black/50 border-white/10 text-white"
-                          value={newIconUrl} onChange={(e) => setNewIconUrl(e.target.value)} />
-                      </div>
-                      <div className="flex gap-2">
-                        <label className="flex items-center gap-1 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-primary/50 hover:border-primary bg-primary/5 text-xs text-primary whitespace-nowrap">
-                          <Image className="w-3 h-3" />
-                          {uploadingPayIcon ? 'Uploading...' : 'Upload'}
-                          <input type="file" accept="image/*" className="hidden"
-                            onChange={(e) => handleUploadPayIcon(e.target.files[0])} disabled={uploadingPayIcon} />
-                        </label>
-                        <Button className="bg-primary hover:bg-primary/90" onClick={handleAddPayIcon}
-                          disabled={!newIconName.trim() || !newIconUrl.trim()}>
-                          <Plus className="w-4 h-4 mr-1" /> Tambah
-                        </Button>
-                      </div>
-                    </div>
-                    {newIconUrl && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-muted-foreground">Preview:</span>
-                        <img src={newIconUrl} alt="preview" className="h-8 object-contain bg-white/10 rounded p-1" />
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
