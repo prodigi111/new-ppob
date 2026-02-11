@@ -208,8 +208,8 @@ class DigiFlazzService:
                 if "data" in data:
                     trx_data = data["data"]
                     
-                    # Handle error response (dict with rc/message)
-                    if isinstance(trx_data, dict) and "rc" in trx_data:
+                    # Handle error response - rc is not empty means error
+                    if isinstance(trx_data, dict) and trx_data.get("rc"):
                         return {
                             "success": False,
                             "pending": False,
