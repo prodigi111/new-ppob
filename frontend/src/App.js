@@ -28,6 +28,7 @@ function App() {
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/product/df/:brandSlug" element={<DigiFlazzProduct />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
               <Route path="/checkout/:orderId" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
