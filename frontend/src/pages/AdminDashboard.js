@@ -491,9 +491,7 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell>
                           {order.digiflazz_sku ? (
-                            <span className="font-mono text-xs text-gray-300 max-w-[100px] truncate block" title={order.id}>
-                              {order.id.substring(0, 12)}...
-                            </span>
+                            <CopyId label="DigiFlazz" value={order.id} />
                           ) : <span className="text-xs text-muted-foreground">-</span>}
                         </TableCell>
                         <TableCell>
