@@ -441,7 +441,7 @@ export default function AdminDashboard() {
                       <TableHead className="text-muted-foreground">Produk</TableHead>
                       <TableHead className="text-muted-foreground">Tujuan</TableHead>
                       <TableHead className="text-muted-foreground">Total</TableHead>
-                      <TableHead className="text-muted-foreground">Ayolinx ID</TableHead>
+                      <TableHead className="text-muted-foreground">IDs (Merchant / Ayolinx)</TableHead>
                       <TableHead className="text-muted-foreground">Payment</TableHead>
                       <TableHead className="text-muted-foreground">DigiFlazz Ref</TableHead>
                       <TableHead className="text-muted-foreground">DigiFlazz</TableHead>
