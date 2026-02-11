@@ -180,7 +180,7 @@ async def _trigger_digiflazz_topup(order_id: str):
         ref_id=ref_id,
         buyer_sku_code=sku,
         customer_no=customer_no,
-        testing=True  # Set to False for production
+        testing=False  # Production mode
     )
 
     update = {
