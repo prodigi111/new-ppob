@@ -267,28 +267,18 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddPayIcon = async () => {
-    if (!newIconName.trim() || !newIconUrl.trim()) return toast.error('Isi nama dan URL icon');
-    const updated = [...payIcons, { name: newIconName, url: newIconUrl }];
+  const handleSavePayIcon = async (code) => {
+    if (!payIconUrl.trim()) return toast.error('Masukkan URL icon');
     try {
-      await axios.put(`${API_URL}/api/payment-icons`, { icons: updated }, { headers: { Authorization: `Bearer ${token}` } });
-      setPayIcons(updated);
-      setNewIconName('');
-      setNewIconUrl('');
-      toast.success('Icon payment ditambahkan');
-    } catch { toast.error('Gagal menambah icon'); }
+      await axios.put(`${API_URL}/api/payment-icons/${code}`, { icon: payIconUrl }, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success('Icon payment berhasil diupdate');
+      setEditingPayIcon(null);
+      setPayIconUrl('');
+      fetchData();
+    } catch { toast.error('Gagal update icon'); }
   };
 
-  const handleRemovePayIcon = async (idx) => {
-    const updated = payIcons.filter((_, i) => i !== idx);
-    try {
-      await axios.put(`${API_URL}/api/payment-icons`, { icons: updated }, { headers: { Authorization: `Bearer ${token}` } });
-      setPayIcons(updated);
-      toast.success('Icon payment dihapus');
-    } catch { toast.error('Gagal menghapus icon'); }
-  };
-
-  const handleUploadPayIcon = async (file) => {
+  const handleUploadPayIcon = async (code, file) => {
     if (!file) return;
     setUploadingPayIcon(true);
     try {
@@ -296,10 +286,14 @@ export default function AdminDashboard() {
       formData.append('file', file);
       const res = await axios.post(`${API_URL}/api/upload/icon`, formData);
       if (res.data.success) {
-        setNewIconUrl(`${API_URL}${res.data.url}`);
-        toast.success('Icon diupload');
+        const fullUrl = `${API_URL}${res.data.url}`;
+        await axios.put(`${API_URL}/api/payment-icons/${code}`, { icon: fullUrl }, { headers: { Authorization: `Bearer ${token}` } });
+        toast.success('Icon diupload & diupdate');
+        setEditingPayIcon(null);
+        setPayIconUrl('');
+        fetchData();
       }
-    } catch { toast.error('Gagal upload'); }
+    } catch { toast.error('Gagal upload icon'); }
     finally { setUploadingPayIcon(false); }
   };
 
