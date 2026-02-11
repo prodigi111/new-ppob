@@ -307,6 +307,11 @@ export default function DigiFlazzProduct() {
             onClick={() => { setPaymentStep('form'); setPaymentData(null); }}>
             <RefreshCw className="w-4 h-4 mr-2" /> Ganti Metode Pembayaran
           </Button>
+
+          <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-2">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Menunggu konfirmasi pembayaran...
+          </p>
         </div>
       </div>
     );
