@@ -197,20 +197,140 @@ async def check_transaction_status(
 
 @router.post("/webhook")
 async def digiflazz_webhook(payload: dict):
-    """
-    Webhook endpoint for DigiFlazz callbacks
-    Whitelist DigiFlazz IP: 52.74.250.133
-    """
-    print(f"DigiFlazz Webhook received: {payload}")
-    
-    # Extract transaction data
+    """Webhook endpoint for DigiFlazz callbacks"""
+    logger.info(f"DigiFlazz Webhook received: {payload}")
     data = payload.get("data", {})
     ref_id = data.get("ref_id")
     status = data.get("status")
     sn = data.get("sn")
-    message = data.get("message")
-    
-    # TODO: Update order status in database based on webhook
-    # await update_order_from_webhook(ref_id, status, sn, message)
-    
+
+    if ref_id:
+        update = {"digiflazz_status": status, "digiflazz_sn": sn}
+        if status == "Sukses":
+            update["status"] = "completed"
+            update["completed_at"] = datetime.now(timezone.utc).isoformat()
+        elif status == "Gagal":
+            update["status"] = "failed"
+        await _db.orders.update_one({"id": ref_id}, {"$set": update})
+
     return {"status": "ok"}
+
+
+# ===================== CATALOG (cached DigiFlazz) =====================
+
+@router.post("/catalog/sync")
+async def sync_catalog():
+    """Fetch DigiFlazz game products and cache in MongoDB"""
+    result = await digiflazz_service.get_game_products()
+    if not result.get("success"):
+        return {"success": False, "error": result.get("error", "Failed to fetch")}
+
+    products = result.get("products", [])
+    if not products:
+        return {"success": False, "error": "No products returned"}
+
+    # Store each product
+    for p in products:
+        if not isinstance(p, dict):
+            continue
+        await _db.digiflazz_products.update_one(
+            {"buyer_sku_code": p.get("buyer_sku_code")},
+            {"$set": {**p, "cached_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+
+    await _db.digiflazz_meta.update_one(
+        {"key": "last_sync"},
+        {"$set": {"key": "last_sync", "at": datetime.now(timezone.utc).isoformat(), "count": len(products)}},
+        upsert=True,
+    )
+    return {"success": True, "synced": len(products)}
+
+
+@router.get("/catalog")
+async def get_catalog():
+    """
+    Return cached DigiFlazz game products grouped by brand.
+    Frontend uses this for the homepage product grid.
+    """
+    # Try cache first
+    products = await _db.digiflazz_products.find(
+        {"seller_product_status": True},
+        {"_id": 0},
+    ).to_list(500)
+
+    # If cache empty, try a live fetch
+    if not products:
+        result = await digiflazz_service.get_game_products()
+        if result.get("success"):
+            products = [p for p in result.get("products", []) if isinstance(p, dict) and p.get("seller_product_status")]
+            # Cache them
+            for p in products:
+                await _db.digiflazz_products.update_one(
+                    {"buyer_sku_code": p.get("buyer_sku_code")},
+                    {"$set": {**p, "cached_at": datetime.now(timezone.utc).isoformat()}},
+                    upsert=True,
+                )
+
+    if not products:
+        return {"success": True, "brands": [], "total": 0}
+
+    # Group by brand
+    brands_map = {}
+    for p in products:
+        brand = p.get("brand", "Other")
+        if brand not in brands_map:
+            brands_map[brand] = {
+                "brand": brand,
+                "slug": brand.lower().replace(" ", "-").replace(":", ""),
+                "image": BRAND_IMAGES.get(brand, f"https://ui-avatars.com/api/?name={brand[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
+                "category": p.get("category", "Games"),
+                "items": [],
+            }
+        brands_map[brand]["items"].append({
+            "sku": p.get("buyer_sku_code"),
+            "name": p.get("product_name"),
+            "price": p.get("price", 0),
+            "active": p.get("seller_product_status", False),
+        })
+
+    # Sort brands by item count (most popular first)
+    brands = sorted(brands_map.values(), key=lambda b: len(b["items"]), reverse=True)
+
+    return {"success": True, "brands": brands, "total": len(brands)}
+
+
+@router.get("/catalog/{brand_slug}")
+async def get_brand_products(brand_slug: str):
+    """
+    Return all active products for a specific brand.
+    Frontend uses this for the product detail / denomination page.
+    """
+    # Reconstruct brand name from slug
+    all_brands = await _db.digiflazz_products.distinct("brand")
+    brand_name = None
+    for b in all_brands:
+        if b.lower().replace(" ", "-").replace(":", "") == brand_slug:
+            brand_name = b
+            break
+
+    if not brand_name:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    products = await _db.digiflazz_products.find(
+        {"brand": brand_name, "seller_product_status": True},
+        {"_id": 0},
+    ).sort("price", 1).to_list(100)
+
+    return {
+        "success": True,
+        "brand": brand_name,
+        "slug": brand_slug,
+        "image": BRAND_IMAGES.get(brand_name, f"https://ui-avatars.com/api/?name={brand_name[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5"),
+        "products": [{
+            "sku": p.get("buyer_sku_code"),
+            "name": p.get("product_name"),
+            "price": p.get("price", 0),
+            "desc": p.get("desc", ""),
+        } for p in products],
+    }
