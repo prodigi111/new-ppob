@@ -97,7 +97,12 @@ export default function ResellerDashboard() {
   const [previewDevice, setPreviewDevice] = useState('desktop');
 
   useEffect(() => {
-    if (!user || (user.role !== 'reseller' && user.role !== 'admin')) {
+    if (loading) return;
+    if (!user) {
+      navigate('/login?redirect=/reseller/dashboard');
+      return;
+    }
+    if (user.role !== 'reseller' && user.role !== 'admin') {
       navigate('/');
       return;
     }
