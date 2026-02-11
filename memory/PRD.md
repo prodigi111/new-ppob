@@ -65,6 +65,11 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 ## Key API Endpoints
 - `POST /api/payment/create` - Create payment (VA/QRIS/Payment Link)
 - `GET /api/payment/channels` - Available payment methods
+- `GET /api/payment/status/{order_id}` - Check payment status from DB
+- `POST /api/payment/callback/notify` - Unified Ayolinx webhook
+- `POST /api/payment/callback/va` - VA-specific webhook
+- `POST /api/payment/callback/qris` - QRIS-specific webhook
+- `POST /api/payment/callback/link` - Payment Link webhook
 - `GET /api/biller/balance` - DigiFlazz balance
 - `GET /api/biller/products/games` - Game products from DigiFlazz
 - `POST /api/biller/topup` - Process top-up via DigiFlazz
