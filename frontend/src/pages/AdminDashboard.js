@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {dfBrands.map((brand) => (
-                      <TableRow key={brand.slug} className="border-border">
+                      <TableRow key={brand.slug} className={`border-border ${brand.active === false ? 'opacity-40' : ''}`}>
                         <TableCell>
                           <img src={brand.image} alt={brand.brand} className="w-12 h-12 rounded-lg object-cover" />
                         </TableCell>
