@@ -22,16 +22,22 @@ _db = _client[os.environ['DB_NAME']]
 
 # Brand image mapping for popular games
 BRAND_IMAGES = {
-    "MOBILE LEGENDS": "https://play-lh.googleusercontent.com/Dz0-CSP7GEYdN1GVklYnyYSaVp4oYrRQxjofLOjIYEOjMb3yGQsJGMaU2KsnGC6CjyI=w240-h480-rw",
-    "FREE FIRE": "https://play-lh.googleusercontent.com/sE68bCHL7RZ9iMNSRFhvk4t_2MFbJcAfRYTNsXZ_LIBhqwdeelOPKPaAA5avnFa6ng=w240-h480-rw",
+    "MOBILE LEGENDS": "https://ui-avatars.com/api/?name=ML&background=4267B2&color=fff&size=200&bold=true&font-size=0.4",
+    "FREE FIRE": "https://ui-avatars.com/api/?name=FF&background=FF6B00&color=fff&size=200&bold=true&font-size=0.4",
     "PUBG MOBILE": "https://play-lh.googleusercontent.com/JRd05pyBH41qjgsJuWduRJpDeZG0Hnb0yjf2nWqO7VaGKL10-G5UIygxED-WNOc3pg=w240-h480-rw",
-    "GENSHIN IMPACT": "https://play-lh.googleusercontent.com/nca-yl_JpVMFEo7MXSV-ZMYRhFzNkJz9YtanYi9Xf7x_5bJ1pUZIlno7gSa3lFFP0c=w240-h480-rw",
-    "VALORANT": "https://ui-avatars.com/api/?name=VAL&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
+    "GENSHIN IMPACT": "https://ui-avatars.com/api/?name=GI&background=6366F1&color=fff&size=200&bold=true&font-size=0.4",
+    "Genshin Impact": "https://ui-avatars.com/api/?name=GI&background=6366F1&color=fff&size=200&bold=true&font-size=0.4",
+    "VALORANT": "https://ui-avatars.com/api/?name=VA&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
+    "Valorant": "https://ui-avatars.com/api/?name=VA&background=FF4655&color=fff&size=200&bold=true&font-size=0.4",
     "HONKAI STAR RAIL": "https://ui-avatars.com/api/?name=HSR&background=9333EA&color=fff&size=200&bold=true&font-size=0.4",
+    "Call of Duty MOBILE": "https://ui-avatars.com/api/?name=COD&background=1a1a1a&color=fff&size=200&bold=true&font-size=0.4",
     "CALL OF DUTY": "https://ui-avatars.com/api/?name=COD&background=1a1a1a&color=fff&size=200&bold=true&font-size=0.4",
     "ARENA OF VALOR": "https://ui-avatars.com/api/?name=AOV&background=0066cc&color=fff&size=200&bold=true&font-size=0.4",
     "RAGNAROK": "https://ui-avatars.com/api/?name=RO&background=663399&color=fff&size=200&bold=true&font-size=0.4",
     "POINT BLANK": "https://ui-avatars.com/api/?name=PB&background=cc3300&color=fff&size=200&bold=true&font-size=0.4",
+    "GARENA": "https://ui-avatars.com/api/?name=GR&background=E14B00&color=fff&size=200&bold=true&font-size=0.4",
+    "Nintendo eShop": "https://ui-avatars.com/api/?name=NS&background=E60012&color=fff&size=200&bold=true&font-size=0.4",
+    "Unipin Voucher": "https://ui-avatars.com/api/?name=UP&background=FFB800&color=000&size=200&bold=true&font-size=0.4",
 }
 
 router = APIRouter(prefix="/biller", tags=["Biller"])
