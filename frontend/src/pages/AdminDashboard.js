@@ -363,45 +363,88 @@ export default function AdminDashboard() {
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h2 className="font-rajdhani font-semibold text-lg text-white uppercase">
-                  Produk ({products.length})
+                  Katalog DigiFlazz ({dfBrands.length} brand)
                 </h2>
+                <Button
+                  className="bg-primary hover:bg-primary/90 text-white"
+                  onClick={handleSyncDigiflazz}
+                  disabled={syncing}
+                  data-testid="sync-digiflazz-btn"
+                >
+                  {syncing ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      Syncing...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Package className="w-4 h-4" />
+                      Sync DigiFlazz
+                    </span>
+                  )}
+                </Button>
               </div>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border">
-                      <TableHead className="text-muted-foreground">Produk</TableHead>
+                      <TableHead className="text-muted-foreground">Icon</TableHead>
+                      <TableHead className="text-muted-foreground">Brand</TableHead>
                       <TableHead className="text-muted-foreground">Kategori</TableHead>
-                      <TableHead className="text-muted-foreground">Denominasi</TableHead>
-                      <TableHead className="text-muted-foreground">Status</TableHead>
+                      <TableHead className="text-muted-foreground">Produk</TableHead>
+                      <TableHead className="text-muted-foreground">Harga Mulai</TableHead>
+                      <TableHead className="text-muted-foreground">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map((product) => (
-                      <TableRow key={product.id} className="border-border">
+                    {dfBrands.map((brand) => (
+                      <TableRow key={brand.slug} className="border-border">
                         <TableCell>
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
-                            <div>
-                              <p className="text-white font-medium">{product.name}</p>
-                              <p className="text-xs text-muted-foreground font-mono">{product.slug}</p>
-                            </div>
-                          </div>
+                          <img src={brand.image} alt={brand.brand} className="w-12 h-12 rounded-lg object-cover" />
                         </TableCell>
-                        <TableCell className="capitalize">{product.category}</TableCell>
-                        <TableCell>{product.denominations?.length || 0} item</TableCell>
+                        <TableCell>
+                          <p className="text-white font-medium">{brand.brand}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{brand.slug}</p>
+                        </TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 text-xs rounded-full ${
-                            product.is_active 
-                              ? 'bg-success/20 text-success' 
-                              : 'bg-destructive/20 text-destructive'
+                            brand.category === 'games' ? 'bg-blue-500/20 text-blue-400' :
+                            brand.category === 'pulsa' ? 'bg-green-500/20 text-green-400' :
+                            'bg-yellow-500/20 text-yellow-400'
                           }`}>
-                            {product.is_active ? 'Active' : 'Inactive'}
+                            {brand.category}
                           </span>
+                        </TableCell>
+                        <TableCell className="text-white">{brand.items.length} item</TableCell>
+                        <TableCell className="font-mono text-primary">
+                          Rp {Math.min(...brand.items.map(i => i.price)).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell>
+                          {editingIcon === brand.slug ? (
+                            <div className="flex items-center gap-2 min-w-[280px]">
+                              <Input
+                                placeholder="URL icon baru..."
+                                className="bg-black/50 border-white/10 text-white text-xs h-8"
+                                value={iconUrl}
+                                onChange={(e) => setIconUrl(e.target.value)}
+                                data-testid={`icon-input-${brand.slug}`}
+                              />
+                              <Button size="sm" className="h-8 bg-success hover:bg-success/90 px-2"
+                                onClick={() => handleUpdateIcon(brand.slug)}>
+                                <Check className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground"
+                                onClick={() => { setEditingIcon(null); setIconUrl(''); }}>
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-white h-8"
+                              onClick={() => { setEditingIcon(brand.slug); setIconUrl(brand.image); }}
+                              data-testid={`edit-icon-${brand.slug}`}>
+                              <Pencil className="w-3 h-3 mr-1" /> Ubah Icon
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -409,6 +452,51 @@ export default function AdminDashboard() {
                 </Table>
               </div>
             </div>
+
+            {/* Seed Products (legacy) */}
+            {products.length > 0 && (
+              <div className="bg-card rounded-xl border border-border overflow-hidden mt-6">
+                <div className="p-6 border-b border-border">
+                  <h2 className="font-rajdhani font-semibold text-lg text-white uppercase">
+                    Produk Seed ({products.length})
+                  </h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border">
+                        <TableHead className="text-muted-foreground">Produk</TableHead>
+                        <TableHead className="text-muted-foreground">Kategori</TableHead>
+                        <TableHead className="text-muted-foreground">Denominasi</TableHead>
+                        <TableHead className="text-muted-foreground">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {products.map((product) => (
+                        <TableRow key={product.id} className="border-border">
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover" />
+                              <div>
+                                <p className="text-white font-medium">{product.name}</p>
+                                <p className="text-xs text-muted-foreground font-mono">{product.slug}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="capitalize">{product.category}</TableCell>
+                          <TableCell>{product.denominations?.length || 0} item</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 text-xs rounded-full ${product.is_active ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
+                              {product.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           {/* Users Tab */}
