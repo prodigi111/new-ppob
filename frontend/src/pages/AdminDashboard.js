@@ -196,6 +196,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateMargin = async (slug) => {
+    try {
+      await axios.put(`${API_URL}/api/biller/pricing/${slug}`, {
+        margin_type: marginType,
+        margin_value: Number(marginValue),
+      });
+      toast.success('Margin berhasil diupdate');
+      setEditingMargin(null);
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal update margin');
+    }
+  };
+
   if (!user || user.role !== 'admin') return null;
 
   if (loading) {
