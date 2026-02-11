@@ -520,15 +520,7 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell>
                           {order.digiflazz_sn ? (
-                            <div className="flex items-center gap-1">
-                              <span className="font-mono text-xs text-green-400 max-w-[130px] truncate block" title={order.digiflazz_sn}>
-                                {order.digiflazz_sn}
-                              </span>
-                              <button onClick={() => { navigator.clipboard.writeText(order.digiflazz_sn); toast.success('SN disalin!'); }}
-                                className="text-muted-foreground hover:text-white p-0.5 flex-shrink-0">
-                                <Copy className="w-3 h-3" />
-                              </button>
-                            </div>
+                            <CopyId label="SN" value={order.digiflazz_sn} color="text-green-400" />
                           ) : (
                             <span className="text-xs text-muted-foreground">-</span>
                           )}
