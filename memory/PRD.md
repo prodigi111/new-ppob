@@ -9,7 +9,8 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - Reseller feature with independent domain support
 - JWT authentication
 - Dark mode with Blaze brand theme
-- Ayolinx payment (MOCKED for now)
+- Ayolinx payment gateway integration
+- DigiFlazz biller integration (planned)
 
 ## Brand Identity - Blaze Theme
 - **Blaze Red**: #FF0000 (Primary)
@@ -35,17 +36,26 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - [x] Admin dashboard (products, orders, users, reseller approval)
 - [x] Dark Blaze theme with brand colors
 - [x] Custom brand assets (Logo + Mascots)
-- [ ] Ayolinx payment integration (requires credentials)
+- [x] Ayolinx payment integration (Virtual Account + QRIS)
+- [ ] Google OAuth login
+- [ ] DigiFlazz biller integration (requires credentials)
 
 ## What's Been Implemented
 
 ### Latest Update (Feb 2026)
+- **Ayolinx Payment Gateway Integration**:
+  - Virtual Account support (BCA, BNI, BRI, Mandiri, Permata, CIMB)
+  - QRIS payment support
+  - Payment callback webhooks
+  - Updated Checkout page with payment method selection
+  - Credentials stored in backend/.env
+
 - **Brand Assets Integration**:
-  - Blaze logo integrated into Navbar
+  - Blaze logo integrated into Navbar, Footer, Login, Register
   - Mascot #1 displayed in Homepage hero section with float animation
   - Mascot #1 displayed in Homepage CTA section
   - Both Mascots displayed in Reseller page hero (decorative)
-  - Custom CSS animations (float, glow effects)
+  - All "VoucherVerse" text changed to "BlazeStore"
 
 ### Backend (FastAPI + MongoDB)
 - User authentication (register, login, JWT tokens)
@@ -53,31 +63,22 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - Order management (create, track, list)
 - Reseller system (apply, dashboard, balance top-up mock)
 - Admin dashboard (stats, manage orders/users/products/resellers)
-- Mock payment processing
+- **Ayolinx Payment Service** (`/app/backend/services/ayolinx.py`)
+- **Payment Routes** (`/app/backend/routes/payment.py`)
 
 ### Frontend (React + Tailwind + Shadcn)
 - Home page with product catalog and mascot
 - Category filtering and search
 - Product detail page with denomination selection
-- Checkout page with mock payment
+- **Enhanced Checkout page** with:
+  - Payment method selection (VA/QRIS)
+  - Bank selection for Virtual Account
+  - VA number display with copy function
+  - QRIS QR code display
 - Transaction tracking
 - User profile with order history
-- **Reseller Landing Page (Uniplay-style):**
-  - Hero with social proof stats + mascots decoration
-  - 6 Benefit cards (Tanpa Deposit, Sistem Otomatis, Website Sendiri, dll)
-  - **Domain Checker** - Cek ketersediaan domain independent (.com, .id, .co.id, .net, .store, .shop) dengan harga
-  - Interactive Profit Calculator with sliders
-  - 3-Tier Pricing (Pro, Legend, Supreme) with billing toggle
-  - Wall of Fame testimonials
-  - FAQ section
-- Reseller Dashboard (Tabs: Overview, Transaksi, Top Up Saldo, **Deploy Website**)
-  - **Deploy Website Feature**:
-    - Konfigurasi: Nama Toko, **Custom Domain** (.com/.id/.store), Tagline, WhatsApp
-    - 6 Theme pilihan (Neon Cyber, Sunset Blaze, Ocean Wave, dll)
-    - Live Preview dengan toggle Desktop/Mobile
-    - **DNS Setup Instructions** untuk konfigurasi domain sendiri
-    - One-click Deploy dengan status indicator
-    - Fitur SSL gratis dan Auto Sync produk
+- Reseller Landing Page (Uniplay-style)
+- Reseller Dashboard with Deploy Website feature
 - Admin dashboard with tabs
 - Blaze theme with brand colors and custom assets
 
@@ -94,13 +95,13 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 
 ## Prioritized Backlog
 
-### P0 - Critical (Next Phase)
-- [ ] Real Ayolinx payment integration (when credentials available)
-- [ ] Email notifications for orders
+### P0 - Critical (Next)
+- [ ] Google OAuth login integration
+- [ ] DigiFlazz biller integration (requires user credentials)
 
 ### P1 - Important
+- [ ] Email notifications for orders
 - [ ] Webhooks for payment status updates
-- [ ] Order status email notifications
 - [ ] Product search with filters
 - [ ] Reseller pricing tiers
 
@@ -111,15 +112,21 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - [ ] Multi-language support
 
 ## Next Tasks
-1. Get Ayolinx API credentials from client to implement real payment
-2. Add email notification system (SendGrid/Resend)
-3. Implement affiliate/referral tracking
-4. Add promo code functionality
+1. Implement Google OAuth via Emergent-managed auth
+2. Get DigiFlazz credentials from client for biller integration
+3. Add email notification system (SendGrid/Resend)
+4. Implement affiliate/referral tracking
 
 ## Tech Stack
-- **Backend**: FastAPI, MongoDB (Motor), PyJWT, bcrypt
+- **Backend**: FastAPI, MongoDB (Motor), PyJWT, bcrypt, httpx, pycryptodome
 - **Frontend**: React 19, Tailwind CSS, Shadcn/UI, Axios
-- **Payment**: Mock (Ayolinx ready when credentials available)
+- **Payment**: Ayolinx (Virtual Account, QRIS)
+- **Biller**: DigiFlazz (planned, requires credentials)
+
+## API Credentials
+- **Ayolinx**: Configured in `/app/backend/.env`
+  - Client Key: CK-8bee7385-bc44-4577-805b-33d12336ed70
+  - Customer No: 391
 
 ## Admin Credentials (Demo)
 - Email: admin@voucherverse.com
