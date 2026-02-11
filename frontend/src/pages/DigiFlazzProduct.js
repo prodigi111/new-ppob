@@ -461,7 +461,10 @@ export default function DigiFlazzProduct() {
             {/* ID inputs - adapted per category */}
             <div className="bg-card rounded-xl p-6 border border-border">
               <h2 className="font-rajdhani font-semibold text-lg text-white uppercase mb-4 flex items-center gap-2">
-                <CatIcon className="w-5 h-5 text-primary" /> 1. {category === 'pulsa' ? 'Nomor Tujuan' : category === 'voucher' ? 'Data Pelanggan' : 'Data Akun'}
+                {cfg.type === 'phone' ? <Phone className="w-5 h-5 text-primary" /> :
+                 cfg.type === 'voucher_code' ? <ShoppingBag className="w-5 h-5 text-primary" /> :
+                 <Gamepad2 className="w-5 h-5 text-primary" />}
+                1. {cfg.type === 'voucher_code' ? 'Informasi' : 'Data Tujuan'}
               </h2>
               <div className={`grid grid-cols-1 ${cfg.show_id2 ? 'md:grid-cols-2' : ''} gap-4`}>
                 <div className="space-y-2">
