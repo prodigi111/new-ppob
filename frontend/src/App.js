@@ -31,6 +31,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/product/df/:brandSlug" element={<DigiFlazzProduct />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
+              <Route path="/page/:slug" element={<CmsPage />} />
               <Route path="/checkout/:orderId" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
