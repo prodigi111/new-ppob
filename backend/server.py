@@ -742,6 +742,43 @@ async def seed_data():
 async def root():
     return {"message": "VoucherVerse API v1.0"}
 
+# ===================== CMS PAGES =====================
+
+@api_router.get("/cms/{page_slug}")
+async def get_cms_page(page_slug: str):
+    """Get CMS page content (tentang-kami, kebijakan-privasi, syarat-ketentuan)"""
+    page = await db.cms_pages.find_one({"slug": page_slug}, {"_id": 0})
+    if not page:
+        return {"slug": page_slug, "title": "", "content": ""}
+    return page
+
+@api_router.put("/cms/{page_slug}")
+async def update_cms_page(page_slug: str, payload: dict, user: dict = Depends(get_admin_user)):
+    """Update CMS page content (admin only)"""
+    await db.cms_pages.update_one(
+        {"slug": page_slug},
+        {"$set": {"slug": page_slug, "title": payload.get("title", ""), "content": payload.get("content", "")}},
+        upsert=True,
+    )
+    return {"success": True}
+
+# ===================== PAYMENT METHOD ICONS =====================
+
+@api_router.get("/payment-icons")
+async def get_payment_icons():
+    """Get all payment method icons"""
+    icons = await db.payment_icons.find({}, {"_id": 0}).to_list(20)
+    return {"icons": icons}
+
+@api_router.put("/payment-icons")
+async def update_payment_icons(payload: dict, user: dict = Depends(get_admin_user)):
+    """Update payment method icons. Body: { "icons": [{"name":"QRIS","url":"..."},{"name":"BCA","url":"..."}] }"""
+    icons = payload.get("icons", [])
+    await db.payment_icons.delete_many({})
+    if icons:
+        await db.payment_icons.insert_many([{**ic} for ic in icons])
+    return {"success": True}
+
 # ===================== FILE UPLOAD =====================
 
 UPLOAD_DIR = Path(__file__).parent / "uploads"
