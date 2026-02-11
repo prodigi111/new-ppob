@@ -72,7 +72,7 @@ const THEMES = [
 
 export default function ResellerDashboard() {
   const navigate = useNavigate();
-  const { user, token, loading, updateUser } = useAuth();
+  const { user, token, loading: authLoading, updateUser } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
