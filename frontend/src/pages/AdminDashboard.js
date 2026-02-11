@@ -458,7 +458,51 @@ export default function AdminDashboard() {
                           </span>
                         </TableCell>
                         <TableCell className="text-white">{brand.items.length} item</TableCell>
-                        <TableCell className="font-mono text-primary">
+                        <TableCell className="font-mono text-muted-foreground text-xs">
+                          Rp {Math.min(...brand.items.map(i => i.cost)).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell>
+                          {editingMargin === brand.slug ? (
+                            <div className="flex items-center gap-1 min-w-[200px]">
+                              <select
+                                className="bg-black/50 border border-white/10 text-white text-xs rounded px-1 py-1 h-8"
+                                value={marginType}
+                                onChange={(e) => setMarginType(e.target.value)}
+                              >
+                                <option value="percent">%</option>
+                                <option value="fixed">Rp</option>
+                              </select>
+                              <Input
+                                type="number"
+                                className="bg-black/50 border-white/10 text-white text-xs h-8 w-20"
+                                value={marginValue}
+                                onChange={(e) => setMarginValue(e.target.value)}
+                              />
+                              <Button size="sm" className="h-8 bg-success hover:bg-success/90 px-2"
+                                onClick={() => handleUpdateMargin(brand.slug)}>
+                                <Check className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground"
+                                onClick={() => setEditingMargin(null)}>
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <button
+                              className="text-xs text-primary hover:underline cursor-pointer"
+                              onClick={() => {
+                                setEditingMargin(brand.slug);
+                                setMarginType(brand.margin_type || 'percent');
+                                setMarginValue(brand.margin_value ?? 10);
+                              }}
+                            >
+                              {brand.margin_type === 'fixed'
+                                ? `+Rp ${Number(brand.margin_value || 0).toLocaleString('id-ID')}`
+                                : `+${brand.margin_value ?? 10}%`}
+                            </button>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-primary font-medium">
                           Rp {Math.min(...brand.items.map(i => i.price)).toLocaleString('id-ID')}
                         </TableCell>
                         <TableCell>
