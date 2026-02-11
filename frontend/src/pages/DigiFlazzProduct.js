@@ -52,13 +52,35 @@ export default function DigiFlazzProduct() {
 
   // Payment state
   const [paymentData, setPaymentData] = useState(null);
-  const [paymentStep, setPaymentStep] = useState('form'); // form | paying | done
+  const [paymentStep, setPaymentStep] = useState('form'); // form | paying | success
+  const [orderStatus, setOrderStatus] = useState(null);
 
   useEffect(() => {
     fetchBrand();
   }, [brandSlug]);
 
   useEffect(() => { if (user?.email) setEmail(user.email); }, [user]);
+
+  // Poll payment status when in "paying" step
+  useEffect(() => {
+    if (paymentStep !== 'paying' || !paymentData?.orderId) return;
+    let active = true;
+    const poll = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/payment/status/${paymentData.orderId}`);
+        const s = res.data;
+        if (!active) return;
+        setOrderStatus(s);
+        if (s.status === 'paid' || s.status === 'completed') {
+          setPaymentStep('success');
+          return;
+        }
+      } catch {}
+      if (active) setTimeout(poll, 4000);
+    };
+    const timer = setTimeout(poll, 4000);
+    return () => { active = false; clearTimeout(timer); };
+  }, [paymentStep, paymentData?.orderId]);
 
   const fetchBrand = async () => {
     try {
