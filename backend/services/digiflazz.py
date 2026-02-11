@@ -208,31 +208,52 @@ class DigiFlazzService:
                 if "data" in data:
                     trx_data = data["data"]
                     
-                    # Handle error response - rc is not empty means error
-                    if isinstance(trx_data, dict) and trx_data.get("rc"):
+                    if not isinstance(trx_data, dict):
+                        return {"success": False, "pending": False, "failed": True, "error": "Unexpected response", "raw_response": data}
+                    
+                    status = trx_data.get("status", "").lower()
+                    rc = trx_data.get("rc", "")
+                    
+                    # Pending transaction (rc=03 or status=Pending) — NOT an error
+                    if status == "pending" or rc == "03":
+                        return {
+                            "success": False,
+                            "pending": True,
+                            "failed": False,
+                            "ref_id": trx_data.get("ref_id", ref_id),
+                            "customer_no": trx_data.get("customer_no", customer_no),
+                            "buyer_sku_code": trx_data.get("buyer_sku_code", buyer_sku_code),
+                            "message": trx_data.get("message", "Transaksi Pending"),
+                            "status": "pending",
+                            "sn": trx_data.get("sn", ""),
+                            "price": trx_data.get("price", 0),
+                            "buyer_last_saldo": trx_data.get("buyer_last_saldo", 0),
+                            "raw_response": data
+                        }
+                    
+                    # Error response — rc is not empty AND not 00
+                    if rc and rc != "00" and status != "sukses":
                         return {
                             "success": False,
                             "pending": False,
                             "failed": True,
                             "error": trx_data.get("message", "Transaction failed"),
-                            "rc": trx_data.get("rc"),
+                            "rc": rc,
                             "raw_response": data
                         }
                     
-                    status = trx_data.get("status", "").lower() if isinstance(trx_data, dict) else ""
-                    
                     return {
                         "success": status == "sukses",
-                        "pending": status == "pending",
+                        "pending": False,
                         "failed": status == "gagal",
-                        "ref_id": trx_data.get("ref_id") if isinstance(trx_data, dict) else ref_id,
-                        "customer_no": trx_data.get("customer_no") if isinstance(trx_data, dict) else customer_no,
-                        "buyer_sku_code": trx_data.get("buyer_sku_code") if isinstance(trx_data, dict) else buyer_sku_code,
-                        "message": trx_data.get("message", "") if isinstance(trx_data, dict) else "",
+                        "ref_id": trx_data.get("ref_id", ref_id),
+                        "customer_no": trx_data.get("customer_no", customer_no),
+                        "buyer_sku_code": trx_data.get("buyer_sku_code", buyer_sku_code),
+                        "message": trx_data.get("message", ""),
                         "status": status,
-                        "sn": trx_data.get("sn", "") if isinstance(trx_data, dict) else "",
-                        "price": trx_data.get("price", 0) if isinstance(trx_data, dict) else 0,
-                        "buyer_last_saldo": trx_data.get("buyer_last_saldo", 0) if isinstance(trx_data, dict) else 0,
+                        "sn": trx_data.get("sn", ""),
+                        "price": trx_data.get("price", 0),
+                        "buyer_last_saldo": trx_data.get("buyer_last_saldo", 0),
                         "raw_response": data
                     }
                 else:
