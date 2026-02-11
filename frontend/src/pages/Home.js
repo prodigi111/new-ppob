@@ -16,41 +16,72 @@ const CATEGORIES = [
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [digiflazzBrands, setDigiflazzBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    fetchProducts();
-    seedData();
+    fetchAll();
   }, []);
 
   useEffect(() => {
     filterProducts();
-  }, [products, activeCategory, searchQuery]);
+  }, [products, digiflazzBrands, activeCategory, searchQuery]);
 
-  const seedData = async () => {
+  const fetchAll = async () => {
     try {
-      await axios.post(`${API_URL}/api/seed`);
-    } catch (error) {
-      // Data might already be seeded
-    }
-  };
+      // Fetch both seed products and DigiFlazz catalog in parallel
+      const [seedRes, catalogRes] = await Promise.allSettled([
+        axios.get(`${API_URL}/api/products`),
+        axios.get(`${API_URL}/api/biller/catalog`),
+      ]);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/products`);
-      setProducts(response.data.products);
+      if (seedRes.status === 'fulfilled') {
+        setProducts(seedRes.value.data.products || []);
+      }
+
+      if (catalogRes.status === 'fulfilled' && catalogRes.value.data.success) {
+        setDigiflazzBrands(catalogRes.value.data.brands || []);
+      }
+
+      // Seed data on first visit
+      try { await axios.post(`${API_URL}/api/seed`); } catch {}
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      console.error('Failed to fetch:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const filterProducts = () => {
-    let filtered = [...products];
+    // Merge seed products + digiflazz brands into a unified list
+    const allItems = [];
+
+    // DigiFlazz brands as product cards
+    for (const brand of digiflazzBrands) {
+      allItems.push({
+        id: `df-${brand.slug}`,
+        slug: `df/${brand.slug}`,
+        name: brand.brand,
+        image: brand.image,
+        category: 'game',
+        source: 'digiflazz',
+        itemCount: brand.items.length,
+        startPrice: Math.min(...brand.items.map(i => i.price)),
+      });
+    }
+
+    // Seed products (only if not already covered by DigiFlazz)
+    const dfNames = new Set(digiflazzBrands.map(b => b.brand.toLowerCase()));
+    for (const p of products) {
+      if (!dfNames.has(p.name.toLowerCase())) {
+        allItems.push({ ...p, source: 'seed' });
+      }
+    }
+
+    let filtered = [...allItems];
 
     if (activeCategory !== 'all') {
       filtered = filtered.filter(p => p.category === activeCategory);
