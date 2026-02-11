@@ -412,19 +412,26 @@ async def get_brand_products(brand_slug: str):
         {"_id": 0},
     ).sort("price", 1).to_list(100)
 
-    # Check for custom icon
+    # Check for custom icon & pricing
     custom = await _db.brand_icons.find_one({"brand": brand_name}, {"_id": 0})
     image = (custom or {}).get("icon") or BRAND_IMAGES.get(brand_name, f"https://ui-avatars.com/api/?name={brand_name[:2]}&background=FF0000&color=fff&size=200&bold=true&font-size=0.5")
+
+    pr = await _db.brand_pricing.find_one({"brand": brand_name}, {"_id": 0}) or {}
+    mt = pr.get("margin_type", "percent")
+    mv = pr.get("margin_value", 10)
 
     return {
         "success": True,
         "brand": brand_name,
         "slug": brand_slug,
         "image": image,
+        "margin_type": mt,
+        "margin_value": mv,
         "products": [{
             "sku": p.get("buyer_sku_code"),
             "name": p.get("product_name"),
-            "price": p.get("price", 0),
+            "cost": p.get("price", 0),
+            "price": _calc_sell_price(p.get("price", 0), mt, mv),
             "desc": p.get("desc", ""),
         } for p in products],
     }
