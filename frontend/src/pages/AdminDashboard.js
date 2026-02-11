@@ -444,22 +444,31 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell>
                           {editingIcon === brand.slug ? (
-                            <div className="flex items-center gap-2 min-w-[280px]">
-                              <Input
-                                placeholder="URL icon baru..."
-                                className="bg-black/50 border-white/10 text-white text-xs h-8"
-                                value={iconUrl}
-                                onChange={(e) => setIconUrl(e.target.value)}
-                                data-testid={`icon-input-${brand.slug}`}
-                              />
-                              <Button size="sm" className="h-8 bg-success hover:bg-success/90 px-2"
-                                onClick={() => handleUpdateIcon(brand.slug)}>
-                                <Check className="w-3 h-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground"
-                                onClick={() => { setEditingIcon(null); setIconUrl(''); }}>
-                                <X className="w-3 h-3" />
-                              </Button>
+                            <div className="space-y-2 min-w-[300px]">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="Paste URL icon..."
+                                  className="bg-black/50 border-white/10 text-white text-xs h-8"
+                                  value={iconUrl}
+                                  onChange={(e) => setIconUrl(e.target.value)}
+                                  data-testid={`icon-input-${brand.slug}`}
+                                />
+                                <Button size="sm" className="h-8 bg-success hover:bg-success/90 px-2"
+                                  onClick={() => handleUpdateIcon(brand.slug)} disabled={!iconUrl.trim()}>
+                                  <Check className="w-3 h-3" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground"
+                                  onClick={() => { setEditingIcon(null); setIconUrl(''); }}>
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                              <label className="flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-lg border border-dashed border-primary/50 hover:border-primary bg-primary/5 text-xs text-primary">
+                                <Plus className="w-3 h-3" />
+                                {uploading ? 'Uploading...' : 'Upload dari komputer'}
+                                <input type="file" accept="image/*" className="hidden"
+                                  onChange={(e) => handleUploadIcon(brand.slug, e.target.files[0])}
+                                  disabled={uploading} />
+                              </label>
                             </div>
                           ) : (
                             <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-white h-8"
