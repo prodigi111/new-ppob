@@ -302,6 +302,28 @@ async def create_guest_order(data: OrderCreate):
 async def create_authenticated_order(data: OrderCreate, user: dict = Depends(get_current_user)):
     return await create_order(data, user)
 
+@api_router.post("/orders/digiflazz")
+async def create_digiflazz_order(data: DigiFlazzOrderCreate):
+    """Create order for DigiFlazz products (not in seed DB)"""
+    order = Order(
+        user_id=None,
+        user_email=data.email,
+        product_id=f"df-{data.brand}",
+        product_name=data.brand,
+        denomination_name=data.product_name,
+        denomination_amount=0,
+        price=data.price,
+        game_user_id=data.game_user_id,
+        game_server_id=data.game_server_id,
+        payment_method=data.payment_method,
+    )
+    order_dict = order.model_dump()
+    order_dict["digiflazz_sku"] = data.sku_code
+    order_dict["digiflazz_customer_no"] = f"{data.game_user_id}{data.game_server_id}" if data.game_server_id else data.game_user_id
+    await db.orders.insert_one(order_dict)
+    return {"order": {k: v for k, v in order_dict.items() if k != "_id"}}
+
+
 @api_router.get("/orders/track/{order_number}")
 async def track_order(order_number: str):
     order = await db.orders.find_one({"order_number": order_number}, {"_id": 0})
