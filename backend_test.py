@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # API Configuration
-API_URL = "https://blaze-reseller-hub.preview.emergentagent.com/api"
+API_URL = "https://topup-store.preview.emergentagent.com/api"
 
 class VoucherVerseAPITester:
     def __init__(self):
