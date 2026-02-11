@@ -67,7 +67,7 @@ export default function Home() {
         slug: `df/${brand.slug}`,
         name: brand.brand,
         image: brand.image,
-        category: 'game',
+        category: brand.category,
         source: 'digiflazz',
         itemCount: brand.items.length,
         startPrice: Math.min(...brand.items.map(i => i.price)),
@@ -78,7 +78,9 @@ export default function Home() {
     const dfNames = new Set(digiflazzBrands.map(b => b.brand.toLowerCase()));
     for (const p of products) {
       if (!dfNames.has(p.name.toLowerCase())) {
-        allItems.push({ ...p, source: 'seed' });
+        // Map seed categories to new format
+        const catMap = { game: 'games', voucher: 'voucher' };
+        allItems.push({ ...p, category: catMap[p.category] || p.category, source: 'seed' });
       }
     }
 
