@@ -216,7 +216,7 @@ export default function AdminDashboard() {
       formData.append('file', file);
       const uploadRes = await axios.post(`${API_URL}/api/upload/icon`, formData);
       if (uploadRes.data.success) {
-        const fullUrl = `${API_URL}${uploadRes.data.url}`;
+        const fullUrl = uploadRes.data.url;
         await axios.put(`${API_URL}/api/biller/catalog/${slug}/icon`, { icon: fullUrl });
         toast.success('Icon berhasil diupload & diupdate');
         setEditingIcon(null);
