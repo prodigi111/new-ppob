@@ -287,7 +287,7 @@ export default function AdminDashboard() {
       formData.append('file', file);
       const res = await axios.post(`${API_URL}/api/upload/icon`, formData);
       if (res.data.success) {
-        const fullUrl = `${API_URL}${res.data.url}`;
+        const fullUrl = res.data.url;
         await axios.put(`${API_URL}/api/payment-icons/${code}`, { icon: fullUrl }, { headers: { Authorization: `Bearer ${token}` } });
         toast.success('Icon diupload & diupdate');
         setEditingPayIcon(null);
