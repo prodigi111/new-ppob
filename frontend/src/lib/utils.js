@@ -5,6 +5,14 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+export function imgUrl(src) {
+  if (!src) return '';
+  if (src.startsWith('http')) return src;
+  return API_URL + src;
+}
+
+
 export function formatPrice(price) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
