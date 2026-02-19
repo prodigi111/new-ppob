@@ -753,6 +753,26 @@ async def get_server_ip():
     except:
         return {"ip": "unknown"}
 
+@api_router.post("/migrate/fix-icon-urls")
+async def fix_icon_urls():
+    """Fix brand/payment icon URLs: convert full preview URLs to relative paths"""
+    preview = "https://topup-store.preview.emergentagent.com"
+    fixed = 0
+
+    async for ic in db.brand_icons.find({}):
+        url = ic.get("icon", "")
+        if preview in url:
+            await db.brand_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": url.replace(preview, "")}})
+            fixed += 1
+
+    async for ic in db.payment_icons.find({}):
+        url = ic.get("icon", "")
+        if preview in url:
+            await db.payment_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": url.replace(preview, "")}})
+            fixed += 1
+
+    return {"success": True, "fixed": fixed}
+
 # ===================== CMS PAGES =====================
 
 @api_router.get("/cms/{page_slug}")
