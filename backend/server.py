@@ -742,6 +742,17 @@ async def seed_data():
 async def root():
     return {"message": "VoucherVerse API v1.0"}
 
+@api_router.get("/server-ip")
+async def get_server_ip():
+    """Get outbound IP of this server (for DigiFlazz whitelist)"""
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get("https://api.ipify.org", timeout=5.0)
+            return {"ip": resp.text.strip()}
+    except:
+        return {"ip": "unknown"}
+
 # ===================== CMS PAGES =====================
 
 @api_router.get("/cms/{page_slug}")
