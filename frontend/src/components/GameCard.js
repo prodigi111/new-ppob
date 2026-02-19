@@ -16,7 +16,7 @@ export const GameCard = ({ product }) => {
       {/* Image */}
       <div className="product-image relative">
         <img
-          src={product.image}
+          src={imgUrl(product.image)}
           alt={product.name}
           className="w-full h-full object-cover"
           loading="lazy"
