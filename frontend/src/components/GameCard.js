@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { imgUrl } from '../lib/utils';
 
 export const GameCard = ({ product }) => {
   const linkTo = product.source === 'digiflazz'
