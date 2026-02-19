@@ -753,7 +753,7 @@ async def get_server_ip():
     except:
         return {"ip": "unknown"}
 
-@api_router.post("/migrate/fix-icon-urls")
+@api_router.get("/migrate/fix-icon-urls")
 async def fix_icon_urls():
     """Fix brand/payment icon URLs: convert full preview URLs to relative paths"""
     preview = "https://topup-store.preview.emergentagent.com"
