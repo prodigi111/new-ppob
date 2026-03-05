@@ -755,20 +755,32 @@ async def get_server_ip():
 
 @api_router.get("/migrate/fix-icon-urls")
 async def fix_icon_urls():
-    """Fix brand/payment icon URLs: convert full preview URLs to relative paths"""
+    """Fix brand/payment icon URLs: convert preview URLs and upload paths to /icons/ path"""
     preview = "https://topup-store.preview.emergentagent.com"
+    old_path = "/api/static/uploads/"
+    new_path = "/icons/"
     fixed = 0
 
     async for ic in db.brand_icons.find({}):
         url = ic.get("icon", "")
-        if preview in url:
-            await db.brand_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": url.replace(preview, "")}})
+        new_url = url
+        if preview in new_url:
+            new_url = new_url.replace(preview, "")
+        if old_path in new_url:
+            new_url = new_url.replace(old_path, new_path)
+        if new_url != url:
+            await db.brand_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": new_url}})
             fixed += 1
 
     async for ic in db.payment_icons.find({}):
         url = ic.get("icon", "")
-        if preview in url:
-            await db.payment_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": url.replace(preview, "")}})
+        new_url = url
+        if preview in new_url:
+            new_url = new_url.replace(preview, "")
+        if old_path in new_url:
+            new_url = new_url.replace(old_path, new_path)
+        if new_url != url:
+            await db.payment_icons.update_one({"_id": ic["_id"]}, {"$set": {"icon": new_url}})
             fixed += 1
 
     return {"success": True, "fixed": fixed}
@@ -852,8 +864,7 @@ async def upload_icon(file: UploadFile = File(...)):
     with open(filepath, "wb") as f:
         f.write(contents)
 
-    backend_url = os.environ.get("BACKEND_URL", "")
-    url = f"/api/static/uploads/{filename}"
+    url = f"/icons/{filename}"
     return {"success": True, "url": url, "filename": filename}
 
 # Include the router
