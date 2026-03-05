@@ -5,7 +5,7 @@ import { PaymentBadges } from '../components/PaymentBadges';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Search, Zap, Clock, Shield, Tag, Headphones } from 'lucide-react';
-import BlazeMascot from '../assets/mascot1.svg';
+const BlazeMascot = '/mascot1.svg';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 

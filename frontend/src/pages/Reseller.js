@@ -35,8 +35,8 @@ import {
   ExternalLink,
   Loader2
 } from 'lucide-react';
-import BlazeMascot from '../assets/mascot1.svg';
-import BlazeMascot2 from '../assets/mascot2.svg';
+const BlazeMascot = '/mascot1.svg';
+const BlazeMascot2 = '/mascot2.svg';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 

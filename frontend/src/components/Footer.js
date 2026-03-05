@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Instagram, Twitter } from 'lucide-react';
-import BlazeLogo from '../assets/logo-blaze.svg';
+const BlazeLogo = '/logo-blaze.svg';
 import { PaymentBadges } from './PaymentBadges';
 
 export const Footer = () => {

@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
-import BlazeLogo from '../assets/logo-blaze.svg';
+const BlazeLogo = '/logo-blaze.svg';
 
 export default function Register() {
   const navigate = useNavigate();

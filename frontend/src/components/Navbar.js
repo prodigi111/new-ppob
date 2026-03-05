@@ -18,7 +18,7 @@ import {
   LayoutDashboard,
   Search
 } from 'lucide-react';
-import BlazeLogo from '../assets/logo-blaze.svg';
+const BlazeLogo = '/logo-blaze.svg';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
