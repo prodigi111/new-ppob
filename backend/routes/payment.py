@@ -23,6 +23,12 @@ mongo_url = os.environ['MONGO_URL']
 _client = AsyncIOMotorClient(mongo_url)
 _db = _client[os.environ['DB_NAME']]
 
+# Ayolinx callback forward URLs (Vortex)
+AYOLINX_FORWARD = {
+    "qris": "https://vortexgamers.cloud/api/payment/callback/qris",
+    "va": "https://vortexgamers.cloud/api/payment/callback/va",
+}
+
 CALLBACK_STATUS_MAP = {
     "00": "completed",
     "01": "pending",
@@ -268,13 +274,41 @@ async def _process_callback(data: dict, source: str) -> dict:
     return {"updated": updated, "status": mapped_status}
 
 
+async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
+    """Forward Ayolinx callback to Vortex"""
+    import httpx as _httpx
+    # Determine forward URL based on channel
+    fwd_url = None
+    if "QRIS" in channel.upper():
+        fwd_url = AYOLINX_FORWARD.get("qris")
+    elif "VIRTUAL_ACCOUNT" in channel.upper():
+        fwd_url = AYOLINX_FORWARD.get("va")
+    
+    if not fwd_url:
+        return
+    
+    try:
+        async with _httpx.AsyncClient() as client:
+            await client.post(fwd_url, content=raw_body, headers=headers, timeout=10.0)
+            logger.info(f"[Ayolinx Forward] Sent to {fwd_url}")
+    except Exception as e:
+        logger.error(f"[Ayolinx Forward] Failed {fwd_url}: {e}")
+
+
 @router.post("/callback/notify")
 async def unified_payment_callback(request: Request):
     """Unified webhook for ALL Ayolinx payment notifications."""
     try:
         body = await request.body()
-        data = json.loads(body.decode("utf-8"))
+        body_str = body.decode("utf-8")
+        data = json.loads(body_str)
         await _process_callback(data, source="notify")
+        
+        # Forward to Vortex
+        channel = data.get("additionalInfo", {}).get("channel", "")
+        fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
+        await _forward_ayolinx(body, fwd_headers, channel)
+        
         return {"responseCode": "2005600", "responseMessage": "Successful"}
     except Exception as e:
         logger.error(f"Error processing callback: {e}")
@@ -288,6 +322,10 @@ async def va_payment_callback(request: Request):
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
         await _process_callback(data, source="va")
+        
+        fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
+        await _forward_ayolinx(body, fwd_headers, "VIRTUAL_ACCOUNT")
+        
         return {"responseCode": "2002500", "responseMessage": "Success"}
     except Exception as e:
         logger.error(f"Error processing VA callback: {e}")
@@ -301,6 +339,10 @@ async def qris_payment_callback(request: Request):
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
         await _process_callback(data, source="qris")
+        
+        fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
+        await _forward_ayolinx(body, fwd_headers, "QRIS")
+        
         return {"responseCode": "2005100", "responseMessage": "Success"}
     except Exception as e:
         logger.error(f"Error processing QRIS callback: {e}")
@@ -314,6 +356,11 @@ async def payment_link_callback(request: Request):
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
         await _process_callback(data, source="payment_link")
+        
+        channel = data.get("additionalInfo", {}).get("channel", "")
+        fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
+        await _forward_ayolinx(body, fwd_headers, channel)
+        
         return {"responseCode": "2005600", "responseMessage": "Successful"}
     except Exception as e:
         logger.error(f"Error processing Payment Link callback: {e}")
