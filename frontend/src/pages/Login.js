@@ -129,13 +129,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-black/30 rounded-lg">
-            <p className="text-xs text-muted-foreground text-center mb-2">Demo Admin Login:</p>
-            <p className="text-xs text-center font-mono text-gray-400">
-              admin@voucherverse.com / admin123
-            </p>
-          </div>
         </form>
       </div>
     </div>
