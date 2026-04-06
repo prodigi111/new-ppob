@@ -250,24 +250,30 @@ async def digiflazz_webhook(request: Request):
             logger.warning(f"[DigiFlazz Webhook] Invalid signature: got={sig_header} expected={expected}")
             return {"status": "invalid_signature"}
 
-    # Forward to other websites (async, non-blocking)
-    for fwd_url in DIGIFLAZZ_WEBHOOK_FORWARD_URLS:
-        try:
-            async with httpx.AsyncClient() as client:
-                await client.post(
-                    fwd_url,
-                    content=raw_body,
-                    headers={
-                        "Content-Type": "application/json",
-                        "X-Hub-Signature": sig_header,
-                        "X-Digiflazz-Event": event_type,
-                        "User-Agent": user_agent,
-                    },
-                    timeout=10.0,
-                )
-                logger.info(f"[DigiFlazz Webhook] Forwarded to {fwd_url}")
-        except Exception as e:
-            logger.error(f"[DigiFlazz Webhook] Forward to {fwd_url} failed: {e}")
+    # Forward VTX orders to Vortex
+    try:
+        payload_check = json.loads(body_str)
+        ref_id_check = payload_check.get("data", {}).get("ref_id", "")
+        if ref_id_check.startswith("VTX"):
+            for fwd_url in DIGIFLAZZ_WEBHOOK_FORWARD_URLS:
+                try:
+                    async with httpx.AsyncClient() as client:
+                        await client.post(
+                            fwd_url,
+                            content=raw_body,
+                            headers={
+                                "Content-Type": "application/json",
+                                "X-Hub-Signature": sig_header,
+                                "X-Digiflazz-Event": event_type,
+                                "User-Agent": user_agent,
+                            },
+                            timeout=10.0,
+                        )
+                        logger.info(f"[DigiFlazz Webhook] VTX order {ref_id_check} → {fwd_url}")
+                except Exception as e:
+                    logger.error(f"[DigiFlazz Webhook] Forward to {fwd_url} failed: {e}")
+    except:
+        pass
 
     try:
         payload = json.loads(body_str)

@@ -275,9 +275,18 @@ async def _process_callback(data: dict, source: str) -> dict:
 
 
 async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
-    """Forward Ayolinx callback to Vortex"""
+    """Forward Ayolinx callback to Vortex (only VTX orders)"""
     import httpx as _httpx
-    # Determine forward URL based on channel
+    
+    # Only forward Vortex transactions (ref_id starts with VTX)
+    try:
+        data = json.loads(raw_body)
+        ref_id = data.get("originalPartnerReferenceNo", "")
+        if not ref_id.startswith("VTX"):
+            return
+    except:
+        return
+    
     fwd_url = None
     if "QRIS" in channel.upper():
         fwd_url = AYOLINX_FORWARD.get("qris")
@@ -290,7 +299,7 @@ async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
     try:
         async with _httpx.AsyncClient() as client:
             await client.post(fwd_url, content=raw_body, headers=headers, timeout=10.0)
-            logger.info(f"[Ayolinx Forward] Sent to {fwd_url}")
+            logger.info(f"[Ayolinx Forward] VTX order {ref_id} → {fwd_url}")
     except Exception as e:
         logger.error(f"[Ayolinx Forward] Failed {fwd_url}: {e}")
 
