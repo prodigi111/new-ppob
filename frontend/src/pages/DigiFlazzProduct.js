@@ -20,12 +20,14 @@ const PAYMENT_METHODS = [
   { id: 'va_bni', name: 'VA BNI', icon: Building2, desc: 'Transfer via BNI', channel: 'bni' },
   { id: 'va_bri', name: 'VA BRI', icon: Building2, desc: 'Transfer via BRI', channel: 'bri' },
   { id: 'va_mandiri', name: 'VA Mandiri', icon: Building2, desc: 'Transfer via Mandiri', channel: 'mandiri' },
+  { id: 'va_cimb', name: 'VA CIMB', icon: Building2, desc: 'Transfer via CIMB', channel: 'cimb' },
 ];
 
 const BANK_INFO = {
   bni: { name: 'BNI', color: '#f15a22' },
   bri: { name: 'BRI', color: '#00529c' },
   mandiri: { name: 'Mandiri', color: '#003366' },
+  cimb: { name: 'CIMB', color: '#ec1c24' },
 };
 
 // Default fallback config

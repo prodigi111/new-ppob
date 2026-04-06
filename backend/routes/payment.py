@@ -127,11 +127,9 @@ async def get_payment_channels():
     """Get available payment channels"""
     return {
         "virtual_account": [
-            {"code": "bca", "name": "BCA Virtual Account", "icon": "bca"},
             {"code": "bni", "name": "BNI Virtual Account", "icon": "bni"},
             {"code": "bri", "name": "BRI Virtual Account", "icon": "bri"},
             {"code": "mandiri", "name": "Mandiri Virtual Account", "icon": "mandiri"},
-            {"code": "permata", "name": "Permata Virtual Account", "icon": "permata"},
             {"code": "cimb", "name": "CIMB Niaga Virtual Account", "icon": "cimb"},
         ],
         "qris": {
