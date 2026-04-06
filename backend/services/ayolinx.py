@@ -35,8 +35,8 @@ AYOLINX_PUBLIC_KEY = load_key_from_file(AYOLINX_PUBLIC_KEY_PATH)
 SANDBOX_URL = "https://sandbox.ayolinx.id"
 PRODUCTION_URL = "https://openapi.ayolinx.id"
 
-# Use sandbox for development
-BASE_URL = SANDBOX_URL
+# Use production
+BASE_URL = PRODUCTION_URL
 
 # Supported payment channels
 VA_CHANNELS = {
