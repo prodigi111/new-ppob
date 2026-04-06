@@ -223,18 +223,16 @@ async def check_transaction_status(
 
 
 DIGIFLAZZ_WEBHOOK_SECRET = os.environ.get("DIGIFLAZZ_WEBHOOK_SECRET", "")
+DIGIFLAZZ_WEBHOOK_FORWARD_URLS = [
+    "https://webhook.vortexgamers.cloud/df-webhook",
+]
 
 
 @router.post("/webhook")
 async def digiflazz_webhook(request: Request):
     """
     DigiFlazz Webhook - receives transaction status updates.
-    Verifies X-Hub-Signature (HMAC-SHA1) and updates order with SN/voucher code.
-    
-    Headers:
-    - X-Digiflazz-Event: create | update
-    - X-Hub-Signature: sha1=<hmac_hex>
-    - User-Agent: Digiflazz-Hookshot (prepaid) | Digiflazz-Pasca-Hookshot (postpaid)
+    Verifies X-Hub-Signature (HMAC-SHA1), updates order, and forwards to other sites.
     """
     import hashlib as _hl, hmac as _hm
 
@@ -251,6 +249,25 @@ async def digiflazz_webhook(request: Request):
         if sig_header != expected:
             logger.warning(f"[DigiFlazz Webhook] Invalid signature: got={sig_header} expected={expected}")
             return {"status": "invalid_signature"}
+
+    # Forward to other websites (async, non-blocking)
+    for fwd_url in DIGIFLAZZ_WEBHOOK_FORWARD_URLS:
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(
+                    fwd_url,
+                    content=raw_body,
+                    headers={
+                        "Content-Type": "application/json",
+                        "X-Hub-Signature": sig_header,
+                        "X-Digiflazz-Event": event_type,
+                        "User-Agent": user_agent,
+                    },
+                    timeout=10.0,
+                )
+                logger.info(f"[DigiFlazz Webhook] Forwarded to {fwd_url}")
+        except Exception as e:
+            logger.error(f"[DigiFlazz Webhook] Forward to {fwd_url} failed: {e}")
 
     try:
         payload = json.loads(body_str)
