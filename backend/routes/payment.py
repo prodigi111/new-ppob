@@ -298,7 +298,6 @@ async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
     """Forward Ayolinx callback to Vortex (only VTX orders)"""
     import httpx as _httpx
     
-    # Only forward Vortex transactions (ref_id starts with VTX)
     try:
         data = json.loads(raw_body)
         ref_id = data.get("originalPartnerReferenceNo", "")
@@ -307,21 +306,25 @@ async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
     except:
         return
     
-    fwd_url = None
-    if "QRIS" in channel.upper():
-        fwd_url = AYOLINX_FORWARD.get("qris")
-    elif "VIRTUAL_ACCOUNT" in channel.upper():
-        fwd_url = AYOLINX_FORWARD.get("va")
+    # Determine URLs to forward to
+    fwd_urls = []
+    ch = channel.upper()
+    if "QRIS" in ch:
+        fwd_urls.append(AYOLINX_FORWARD["qris"])
+    elif "VIRTUAL_ACCOUNT" in ch or "VA" in ch:
+        fwd_urls.append(AYOLINX_FORWARD["va"])
+    else:
+        # Channel unknown — forward to both
+        fwd_urls.append(AYOLINX_FORWARD["qris"])
+        fwd_urls.append(AYOLINX_FORWARD["va"])
     
-    if not fwd_url:
-        return
-    
-    try:
-        async with _httpx.AsyncClient() as client:
-            await client.post(fwd_url, content=raw_body, headers=headers, timeout=10.0)
-            logger.info(f"[Ayolinx Forward] VTX order {ref_id} → {fwd_url}")
-    except Exception as e:
-        logger.error(f"[Ayolinx Forward] Failed {fwd_url}: {e}")
+    for fwd_url in fwd_urls:
+        try:
+            async with _httpx.AsyncClient() as client:
+                await client.post(fwd_url, content=raw_body, headers=headers, timeout=10.0)
+                logger.info(f"[Ayolinx Forward] VTX {ref_id} → {fwd_url}")
+        except Exception as e:
+            logger.error(f"[Ayolinx Forward] Failed {fwd_url}: {e}")
 
 
 @router.post("/callback/notify")
@@ -331,12 +334,14 @@ async def unified_payment_callback(request: Request):
         body = await request.body()
         body_str = body.decode("utf-8")
         data = json.loads(body_str)
-        await _process_callback(data, source="notify")
         
-        # Forward to Vortex
+        # Forward VTX orders FIRST (before processing)
         channel = data.get("additionalInfo", {}).get("channel", "")
         fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
         await _forward_ayolinx(body, fwd_headers, channel)
+        
+        # Then process for BlazeStore
+        await _process_callback(data, source="notify")
         
         return {"responseCode": "2005600", "responseMessage": "Successful"}
     except Exception as e:
@@ -350,11 +355,11 @@ async def va_payment_callback(request: Request):
     try:
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
-        await _process_callback(data, source="va")
         
         fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
         await _forward_ayolinx(body, fwd_headers, "VIRTUAL_ACCOUNT")
         
+        await _process_callback(data, source="va")
         return {"responseCode": "2002500", "responseMessage": "Success"}
     except Exception as e:
         logger.error(f"Error processing VA callback: {e}")
@@ -367,11 +372,11 @@ async def qris_payment_callback(request: Request):
     try:
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
-        await _process_callback(data, source="qris")
         
         fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
         await _forward_ayolinx(body, fwd_headers, "QRIS")
         
+        await _process_callback(data, source="qris")
         return {"responseCode": "2005100", "responseMessage": "Success"}
     except Exception as e:
         logger.error(f"Error processing QRIS callback: {e}")
@@ -384,12 +389,12 @@ async def payment_link_callback(request: Request):
     try:
         body = await request.body()
         data = json.loads(body.decode("utf-8"))
-        await _process_callback(data, source="payment_link")
         
         channel = data.get("additionalInfo", {}).get("channel", "")
         fwd_headers = {"Content-Type": "application/json", "X-SIGNATURE": request.headers.get("X-SIGNATURE", ""), "X-TIMESTAMP": request.headers.get("X-TIMESTAMP", "")}
         await _forward_ayolinx(body, fwd_headers, channel)
         
+        await _process_callback(data, source="payment_link")
         return {"responseCode": "2005600", "responseMessage": "Successful"}
     except Exception as e:
         logger.error(f"Error processing Payment Link callback: {e}")
