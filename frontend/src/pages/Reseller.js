@@ -35,6 +35,7 @@ import {
   ExternalLink,
   Loader2
 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 const BlazeMascot = '/mascot1.svg';
 const BlazeMascot2 = '/mascot2.svg';
 
@@ -500,6 +501,8 @@ export default function Reseller() {
   const [businessName, setBusinessName] = useState('');
   const [selectedPackage, setSelectedPackage] = useState('legend');
   const [loading, setLoading] = useState(false);
+  const [paymentData, setPaymentData] = useState(null);
+  const [paymentStep, setPaymentStep] = useState('form'); // form | paying
   
   // Profit Calculator State
   const [sellingPrice, setSellingPrice] = useState(25000);
@@ -520,7 +523,7 @@ export default function Reseller() {
 
     if (!user) {
       toast.error('Silakan login terlebih dahulu');
-      navigate('/login');
+      navigate('/login?redirect=/reseller');
       return;
     }
 
@@ -531,16 +534,33 @@ export default function Reseller() {
 
     setLoading(true);
     try {
-      await axios.post(
-        `${API_URL}/api/reseller/apply`,
-        { phone, business_name: businessName || null },
+      // 1. Create subscription
+      const subRes = await axios.post(
+        `${API_URL}/api/reseller/subscribe`,
+        { plan: selectedPackage, period: billingPeriod, phone, business_name: businessName || null },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Pendaftaran reseller berhasil! Menunggu persetujuan admin.');
-      navigate('/profile');
+      const { order_id, amount } = subRes.data;
+
+      // 2. Create payment via Ayolinx
+      const payRes = await axios.post(`${API_URL}/api/payment/create`, {
+        order_id,
+        amount,
+        customer_name: user.name,
+        customer_email: user.email,
+        payment_method: 'qris',
+      });
+
+      if (payRes.data.success) {
+        setPaymentData({ ...payRes.data.data, orderId: order_id, amount });
+        setPaymentStep('paying');
+        toast.success('Silakan selesaikan pembayaran');
+      } else {
+        toast.error(payRes.data.message || 'Gagal membuat pembayaran');
+      }
     } catch (error) {
-      console.error('Failed to apply:', error);
-      toast.error(error.response?.data?.detail || 'Gagal mendaftar reseller');
+      console.error('Failed to subscribe:', error);
+      toast.error(error.response?.data?.detail || 'Gagal memproses pendaftaran');
     } finally {
       setLoading(false);
     }
@@ -976,109 +996,123 @@ export default function Reseller() {
       <section id="register-form" className="py-16 md:py-24 border-t border-border">
         <div className="max-w-md mx-auto px-4">
           <div className="bg-card rounded-2xl p-8 border border-border">
-            <div className="text-center mb-6">
-              <Gift className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h2 className="font-rajdhani font-bold text-2xl text-white uppercase">
-                Daftar Sekarang
-              </h2>
-              <p className="text-muted-foreground text-sm mt-2">
-                Paket terpilih: <span className="text-primary font-medium capitalize">{selectedPackage}</span>
-              </p>
-            </div>
 
-            {!user ? (
+            {paymentStep === 'paying' && paymentData ? (
+              /* Payment QRIS Display */
               <div className="text-center">
-                <p className="text-muted-foreground mb-4">
-                  Silakan login atau daftar terlebih dahulu
-                </p>
-                <div className="flex gap-3 justify-center">
-                  <Button
-                    variant="outline"
-                    className="border-border text-white hover:bg-white/5"
-                    onClick={() => navigate('/login')}
-                  >
-                    Masuk
-                  </Button>
-                  <Button
-                    className="bg-primary hover:bg-primary/90 text-white"
-                    onClick={() => navigate('/register')}
-                  >
-                    Daftar
-                  </Button>
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
+                  <CreditCard className="w-6 h-6 text-accent" />
                 </div>
+                <h2 className="font-rajdhani font-bold text-xl text-white uppercase mb-1">
+                  Pembayaran Reseller
+                </h2>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Paket <span className="text-primary capitalize">{selectedPackage}</span> — {formatPrice(paymentData.amount)}
+                </p>
+
+                <div className="bg-white rounded-xl p-6 mb-4 flex justify-center">
+                  {paymentData.qr_content ? (
+                    <QRCodeCanvas value={paymentData.qr_content} size={200} level="M" marginSize={2} />
+                  ) : (
+                    <div className="w-[200px] h-[200px] flex items-center justify-center">
+                      <CreditCard className="w-20 h-20 text-gray-300" />
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-sm text-muted-foreground mb-4">
+                  Scan QR code dengan e-wallet atau mobile banking
+                </p>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-4">
+                  <p className="text-xs text-yellow-400 flex items-center justify-center gap-2">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Menunggu pembayaran... Jangan tinggalkan halaman ini
+                  </p>
+                </div>
+
+                <Button variant="outline" className="w-full border-border text-muted-foreground hover:text-white"
+                  onClick={() => { setPaymentStep('form'); setPaymentData(null); }}>
+                  Ganti Metode Pembayaran
+                </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-gray-300">Nama</Label>
-                  <Input
-                    type="text"
-                    value={user.name}
-                    disabled
-                    className="bg-black/30 border-white/10 text-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-gray-300">Email</Label>
-                  <Input
-                    type="email"
-                    value={user.email}
-                    disabled
-                    className="bg-black/30 border-white/10 text-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-gray-300">Nomor WhatsApp *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="08xxxxxxxxxx"
-                    className="bg-black/50 border-white/10 text-white"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    data-testid="reseller-phone"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-gray-300">Nama Toko/Usaha (Opsional)</Label>
-                  <Input
-                    id="businessName"
-                    type="text"
-                    placeholder="Nama toko Anda"
-                    className="bg-black/50 border-white/10 text-white"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    data-testid="reseller-business"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider py-6"
-                  disabled={loading}
-                  data-testid="reseller-submit"
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                      Mendaftar...
+              /* Registration Form */
+              <>
+                <div className="text-center mb-6">
+                  <Gift className="w-12 h-12 text-primary mx-auto mb-4" />
+                  <h2 className="font-rajdhani font-bold text-2xl text-white uppercase">
+                    Daftar Sekarang
+                  </h2>
+                  <p className="text-muted-foreground text-sm mt-2">
+                    Paket terpilih: <span className="text-primary font-medium capitalize">{selectedPackage}</span>
+                    {' — '}
+                    <span className="text-white">
+                      {formatPrice(billingPeriod === 'yearly' 
+                        ? PACKAGES.find(p => p.id === selectedPackage)?.yearlyPrice 
+                        : PACKAGES.find(p => p.id === selectedPackage)?.monthlyPrice)}
+                      /{billingPeriod === 'yearly' ? 'tahun' : 'bulan'}
                     </span>
-                  ) : (
-                    <>
-                      <Rocket className="w-5 h-5 mr-2" />
-                      Daftar Reseller
-                    </>
-                  )}
-                </Button>
-
-                <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">
-                  <Shield className="w-4 h-4" />
-                  <span>Garansi uang kembali 7 hari</span>
+                  </p>
                 </div>
-              </form>
+
+                {!user ? (
+                  <div className="text-center">
+                    <p className="text-muted-foreground mb-4">
+                      Silakan login atau daftar terlebih dahulu
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button variant="outline" className="border-border text-white hover:bg-white/5"
+                        onClick={() => navigate('/login?redirect=/reseller')}>
+                        Masuk
+                      </Button>
+                      <Button className="bg-primary hover:bg-primary/90 text-white"
+                        onClick={() => navigate('/register')}>
+                        Daftar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-gray-300">Nama</Label>
+                      <Input type="text" value={user.name} disabled className="bg-black/30 border-white/10 text-gray-400" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-gray-300">Email</Label>
+                      <Input type="email" value={user.email} disabled className="bg-black/30 border-white/10 text-gray-400" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-gray-300">Nomor WhatsApp *</Label>
+                      <Input id="phone" type="tel" placeholder="08xxxxxxxxxx" className="bg-black/50 border-white/10 text-white"
+                        value={phone} onChange={(e) => setPhone(e.target.value)} data-testid="reseller-phone" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="businessName" className="text-gray-300">Nama Toko/Usaha (Opsional)</Label>
+                      <Input id="businessName" type="text" placeholder="Nama toko Anda" className="bg-black/50 border-white/10 text-white"
+                        value={businessName} onChange={(e) => setBusinessName(e.target.value)} data-testid="reseller-business" />
+                    </div>
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider py-6"
+                      disabled={loading} data-testid="reseller-submit">
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                          Memproses...
+                        </span>
+                      ) : (
+                        <>
+                          <Rocket className="w-5 h-5 mr-2" />
+                          Bayar & Daftar Reseller
+                        </>
+                      )}
+                    </Button>
+                    <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">
+                      <Shield className="w-4 h-4" />
+                      <span>Garansi uang kembali 7 hari</span>
+                    </div>
+                  </form>
+                )}
+              </>
             )}
           </div>
         </div>
