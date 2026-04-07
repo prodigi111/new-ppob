@@ -364,6 +364,90 @@ async def process_payment(order_id: str):
 
 # ===================== RESELLER ROUTES =====================
 
+RESELLER_PLANS = {
+    "pro": {"name": "Pro", "monthly": 99000, "yearly": 799000},
+    "legend": {"name": "Legend", "monthly": 199000, "yearly": 1599000},
+    "supreme": {"name": "Supreme", "monthly": 349000, "yearly": 2799000},
+}
+
+class ResellerSubscribeRequest(BaseModel):
+    plan: str  # pro, legend, supreme
+    period: str  # monthly, yearly
+    phone: str
+    business_name: Optional[str] = None
+
+@api_router.post("/reseller/subscribe")
+async def reseller_subscribe(data: ResellerSubscribeRequest, user: dict = Depends(get_current_user)):
+    """Create reseller subscription payment via Ayolinx"""
+    plan = RESELLER_PLANS.get(data.plan)
+    if not plan:
+        raise HTTPException(status_code=400, detail="Invalid plan")
+    if data.period not in ("monthly", "yearly"):
+        raise HTTPException(status_code=400, detail="Invalid period")
+
+    amount = plan[data.period]
+    order_id = f"RSL-{str(uuid.uuid4())[:8]}"
+
+    # Save subscription intent
+    sub = {
+        "id": order_id,
+        "user_id": user["id"],
+        "user_email": user["email"],
+        "plan": data.plan,
+        "plan_name": plan["name"],
+        "period": data.period,
+        "amount": amount,
+        "phone": data.phone,
+        "business_name": data.business_name,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.reseller_subscriptions.insert_one(sub)
+
+    return {"subscription": {k: v for k, v in sub.items() if k != "_id"}, "order_id": order_id, "amount": amount}
+
+@api_router.get("/reseller/subscription")
+async def get_reseller_subscription(user: dict = Depends(get_current_user)):
+    """Get current user's reseller subscription status"""
+    sub = await db.reseller_subscriptions.find_one(
+        {"user_id": user["id"]},
+        {"_id": 0},
+        sort=[("created_at", -1)]
+    )
+    return {"subscription": sub}
+
+@api_router.post("/reseller/activate-callback")
+async def reseller_activate_callback(payload: dict):
+    """Called internally or via webhook when reseller payment succeeds"""
+    order_id = payload.get("order_id", "")
+    sub = await db.reseller_subscriptions.find_one({"id": order_id}, {"_id": 0})
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+
+    if sub.get("status") == "active":
+        return {"message": "Already active"}
+
+    period_days = 365 if sub["period"] == "yearly" else 30
+    expires_at = (datetime.now(timezone.utc) + timedelta(days=period_days)).isoformat()
+
+    await db.reseller_subscriptions.update_one(
+        {"id": order_id},
+        {"$set": {"status": "active", "activated_at": datetime.now(timezone.utc).isoformat(), "expires_at": expires_at}}
+    )
+
+    # Upgrade user role to reseller
+    await db.users.update_one(
+        {"id": sub["user_id"]},
+        {"$set": {"role": "reseller", "reseller_plan": sub["plan"], "reseller_expires": expires_at}}
+    )
+
+    return {"message": "Reseller activated", "plan": sub["plan"], "expires_at": expires_at}
+
+@api_router.get("/reseller/plans")
+async def get_reseller_plans():
+    """Get available reseller plans"""
+    return {"plans": RESELLER_PLANS}
+
 @api_router.post("/reseller/apply")
 async def apply_reseller(data: ResellerApplyRequest, user: dict = Depends(get_current_user)):
     if user["role"] == "reseller":

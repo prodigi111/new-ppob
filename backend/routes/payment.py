@@ -271,6 +271,26 @@ async def _process_callback(data: dict, source: str) -> dict:
         except Exception as e:
             logger.error(f"[Callback/{source}] Auto top-up error for {order_id}: {e}")
 
+    # AUTO RESELLER ACTIVATION: If RSL- order paid
+    if mapped_status == "completed" and order_id.startswith("RSL-"):
+        try:
+            sub = await _db.reseller_subscriptions.find_one({"id": order_id}, {"_id": 0})
+            if sub and sub.get("status") != "active":
+                from datetime import timedelta as _td
+                period_days = 365 if sub["period"] == "yearly" else 30
+                expires_at = (datetime.now(timezone.utc) + _td(days=period_days)).isoformat()
+                await _db.reseller_subscriptions.update_one(
+                    {"id": order_id},
+                    {"$set": {"status": "active", "activated_at": datetime.now(timezone.utc).isoformat(), "expires_at": expires_at}}
+                )
+                await _db.users.update_one(
+                    {"id": sub["user_id"]},
+                    {"$set": {"role": "reseller", "reseller_plan": sub["plan"], "reseller_expires": expires_at}}
+                )
+                logger.info(f"[Callback/{source}] Reseller activated: user={sub['user_id']} plan={sub['plan']}")
+        except Exception as e:
+            logger.error(f"[Callback/{source}] Reseller activation error for {order_id}: {e}")
+
     return {"updated": updated, "status": mapped_status}
 
 
