@@ -493,6 +493,75 @@ async def reseller_topup(data: TopUpBalance, user: dict = Depends(get_reseller_u
     )
     return {"balance": new_balance, "message": f"Successfully added {data.amount} to balance"}
 
+# ===================== RESELLER STORE =====================
+
+class StoreConfigUpdate(BaseModel):
+    store_name: Optional[str] = None
+    subdomain: Optional[str] = None
+    logo_url: Optional[str] = None
+    template: Optional[str] = None  # blaze, minimal, gaming
+    markup_type: Optional[str] = None  # percent, fixed
+    markup_value: Optional[float] = None
+    ayolinx_client_key: Optional[str] = None
+    ayolinx_client_secret: Optional[str] = None
+    ayolinx_customer_no: Optional[str] = None
+
+@api_router.get("/reseller/store")
+async def get_store_config(user: dict = Depends(get_reseller_user)):
+    """Get reseller store configuration"""
+    store = await db.reseller_stores.find_one({"user_id": user["id"]}, {"_id": 0})
+    return {"store": store}
+
+@api_router.put("/reseller/store")
+async def update_store_config(data: StoreConfigUpdate, user: dict = Depends(get_reseller_user)):
+    """Update reseller store settings"""
+    update = {}
+    for field in ["store_name", "logo_url", "template", "markup_type", "markup_value",
+                   "ayolinx_client_key", "ayolinx_client_secret", "ayolinx_customer_no"]:
+        val = getattr(data, field, None)
+        if val is not None:
+            update[field] = val
+
+    # Subdomain: validate uniqueness
+    if data.subdomain:
+        slug = data.subdomain.lower().strip().replace(" ", "-")
+        existing = await db.reseller_stores.find_one({"subdomain": slug, "user_id": {"$ne": user["id"]}})
+        if existing:
+            raise HTTPException(status_code=400, detail="Subdomain sudah dipakai")
+        update["subdomain"] = slug
+
+    if not update:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+
+    update["user_id"] = user["id"]
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+    await db.reseller_stores.update_one(
+        {"user_id": user["id"]},
+        {"$set": update, "$setOnInsert": {"created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    store = await db.reseller_stores.find_one({"user_id": user["id"]}, {"_id": 0})
+    return {"store": store}
+
+@api_router.get("/store/{subdomain}")
+async def get_public_store(subdomain: str):
+    """Public endpoint: get reseller store by subdomain (for namatoko.blazestore.id)"""
+    store = await db.reseller_stores.find_one({"subdomain": subdomain.lower()}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    # Get reseller user info
+    reseller = await db.users.find_one({"id": store["user_id"]}, {"_id": 0, "password": 0})
+
+    # Hide sensitive Ayolinx keys from public
+    public_store = {k: v for k, v in store.items() if not k.startswith("ayolinx_client_secret")}
+    public_store["has_own_payment"] = bool(store.get("ayolinx_client_key"))
+    public_store["reseller_name"] = reseller.get("name", "") if reseller else ""
+    public_store["reseller_plan"] = reseller.get("reseller_plan", "") if reseller else ""
+
+    return {"store": public_store}
+
 # ===================== ADMIN ROUTES =====================
 
 @api_router.get("/admin/dashboard")

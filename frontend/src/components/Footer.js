@@ -1,10 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Instagram, Twitter } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
+import { imgUrl } from '../lib/utils';
 const BlazeLogo = '/logo-blaze.svg';
-import { PaymentBadges } from './PaymentBadges';
 
 export const Footer = () => {
+  const { store, isReseller } = useStore();
+  const storeName = isReseller ? store?.store_name || 'Store' : 'BlazeStore';
+  const logoSrc = isReseller && store?.logo_url ? imgUrl(store.logo_url) : BlazeLogo;
   return (
     <footer className="bg-card border-t border-border mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -12,7 +16,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src={BlazeLogo} alt="Blaze Store" className="h-10 w-auto object-contain" />
+              <img src={logoSrc} alt={storeName} className="h-10 w-auto object-contain" />
             </Link>
             <p className="text-muted-foreground text-sm max-w-md">
               Platform top-up game dan voucher digital terpercaya di Indonesia. 
@@ -54,7 +58,7 @@ export const Footer = () => {
 
         <div className="border-t border-border mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2026 PT SENTOSA AWAN ABADI. All rights reserved.
+            © 2026 {isReseller ? storeName : 'PT SENTOSA AWAN ABADI'}. All rights reserved.
           </p>
         </div>
       </div>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../context/StoreContext';
 import { Button } from './ui/button';
+import { imgUrl } from '../lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +24,7 @@ const BlazeLogo = '/logo-blaze.svg';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
+  const { store, isReseller } = useStore();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -36,11 +39,14 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2" data-testid="logo-link">
-            <img 
-              src={BlazeLogo} 
-              alt="Blaze Store" 
-              className="h-10 sm:h-12 w-auto object-contain"
-            />
+            {isReseller && store?.logo_url ? (
+              <img src={imgUrl(store.logo_url)} alt={store.store_name} className="h-10 sm:h-12 w-auto object-contain" />
+            ) : (
+              <img src={BlazeLogo} alt="Blaze Store" className="h-10 sm:h-12 w-auto object-contain" />
+            )}
+            {isReseller && store?.store_name && (
+              <span className="font-rajdhani font-bold text-white text-lg hidden sm:block">{store.store_name}</span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

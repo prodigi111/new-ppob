@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GameCard, GameCardSkeleton } from '../components/GameCard';
-import { PaymentBadges } from '../components/PaymentBadges';
+import { useStore } from '../context/StoreContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Search, Zap, Clock, Shield, Tag, Headphones } from 'lucide-react';
