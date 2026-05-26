@@ -66,6 +66,57 @@ class AyolinxService:
         self.base_url = BASE_URL
         self.access_token = None
         self.token_expires_at = None
+
+    async def refresh_from_db(self, db) -> None:
+        """
+        Apply DB overrides (admin panel → integration_settings) on top of env values.
+        Empty/missing DB values fall back to env defaults. Invalidates access token
+        so the next call re-authenticates with potentially new credentials.
+        """
+        try:
+            doc = await db.integration_settings.find_one({"service": "ayolinx"}, {"_id": 0}) or {}
+            cfg = doc.get("config", {}) if isinstance(doc, dict) else {}
+
+            new_ck = cfg.get("client_key") or AYOLINX_CLIENT_KEY
+            new_cs = cfg.get("client_secret") or AYOLINX_CLIENT_SECRET
+            new_cn = cfg.get("customer_no") or AYOLINX_CUSTOMER_NO
+            new_priv_path = cfg.get("private_key_path") or AYOLINX_PRIVATE_KEY_PATH
+            new_pub_path = cfg.get("public_key_path") or AYOLINX_PUBLIC_KEY_PATH
+            new_mode = (cfg.get("mode") or os.environ.get("AYOLINX_MODE", "production")).lower()
+
+            new_base = SANDBOX_URL if new_mode == "sandbox" else PRODUCTION_URL
+
+            # Reload key files only if path changed
+            new_private = self.private_key
+            new_public = self.public_key
+            if new_priv_path != AYOLINX_PRIVATE_KEY_PATH or not self.private_key:
+                new_private = load_key_from_file(new_priv_path)
+            if new_pub_path != AYOLINX_PUBLIC_KEY_PATH or not self.public_key:
+                new_public = load_key_from_file(new_pub_path)
+
+            changed = (
+                new_ck != self.client_key
+                or new_cs != self.client_secret
+                or new_cn != self.customer_no
+                or new_base != self.base_url
+            )
+
+            self.client_key = new_ck
+            self.client_secret = new_cs
+            self.customer_no = new_cn
+            self.private_key = new_private
+            self.public_key = new_public
+            self.base_url = new_base
+
+            if changed:
+                # Force re-auth on next call with new credentials
+                self.access_token = None
+                self.token_expires_at = None
+        except Exception as e:
+            # Never block payment flow due to refresh failure; log + keep current values.
+            import logging
+            logging.getLogger(__name__).warning(f"Ayolinx refresh_from_db failed: {e}")
+
     
     def _get_timestamp(self) -> str:
         """Generate timestamp in ISO 8601 format with timezone"""

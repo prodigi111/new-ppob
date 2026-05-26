@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Search, Zap, Clock, Shield, Tag, Headphones } from 'lucide-react';
 import theme from '../theme.config';
-const BlazeMascot = theme.assets.mascot;
+const BrandMascot = theme.assets.mascot;
 const HERO_BG = theme.assets.heroBg;
 const COPY = theme.copy;
 
@@ -152,7 +152,7 @@ export default function Home() {
                 {/* Glow effect behind mascot */}
                 <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl scale-75 animate-pulse" />
                 <img 
-                  src={BlazeMascot} 
+                  src={BrandMascot} 
                   alt={theme.brand.name + ' Mascot'} 
                   className="relative z-10 w-80 h-80 object-contain drop-shadow-2xl animate-float"
                   style={{
@@ -263,7 +263,7 @@ export default function Home() {
               {/* Mascot in CTA */}
               <div className="hidden md:block">
                 <img 
-                  src={BlazeMascot} 
+                  src={BrandMascot} 
                   alt={theme.brand.name + ' Mascot'} 
                   className="w-48 h-48 object-contain animate-float"
                   style={{ filter: theme.style.mascotGlow }}

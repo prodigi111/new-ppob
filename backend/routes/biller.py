@@ -1,7 +1,7 @@
 """
 DigiFlazz Biller Routes
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.requests import Request
 from pydantic import BaseModel, Field
 from typing import Optional, List
@@ -16,11 +16,18 @@ from services.digiflazz import digiflazz_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/biller", tags=["Biller"])
-
 # DB access
 _client = AsyncIOMotorClient(os.environ['MONGO_URL'])
 _db = _client[os.environ['DB_NAME']]
+
+
+async def _ensure_digiflazz_credentials():
+    """Dependency: apply latest admin-panel DigiFlazz credentials before every biller call."""
+    await digiflazz_service.refresh_from_db(_db)
+
+
+router = APIRouter(prefix="/biller", tags=["Biller"], dependencies=[Depends(_ensure_digiflazz_credentials)])
+
 
 # Brand image mapping for popular games
 BRAND_IMAGES = {
@@ -60,8 +67,6 @@ BRAND_CATEGORY_OVERRIDE = {
     "Nintendo eShop": "voucher",
     "Unipin Voucher": "voucher",
 }
-
-router = APIRouter(prefix="/biller", tags=["Biller"])
 
 
 class TopupRequest(BaseModel):

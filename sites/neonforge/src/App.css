@@ -1,4 +1,4 @@
-/* VoucherVerse - Blaze Theme Styles */
+/* Brand Theme Styles */
 
 /* Hero section gradient overlay */
 .hero-overlay {
@@ -32,7 +32,7 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Category tabs - Blaze */
+/* Category tabs */
 .category-tab {
   position: relative;
   transition: color 0.3s ease;
@@ -54,7 +54,7 @@
   width: 100%;
 }
 
-/* Denomination card - Blaze */
+/* Denomination card */
 .denom-card {
   transition: all 0.2s ease;
   border: 1px solid rgba(45, 52, 54, 0.5);
@@ -71,7 +71,7 @@
   box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
-/* Payment method card - Blaze */
+/* Payment method card */
 .payment-card {
   transition: all 0.2s ease;
   border: 1px solid rgba(45, 52, 54, 0.5);
@@ -129,7 +129,7 @@
   animation: shimmer 2s infinite;
 }
 
-/* Loading skeleton - Blaze */
+/* Loading skeleton */
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -152,7 +152,7 @@
   display: contents !important;
 }
 
-/* Blaze fire border effect */
+/* Brand fire border effect */
 .fire-border {
   position: relative;
 }

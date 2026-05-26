@@ -7,7 +7,7 @@ import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
 import theme from '../theme.config';
-const BlazeLogo = theme.assets.logo;
+const BrandLogo = theme.assets.logo;
 
 export default function Login() {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <img 
-              src={BlazeLogo} 
+              src={BrandLogo} 
               alt={theme.brand.name} 
               className="h-16 w-auto object-contain"
             />

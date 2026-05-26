@@ -65,6 +65,9 @@ class PaymentResponse(BaseModel):
 async def create_payment(request: CreatePaymentRequest):
     """Create a new payment transaction (VA / QRIS / Payment Link)"""
     try:
+        # Apply latest admin-panel credentials (DB-first, env-fallback)
+        await ayolinx_service.refresh_from_db(_db)
+
         # Store DigiFlazz fields FIRST (before Ayolinx call)
         if request.digiflazz_sku or request.customer_game_id:
             pre_update = {}
@@ -179,6 +182,9 @@ async def _trigger_digiflazz_topup(order_id: str):
         {"id": ref_id},
         {"$set": {"digiflazz_status": "submitting", "digiflazz_submitted_at": datetime.now(timezone.utc).isoformat()}}
     )
+
+    # Apply latest admin-panel credentials before remote call
+    await digiflazz_service.refresh_from_db(_db)
 
     result = await digiflazz_service.topup(
         ref_id=ref_id,

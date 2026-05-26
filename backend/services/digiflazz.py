@@ -25,6 +25,38 @@ class DigiFlazzService:
         self.prod_key = DIGIFLAZZ_PROD_KEY
         self.mode = DIGIFLAZZ_MODE
         self.api_url = API_URL
+
+    async def refresh_from_db(self, db) -> None:
+        """
+        Apply DB overrides (admin panel → integration_settings) on top of env values.
+        DB stores a single `api_key` field; it is assigned to dev_key or prod_key
+        based on the resolved mode (DB → env fallback).
+        """
+        try:
+            doc = await db.integration_settings.find_one({"service": "digiflazz"}, {"_id": 0}) or {}
+            cfg = doc.get("config", {}) if isinstance(doc, dict) else {}
+
+            new_user = cfg.get("username") or DIGIFLAZZ_USERNAME
+            new_mode = (cfg.get("mode") or DIGIFLAZZ_MODE or "development").lower()
+            db_api_key = cfg.get("api_key")
+
+            self.username = new_user
+            self.mode = new_mode
+            if db_api_key:
+                # Route to the slot matching the current mode; keep the other from env.
+                if new_mode == "production":
+                    self.prod_key = db_api_key
+                    self.dev_key = DIGIFLAZZ_DEV_KEY  # preserve env fallback
+                else:
+                    self.dev_key = db_api_key
+                    self.prod_key = DIGIFLAZZ_PROD_KEY
+            else:
+                self.dev_key = DIGIFLAZZ_DEV_KEY
+                self.prod_key = DIGIFLAZZ_PROD_KEY
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"DigiFlazz refresh_from_db failed: {e}")
+
     
     @property
     def api_key(self) -> str:
