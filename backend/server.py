@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import subprocess
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
@@ -26,6 +27,133 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ.get('JWT_SECRET', 'voucherverse-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
+
+# ===================== MULTI-SITE / ORDER PREFIX HELPERS =====================
+# Each frontend site sends "X-Site-Id" header. Backend looks up site_configs
+# collection to determine: (a) prefix for order_id generation, and (b) forward
+# URLs for proxy callback routing (Ayolinx/DigiFlazz webhooks).
+# Order ID format: LLLYYYYMMDDHHMMSSXXXX  (e.g. NEO20260416070531D54F)
+# - LLL = 3-letter site prefix (uppercased)
+# - YYYYMMDDHHMMSS = local timestamp (14 digits)
+# - XXXX = 4 hex chars (uppercase) from uuid4
+
+DEFAULT_SITE_PREFIX = "BLZ"
+
+
+def get_site_id_from_request(request: Optional[Request]) -> str:
+    """Extract X-Site-Id header (case-insensitive). Returns 'default' if absent."""
+    if request is None:
+        return "default"
+    return (
+        request.headers.get("X-Site-Id")
+        or request.headers.get("x-site-id")
+        or "default"
+    )
+
+
+async def get_site_config(site_id: str) -> dict:
+    """Lookup site config by site_id. Returns sane default if not found."""
+    if site_id and site_id != "default":
+        config = await db.site_configs.find_one({"site_id": site_id}, {"_id": 0})
+        if config:
+            return config
+    # Fallback: return the BLZ/blaze default
+    config = await db.site_configs.find_one({"site_id": "blaze"}, {"_id": 0})
+    if config:
+        return config
+    return {
+        "site_id": "blaze",
+        "prefix": DEFAULT_SITE_PREFIX,
+        "brand_name": "BlazeStore",
+        "process_locally": True,
+        "forward_url_qris": None,
+        "forward_url_va": None,
+        "forward_url_digiflazz": None,
+        "active": True,
+    }
+
+
+async def get_prefix_for_site(site_id: str) -> str:
+    """Get the 3-letter order prefix for the given site_id."""
+    config = await get_site_config(site_id)
+    return (config.get("prefix") or DEFAULT_SITE_PREFIX).upper()[:3]
+
+
+def generate_order_id(prefix: str) -> str:
+    """Generate order id: PREFIX + YYYYMMDDHHMMSS + 4-hex.
+    Total: 3 + 14 + 4 = 21 chars.
+    """
+    prefix = (prefix or DEFAULT_SITE_PREFIX).upper()[:3].ljust(3, "X")
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    random_part = uuid.uuid4().hex[:4].upper()
+    return f"{prefix}{timestamp}{random_part}"
+
+
+async def new_order_id_for_request(request: Optional[Request]) -> str:
+    """One-shot helper used by order-create endpoints."""
+    site_id = get_site_id_from_request(request)
+    prefix = await get_prefix_for_site(site_id)
+    return generate_order_id(prefix)
+
+
+async def lookup_site_by_prefix(prefix: str) -> Optional[dict]:
+    """Find a site config by its order prefix (used by callback forwarder)."""
+    if not prefix:
+        return None
+    config = await db.site_configs.find_one(
+        {"prefix": prefix.upper(), "active": True}, {"_id": 0}
+    )
+    return config
+
+
+# ===================== INTEGRATION SETTINGS HELPERS =====================
+# DB-first, env-fallback for Ayolinx & DigiFlazz credentials.
+
+INTEGRATION_ENV_MAP = {
+    "ayolinx": {
+        "client_key": "AYOLINX_CLIENT_KEY",
+        "client_secret": "AYOLINX_CLIENT_SECRET",
+        "customer_no": "AYOLINX_CUSTOMER_NO",
+        "private_key_path": "AYOLINX_PRIVATE_KEY_PATH",
+        "public_key_path": "AYOLINX_PUBLIC_KEY_PATH",
+        "mode": "AYOLINX_MODE",  # sandbox|production
+    },
+    "digiflazz": {
+        "username": "DIGIFLAZZ_USERNAME",
+        "api_key": "DIGIFLAZZ_API_KEY",
+        "webhook_secret": "DIGIFLAZZ_WEBHOOK_SECRET",
+        "webhook_id": "DIGIFLAZZ_WEBHOOK_ID",
+        "mode": "DIGIFLAZZ_MODE",  # development|production
+    },
+}
+
+
+async def get_integration_config(service: str) -> dict:
+    """Return resolved config for a service: DB override > env value."""
+    service = service.lower()
+    if service not in INTEGRATION_ENV_MAP:
+        return {}
+    db_doc = await db.integration_settings.find_one({"service": service}, {"_id": 0}) or {}
+    db_cfg = db_doc.get("config", {})
+    result = {}
+    for key, env_name in INTEGRATION_ENV_MAP[service].items():
+        result[key] = db_cfg.get(key) or os.environ.get(env_name, "")
+    result["_source"] = {
+        k: ("db" if db_cfg.get(k) else "env")
+        for k in INTEGRATION_ENV_MAP[service].keys()
+    }
+    return result
+
+
+def mask_secret(value: str) -> str:
+    """Return a masked version of a secret for safe display."""
+    if not value:
+        return ""
+    if len(value) <= 8:
+        return "•" * len(value)
+    return f"{value[:4]}{'•' * (len(value) - 8)}{value[-4:]}"
+
+
 
 # Create the main app
 app = FastAPI(title="VoucherVerse API")
@@ -257,7 +385,7 @@ async def get_product(slug: str):
 # ===================== ORDERS ROUTES =====================
 
 @api_router.post("/orders")
-async def create_order(data: OrderCreate, user: Optional[dict] = None):
+async def create_order(data: OrderCreate, request: Request, user: Optional[dict] = None):
     # Get product
     product = await db.products.find_one({"id": data.product_id}, {"_id": 0})
     if not product:
@@ -278,7 +406,12 @@ async def create_order(data: OrderCreate, user: Optional[dict] = None):
     if user and user.get("role") == "reseller":
         price = denomination.get("reseller_price", denomination["price"])
     
+    # Generate prefixed order_id (e.g. NEO20260416070531D54F)
+    oid = await new_order_id_for_request(request)
+
     order = Order(
+        id=oid,
+        order_number=oid,
         user_id=user["id"] if user else None,
         user_email=data.email,
         product_id=product["id"],
@@ -296,17 +429,22 @@ async def create_order(data: OrderCreate, user: Optional[dict] = None):
     return {"order": order.model_dump()}
 
 @api_router.post("/orders/guest")
-async def create_guest_order(data: OrderCreate):
-    return await create_order(data, None)
+async def create_guest_order(data: OrderCreate, request: Request):
+    return await create_order(data, request, None)
 
 @api_router.post("/orders/authenticated")
-async def create_authenticated_order(data: OrderCreate, user: dict = Depends(get_current_user)):
-    return await create_order(data, user)
+async def create_authenticated_order(data: OrderCreate, request: Request, user: dict = Depends(get_current_user)):
+    return await create_order(data, request, user)
 
 @api_router.post("/orders/digiflazz")
-async def create_digiflazz_order(data: DigiFlazzOrderCreate):
+async def create_digiflazz_order(data: DigiFlazzOrderCreate, request: Request):
     """Create order for DigiFlazz products (not in seed DB)"""
+    # Generate prefixed order_id
+    oid = await new_order_id_for_request(request)
+
     order = Order(
+        id=oid,
+        order_number=oid,
         user_id=None,
         user_email=data.email,
         product_id=f"df-{data.brand}",
@@ -377,7 +515,7 @@ class ResellerSubscribeRequest(BaseModel):
     business_name: Optional[str] = None
 
 @api_router.post("/reseller/subscribe")
-async def reseller_subscribe(data: ResellerSubscribeRequest, user: dict = Depends(get_current_user)):
+async def reseller_subscribe(data: ResellerSubscribeRequest, request: Request, user: dict = Depends(get_current_user)):
     """Create reseller subscription payment via Ayolinx"""
     plan = RESELLER_PLANS.get(data.plan)
     if not plan:
@@ -386,7 +524,8 @@ async def reseller_subscribe(data: ResellerSubscribeRequest, user: dict = Depend
         raise HTTPException(status_code=400, detail="Invalid period")
 
     amount = plan[data.period]
-    order_id = f"RSL-{str(uuid.uuid4())[:8]}"
+    # Use site prefix (e.g. NEO20260416070531D54F) — replaces old RSL-uuid format.
+    order_id = await new_order_id_for_request(request)
 
     # Save subscription intent
     sub = {
@@ -1020,6 +1159,282 @@ async def upload_icon(file: UploadFile = File(...)):
     url = f"/icons/{filename}"
     return {"success": True, "url": url, "filename": filename}
 
+# ===================== MULTI-SITE ADMIN ENDPOINTS =====================
+# Admin-only endpoints for managing:
+#   • site_configs (prefix + forward URLs per site)
+#   • integration_settings (Ayolinx & DigiFlazz overrides)
+#   • frontend switcher (subprocess to switch-site.sh)
+
+class SiteConfigPayload(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    site_id: str
+    prefix: str
+    brand_name: Optional[str] = ""
+    forward_url_qris: Optional[str] = None
+    forward_url_va: Optional[str] = None
+    forward_url_digiflazz: Optional[str] = None
+    process_locally: bool = False
+    active: bool = True
+    notes: Optional[str] = ""
+
+
+class IntegrationSettingsPayload(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    config: dict
+
+
+SITES_ROOT = Path("/app/sites")
+SCRIPTS_ROOT = Path("/app/scripts")
+
+
+@api_router.get("/admin/site-configs")
+async def list_site_configs(user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    items = await db.site_configs.find({}, {"_id": 0}).sort("site_id", 1).to_list(200)
+    return {"items": items}
+
+
+@api_router.post("/admin/site-configs")
+async def create_site_config(payload: SiteConfigPayload, user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    site_id = payload.site_id.strip().lower()
+    if not site_id:
+        raise HTTPException(status_code=400, detail="site_id required")
+    prefix = payload.prefix.strip().upper()[:3]
+    if len(prefix) != 3 or not prefix.isalnum():
+        raise HTTPException(status_code=400, detail="prefix must be exactly 3 alphanumeric chars")
+    # Unique constraints
+    existing_site = await db.site_configs.find_one({"site_id": site_id}, {"_id": 0})
+    if existing_site:
+        raise HTTPException(status_code=409, detail=f"site_id '{site_id}' already exists")
+    existing_prefix = await db.site_configs.find_one({"prefix": prefix}, {"_id": 0})
+    if existing_prefix:
+        raise HTTPException(status_code=409, detail=f"prefix '{prefix}' already used by site '{existing_prefix['site_id']}'")
+    doc = {
+        "site_id": site_id,
+        "prefix": prefix,
+        "brand_name": payload.brand_name or site_id.capitalize(),
+        "forward_url_qris": payload.forward_url_qris,
+        "forward_url_va": payload.forward_url_va,
+        "forward_url_digiflazz": payload.forward_url_digiflazz,
+        "process_locally": bool(payload.process_locally),
+        "active": bool(payload.active),
+        "notes": payload.notes or "",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.site_configs.insert_one(doc)
+    return {"item": {k: v for k, v in doc.items() if k != "_id"}}
+
+
+@api_router.put("/admin/site-configs/{site_id}")
+async def update_site_config(site_id: str, payload: SiteConfigPayload, user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    existing = await db.site_configs.find_one({"site_id": site_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Site config not found")
+    prefix = payload.prefix.strip().upper()[:3]
+    if len(prefix) != 3 or not prefix.isalnum():
+        raise HTTPException(status_code=400, detail="prefix must be exactly 3 alphanumeric chars")
+    # Prefix collision check (excluding current)
+    other = await db.site_configs.find_one({"prefix": prefix, "site_id": {"$ne": site_id}}, {"_id": 0})
+    if other:
+        raise HTTPException(status_code=409, detail=f"prefix '{prefix}' already used by '{other['site_id']}'")
+    updates = {
+        "prefix": prefix,
+        "brand_name": payload.brand_name or existing.get("brand_name", site_id),
+        "forward_url_qris": payload.forward_url_qris,
+        "forward_url_va": payload.forward_url_va,
+        "forward_url_digiflazz": payload.forward_url_digiflazz,
+        "process_locally": bool(payload.process_locally),
+        "active": bool(payload.active),
+        "notes": payload.notes or "",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.site_configs.update_one({"site_id": site_id}, {"$set": updates})
+    merged = {**existing, **updates}
+    return {"item": {k: v for k, v in merged.items() if k != "_id"}}
+
+
+@api_router.delete("/admin/site-configs/{site_id}")
+async def delete_site_config(site_id: str, user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    if site_id == "blaze":
+        raise HTTPException(status_code=400, detail="Cannot delete default 'blaze' site config")
+    result = await db.site_configs.delete_one({"site_id": site_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Site config not found")
+    return {"deleted": site_id}
+
+
+# ----- Integration settings (Ayolinx / DigiFlazz) -----
+
+@api_router.get("/admin/integrations")
+async def list_integration_settings(user: dict = Depends(get_current_user)):
+    """Return resolved settings for both services with secrets masked."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    result = {}
+    for svc in ("ayolinx", "digiflazz"):
+        cfg = await get_integration_config(svc)
+        sensitive_keys = {"client_secret", "api_key", "webhook_secret"}
+        sanitized = {}
+        for k, v in cfg.items():
+            if k == "_source":
+                continue
+            sanitized[k] = mask_secret(v) if k in sensitive_keys else v
+        result[svc] = {
+            "values": sanitized,
+            "source": cfg.get("_source", {}),
+        }
+    return {"settings": result}
+
+
+@api_router.put("/admin/integrations/{service}")
+async def update_integration_settings(service: str, payload: IntegrationSettingsPayload, user: dict = Depends(get_current_user)):
+    """Save DB override for a service. Pass empty string to clear (revert to env)."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    service = service.lower()
+    if service not in INTEGRATION_ENV_MAP:
+        raise HTTPException(status_code=400, detail=f"Unknown service '{service}'")
+    allowed_keys = set(INTEGRATION_ENV_MAP[service].keys())
+    cleaned = {}
+    for k, v in (payload.config or {}).items():
+        if k in allowed_keys and isinstance(v, str):
+            v = v.strip()
+            if v:
+                cleaned[k] = v
+    await db.integration_settings.update_one(
+        {"service": service},
+        {"$set": {
+            "service": service,
+            "config": cleaned,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": user.get("email"),
+        }},
+        upsert=True,
+    )
+    return {"ok": True, "service": service, "saved_keys": list(cleaned.keys())}
+
+
+# ----- Frontend switcher -----
+
+@api_router.get("/admin/sites/available")
+async def list_available_sites(user: dict = Depends(get_current_user)):
+    """List all site folders + the currently active one (via symlink)."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    sites = []
+    if SITES_ROOT.exists():
+        for d in sorted(SITES_ROOT.iterdir()):
+            if d.is_dir():
+                brand = ""
+                theme_path = d / "src" / "theme.config.js"
+                if theme_path.exists():
+                    try:
+                        text = theme_path.read_text(encoding="utf-8")
+                        # Extract brand.name from JS source (handle both syntaxes)
+                        import re
+                        m = re.search(r'"name"\s*:\s*"([^"]+)"', text) or re.search(r"name:\s*['\"]([^'\"]+)['\"]", text)
+                        if m:
+                            brand = m.group(1)
+                    except Exception:
+                        pass
+                sites.append({"name": d.name, "brand": brand or d.name})
+    # Active site = readlink /app/frontend
+    active = None
+    try:
+        link = Path("/app/frontend").resolve()
+        if str(link).startswith(str(SITES_ROOT)):
+            active = link.name
+    except Exception:
+        pass
+    return {"sites": sites, "active": active}
+
+
+@api_router.post("/admin/sites/switch")
+async def switch_active_site(payload: dict, user: dict = Depends(get_current_user)):
+    """Run /app/scripts/switch-site.sh <name>. Returns logs."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    name = (payload.get("name") or "").strip()
+    # Basic validation: alphanumeric + dashes/underscores only
+    import re
+    if not name or not re.fullmatch(r"[A-Za-z0-9_\-]+", name):
+        raise HTTPException(status_code=400, detail="Invalid site name")
+    target = SITES_ROOT / name
+    if not target.is_dir():
+        raise HTTPException(status_code=404, detail=f"Site '{name}' not found at {target}")
+    script = SCRIPTS_ROOT / "switch-site.sh"
+    if not script.exists():
+        raise HTTPException(status_code=500, detail="switch-site.sh missing")
+    try:
+        proc = subprocess.run(
+            ["bash", str(script), name],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        return {
+            "ok": proc.returncode == 0,
+            "exit_code": proc.returncode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "active": name,
+        }
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="Switch command timed out")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Switch failed: {e}")
+
+
+# ----- Startup: seed default site configs -----
+
+@app.on_event("startup")
+async def seed_multi_site_defaults():
+    """Idempotent seed for site_configs collection."""
+    # Read existing prefix-to-URL mapping from old hardcoded VTX values
+    vtx_qris = os.environ.get("VTX_FORWARD_QRIS", "https://vortexgamers.cloud/api/payment/ayolinx/callback/qris")
+    vtx_va   = os.environ.get("VTX_FORWARD_VA",   "https://vortexgamers.cloud/api/payment/ayolinx/callback/va")
+
+    defaults = [
+        {
+            "site_id": "blaze",
+            "prefix": "BLZ",
+            "brand_name": "BlazeStore",
+            "forward_url_qris": None,
+            "forward_url_va": None,
+            "forward_url_digiflazz": None,
+            "process_locally": True,
+            "active": True,
+            "notes": "Default master site — processes callbacks locally.",
+        },
+        {
+            "site_id": "vortex",
+            "prefix": "VTX",
+            "brand_name": "Vortex Gamers (proxy)",
+            "forward_url_qris": vtx_qris,
+            "forward_url_va": vtx_va,
+            "forward_url_digiflazz": None,
+            "process_locally": False,
+            "active": True,
+            "notes": "Legacy proxy forwarding target (kept for backward compat).",
+        },
+    ]
+    for d in defaults:
+        existing = await db.site_configs.find_one({"site_id": d["site_id"]})
+        if not existing:
+            d["created_at"] = datetime.now(timezone.utc).isoformat()
+            d["updated_at"] = d["created_at"]
+            await db.site_configs.insert_one(d)
+            logger.info(f"Seeded site_config: {d['site_id']} ({d['prefix']})")
+
+
 # Include the router
 app.include_router(api_router)
 
@@ -1052,3 +1467,5 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+

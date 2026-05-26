@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from './components/ui/sonner';
@@ -6,6 +7,23 @@ import { AuthProvider } from './context/AuthContext';
 import { StoreProvider } from './context/StoreContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import theme from './theme.config';
+
+// Multi-site identifier — sent on every API call so the backend can pick the
+// correct order prefix + callback forwarding rule from site_configs.
+axios.defaults.headers.common['X-Site-Id'] = theme.siteId || 'blaze';
+
+// Automatically attach Authorization header from localStorage on every request.
+axios.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (token && !config.headers?.Authorization) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (_) { /* no-op */ }
+  return config;
+});
 
 // Pages
 import Home from './pages/Home';

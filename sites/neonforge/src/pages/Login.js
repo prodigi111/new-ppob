@@ -55,7 +55,7 @@ export default function Login() {
           <div className="flex justify-center mb-4">
             <img 
               src={BlazeLogo} 
-              alt="Blaze Store" 
+              alt={theme.brand.name} 
               className="h-16 w-auto object-contain"
             />
           </div>

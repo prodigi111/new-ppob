@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import theme from '../theme.config';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 /**
- * Detect if current site is a reseller subdomain (e.g. ggtopup.blazestore.id)
+ * Detect if current site is a reseller subdomain (e.g. ggtopup.<masterDomain>).
+ * The master root domain comes from theme.brand.rootDomain (override per site),
+ * otherwise we accept any 2-part TLD-like suffix as the root.
  * Returns store config if on a reseller subdomain, null if on main site.
  */
 export function useResellerStore() {
@@ -14,25 +17,26 @@ export function useResellerStore() {
 
   useEffect(() => {
     detectStore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const detectStore = async () => {
     try {
       const hostname = window.location.hostname;
-
-      // Extract subdomain: ggtopup.blazestore.id → ggtopup
       const parts = hostname.split('.');
       let subdomain = null;
 
+      // Allow each site to declare its own root domain in theme.config.js
+      const rootDomain = (theme?.brand?.rootDomain || '').toLowerCase();
+
       if (parts.length >= 3) {
-        // e.g. ggtopup.blazestore.id
         const main = parts.slice(-2).join('.');
-        if (main === 'blazestore.id') {
+        if (!rootDomain || main === rootDomain) {
           subdomain = parts[0];
         }
       }
 
-      // Also support ?store=ggtopup for testing
+      // Also support ?store=ggtopup for testing across any host
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get('store');
       if (storeParam) subdomain = storeParam;

@@ -6,6 +6,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import IntegrationsTab from './admin/IntegrationsTab';
+import SitesTab from './admin/SitesTab';
 import {
   Dialog,
   DialogContent,
@@ -357,7 +359,13 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white">
               <Settings className="w-4 h-4 mr-2" />
-              Settings
+              CMS
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              Integrasi
+            </TabsTrigger>
+            <TabsTrigger value="sites" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              Sites &amp; Switch
             </TabsTrigger>
           </TabsList>
 
@@ -1021,6 +1029,16 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Integrations Tab */}
+          <TabsContent value="integrations">
+            <IntegrationsTab />
+          </TabsContent>
+
+          {/* Sites & Switch Tab */}
+          <TabsContent value="sites">
+            <SitesTab />
           </TabsContent>
         </Tabs>
       </div>

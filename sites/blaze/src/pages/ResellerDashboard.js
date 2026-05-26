@@ -60,14 +60,14 @@ import {
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Theme options for website - Blaze themed
+// Theme options for reseller subdomain stores (purely cosmetic, not tied to master brand)
 const THEMES = [
-  { id: 'blaze', name: 'Blaze Fire', primary: '#FF0000', secondary: '#FFD700', bg: '#050A18' },
-  { id: 'blaze-gold', name: 'Blaze Gold', primary: '#FFD700', secondary: '#FF0000', bg: '#050A18' },
-  { id: 'midnight', name: 'Midnight', primary: '#3B82F6', secondary: '#60A5FA', bg: '#050A18' },
-  { id: 'emerald', name: 'Emerald', primary: '#10B981', secondary: '#34D399', bg: '#051A14' },
-  { id: 'purple', name: 'Purple Flame', primary: '#8B5CF6', secondary: '#A78BFA', bg: '#0A0518' },
-  { id: 'sunset', name: 'Sunset', primary: '#F97316', secondary: '#FBBF24', bg: '#0A0805' },
+  { id: 'fire',     name: 'Fire',          primary: '#FF0000', secondary: '#FFD700', bg: '#050A18' },
+  { id: 'gold',     name: 'Gold',          primary: '#FFD700', secondary: '#FF0000', bg: '#050A18' },
+  { id: 'midnight', name: 'Midnight',      primary: '#3B82F6', secondary: '#60A5FA', bg: '#050A18' },
+  { id: 'emerald',  name: 'Emerald',       primary: '#10B981', secondary: '#34D399', bg: '#051A14' },
+  { id: 'purple',   name: 'Purple Flame',  primary: '#8B5CF6', secondary: '#A78BFA', bg: '#0A0518' },
+  { id: 'sunset',   name: 'Sunset',        primary: '#F97316', secondary: '#FBBF24', bg: '#0A0805' },
 ];
 
 export default function ResellerDashboard() {
@@ -116,7 +116,7 @@ export default function ResellerDashboard() {
         ...prev,
         storeName: `${user.name}'s Store`,
         customDomain: user.name.toLowerCase().replace(/\s+/g, ''),
-        theme: 'blaze', // Default to Blaze theme
+        theme: 'fire', // Default theme for new reseller stores
       }));
     }
   }, [user, navigate]);
@@ -984,7 +984,7 @@ export default function ResellerDashboard() {
                 </div>
                 <div>
                   <h4 className="font-medium text-white mb-1">Auto Sync</h4>
-                  <p className="text-xs text-muted-foreground">Produk & harga sinkron otomatis dengan BlazeStore</p>
+                  <p className="text-xs text-muted-foreground">Produk &amp; harga sinkron otomatis dengan platform pusat</p>
                 </div>
               </div>
             </div>

@@ -124,7 +124,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <h1 className="font-rajdhani font-bold text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-tight mb-4">
                 {COPY.hero.titleLine1} <br />
-                <span className="blaze-gradient">
+                <span className="brand-gradient">
                   {COPY.hero.titleLine2}
                 </span>
               </h1>
@@ -252,7 +252,7 @@ export default function Home() {
                   {COPY.cta.subtitle}
                 </p>
                 <Button 
-                  className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider blaze-btn"
+                  className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider brand-btn"
                   onClick={() => window.location.href = '/reseller'}
                   data-testid="cta-reseller-btn"
                 >

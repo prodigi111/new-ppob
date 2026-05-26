@@ -7,6 +7,8 @@
 
 const theme = {
   "id": "neonforge",
+  "siteId": "neonforge",
+  "orderPrefix": "NEO",
   "brand": {
     "name": "NeonForge",
     "short": "Neon",

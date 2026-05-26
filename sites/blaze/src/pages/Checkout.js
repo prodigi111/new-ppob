@@ -17,6 +17,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
+import theme from '../theme.config';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -145,7 +146,7 @@ export default function Checkout() {
               Pembayaran Berhasil!
             </h1>
             <p className="text-muted-foreground mb-8">
-              Top-up berhasil diproses. Terima kasih telah menggunakan BlazeStore.
+              Top-up berhasil diproses. Terima kasih telah menggunakan {theme?.brand?.name || 'kami'}.
             </p>
 
             <div className="bg-card rounded-xl p-6 border border-border mb-6 text-left">

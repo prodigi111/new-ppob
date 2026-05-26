@@ -12,6 +12,11 @@
 
 const theme = {
   // -------- Identity --------
+  siteId: 'blaze',                         // MUST match a /app/sites/<name> folder
+                                           // and a site_configs.site_id row in DB.
+  orderPrefix: 'BLZ',                      // 3-letter prefix used for X-Site-Id
+                                           // fallback. Authoritative prefix lives
+                                           // in MongoDB site_configs (admin panel).
   brand: {
     name: 'BlazeStore',                    // Full brand
     short: 'Blaze',                        // Short label (CTA accents)

@@ -271,8 +271,8 @@ async def _process_callback(data: dict, source: str) -> dict:
         except Exception as e:
             logger.error(f"[Callback/{source}] Auto top-up error for {order_id}: {e}")
 
-    # AUTO RESELLER ACTIVATION: If RSL- order paid
-    if mapped_status == "completed" and order_id.startswith("RSL-"):
+    # AUTO RESELLER ACTIVATION: any successful payment whose id exists in reseller_subscriptions
+    if mapped_status == "completed":
         try:
             sub = await _db.reseller_subscriptions.find_one({"id": order_id}, {"_id": 0})
             if sub and sub.get("status") != "active":
@@ -295,34 +295,74 @@ async def _process_callback(data: dict, source: str) -> dict:
 
 
 async def _forward_ayolinx(raw_body: bytes, headers: dict, channel: str):
-    """Forward Ayolinx callback to Vortex (only VTX orders)"""
+    """Forward Ayolinx callback to a per-site proxy URL configured in DB.
+
+    Resolution order:
+      1. Read the first 3 chars of `originalPartnerReferenceNo` as the prefix
+      2. Lookup db.site_configs by prefix (active=true)
+      3. If found and process_locally=false, forward to the configured URL
+         for the matching channel (qris / va).
+    """
     import httpx as _httpx
-    
+
     try:
         data = json.loads(raw_body)
-        ref_id = data.get("originalPartnerReferenceNo", "")
-        if not ref_id.startswith("VTX"):
-            return
-    except:
+        ref_id = (data.get("originalPartnerReferenceNo") or "").strip()
+    except Exception:
         return
-    
-    # Determine URLs to forward to
+
+    if len(ref_id) < 3:
+        return
+
+    prefix = ref_id[:3].upper()
+    try:
+        config = await _db.site_configs.find_one(
+            {"prefix": prefix, "active": True}, {"_id": 0}
+        )
+    except Exception as e:
+        logger.error(f"[Ayolinx Forward] DB lookup failed for prefix {prefix}: {e}")
+        config = None
+
+    if not config:
+        # Legacy fallback for hardcoded VTX prefix
+        if prefix == "VTX":
+            config = {
+                "prefix": "VTX",
+                "forward_url_qris": AYOLINX_FORWARD["qris"],
+                "forward_url_va": AYOLINX_FORWARD["va"],
+                "process_locally": False,
+                "active": True,
+            }
+        else:
+            return  # Unknown prefix → process locally, no forwarding
+
+    # If the site is processed locally (e.g. master Blaze), don't forward
+    if config.get("process_locally"):
+        return
+
+    # Pick forward URL based on channel
     fwd_urls = []
-    ch = channel.upper()
+    ch = (channel or "").upper()
     if "QRIS" in ch:
-        fwd_urls.append(AYOLINX_FORWARD["qris"])
+        u = config.get("forward_url_qris")
+        if u:
+            fwd_urls.append(u)
     elif "VIRTUAL_ACCOUNT" in ch or "VA" in ch:
-        fwd_urls.append(AYOLINX_FORWARD["va"])
+        u = config.get("forward_url_va")
+        if u:
+            fwd_urls.append(u)
     else:
-        # Channel unknown — forward to both
-        fwd_urls.append(AYOLINX_FORWARD["qris"])
-        fwd_urls.append(AYOLINX_FORWARD["va"])
-    
+        # Unknown channel — forward to both URLs if configured
+        for k in ("forward_url_qris", "forward_url_va"):
+            u = config.get(k)
+            if u:
+                fwd_urls.append(u)
+
     for fwd_url in fwd_urls:
         try:
             async with _httpx.AsyncClient() as client:
                 await client.post(fwd_url, content=raw_body, headers=headers, timeout=10.0)
-                logger.info(f"[Ayolinx Forward] VTX {ref_id} → {fwd_url}")
+                logger.info(f"[Ayolinx Forward] {prefix} {ref_id} → {fwd_url}")
         except Exception as e:
             logger.error(f"[Ayolinx Forward] Failed {fwd_url}: {e}")
 

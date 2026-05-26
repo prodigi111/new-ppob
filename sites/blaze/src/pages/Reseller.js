@@ -152,7 +152,7 @@ const TESTIMONIALS = [
     store: 'topupgame.id',
     avatar: 'RP',
     rating: 5,
-    comment: 'Sejak jadi reseller BlazeStore, penghasilan naik 3x lipat. Sistemnya mudah dan support-nya responsif banget!',
+    comment: `Sejak jadi reseller ${theme.brand.name}, penghasilan naik 3x lipat. Sistemnya mudah dan support-nya responsif banget!`,
     profit: 'Rp 15.000.000/bulan'
   },
   {
@@ -640,7 +640,7 @@ export default function Reseller() {
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider px-8 blaze-btn"
+              className="bg-primary hover:bg-primary/90 text-white font-rajdhani uppercase tracking-wider px-8 brand-btn"
               onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
               data-testid="cta-pricing"
             >
@@ -687,7 +687,7 @@ export default function Reseller() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-rajdhani font-bold text-3xl md:text-4xl text-white uppercase mb-4">
-              Kenapa Pilih <span className="text-primary">BlazeStore</span>?
+              Kenapa Pilih <span className="text-primary">{theme.brand.name}</span>?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Platform reseller all-in-one dengan fitur lengkap untuk memulai bisnis top up game
@@ -748,7 +748,7 @@ export default function Reseller() {
                 Kalkulator Keuntungan
               </h2>
               <p className="text-muted-foreground mb-8">
-                Hitung estimasi penghasilan Anda sebagai reseller BlazeStore. 
+                Hitung estimasi penghasilan Anda sebagai reseller {theme.brand.name}. 
                 Geser slider untuk melihat potensi keuntungan!
               </p>
 
@@ -958,7 +958,7 @@ export default function Reseller() {
               Wall of Fame: <span className="text-accent">Reseller Sukses</span>
             </h2>
             <p className="text-muted-foreground">
-              Cerita sukses dari reseller BlazeStore
+              Cerita sukses dari reseller {theme.brand.name}
             </p>
           </div>
 

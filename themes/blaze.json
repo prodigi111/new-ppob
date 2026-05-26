@@ -1,5 +1,7 @@
 {
   "id": "blaze",
+  "siteId": "blaze",
+  "orderPrefix": "BLZ",
   "brand": {
     "name": "BlazeStore",
     "short": "Blaze",

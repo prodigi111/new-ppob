@@ -11,6 +11,7 @@ import {
   Copy, Clock, CheckCircle2, RefreshCw, Phone, Gamepad2, ShoppingBag,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
+import theme from '../theme.config';
 import { PaymentBadges } from '../components/PaymentBadges';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -267,7 +268,7 @@ export default function DigiFlazzProduct() {
               </h1>
               <p className="text-muted-foreground mb-6">
                 {topupFailed ? 'Pembayaran berhasil namun top-up gagal. Hubungi admin.' :
-                 'Terima kasih telah menggunakan BlazeStore!'}
+                 `Terima kasih telah menggunakan ${theme?.brand?.name || 'layanan kami'}!`}
               </p>
             </>
           )}

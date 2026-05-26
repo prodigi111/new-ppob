@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ChevronLeft } from 'lucide-react';
+import theme from '../theme.config';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const BRAND = theme.brand.name;
 
 const DEFAULT_CONTENT = {
-  'tentang-kami': { title: 'Tentang Kami', content: 'BlazeStore adalah platform top-up game dan voucher digital terpercaya di Indonesia. Kami menyediakan layanan top-up cepat, aman, dan dengan harga terbaik.' },
-  'kebijakan-privasi': { title: 'Kebijakan Privasi', content: 'Kebijakan privasi BlazeStore menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.' },
-  'syarat-ketentuan': { title: 'Syarat & Ketentuan', content: 'Dengan menggunakan layanan BlazeStore, Anda menyetujui syarat dan ketentuan yang berlaku.' },
+  'tentang-kami': { title: 'Tentang Kami', content: `${BRAND} adalah platform top-up game dan voucher digital terpercaya di Indonesia. Kami menyediakan layanan top-up cepat, aman, dan dengan harga terbaik.` },
+  'kebijakan-privasi': { title: 'Kebijakan Privasi', content: `Kebijakan privasi ${BRAND} menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.` },
+  'syarat-ketentuan': { title: 'Syarat & Ketentuan', content: `Dengan menggunakan layanan ${BRAND}, Anda menyetujui syarat dan ketentuan yang berlaku.` },
   'hubungi-kami': { title: 'Hubungi Kami', content: 'Hubungi kami melalui WhatsApp atau email untuk bantuan dan pertanyaan.' },
 };
 
