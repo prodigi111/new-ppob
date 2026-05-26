@@ -99,3 +99,39 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 ## Admin Credentials (Demo)
 - Email: admin@voucherverse.com
 - Password: admin123
+
+---
+
+## Multi-Site Replication System (added)
+
+**Goal:** Run 5+ frontend variants from the same backend, each with different brand identity & gamer tone.
+
+### Architecture
+- `/app/sites/<name>/` — per-site React app cloned from `blaze`
+- `/app/themes/<preset>.json` — theme presets (brand, colors, copy, fonts)
+- `/app/frontend` → symlink to currently active site (default: blaze)
+- `/app/scripts/` — replication & switching tools
+
+### Source of truth per site
+`src/theme.config.js` — driven by JSON preset, consumed by:
+- `tailwind.config.js` (build-time colors, fonts, shadows)
+- React components (Navbar, Footer, Home, Login, Register, Reseller) — brand name, assets, copy
+- `src/index.css` — HSL `:root` CSS variables (cascades to all utility classes)
+- `public/index.html` — title, meta description, theme-color
+
+### Commands
+```
+/app/scripts/clone-site.sh <new_name> [preset]   # clone & retheme
+/app/scripts/switch-site.sh <name>               # change active preview
+/app/scripts/list-sites.sh                       # show available sites + active
+```
+
+### Built sites
+1. **blaze**     (red/gold esports) — original
+2. **neonforge** (cyan/purple/magenta cyberpunk) — prototype
+
+### Pending presets (gamer tone)
+3. pixelvault   — retro arcade magenta/lime
+4. elitecharge  — premium black/gold luxury
+5. raidstation  — military FPS olive/orange
+

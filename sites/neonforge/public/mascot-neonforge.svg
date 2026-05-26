@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="m-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#A855F7" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0A0118" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="m-helmet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A0A2E"/>
+      <stop offset="100%" stop-color="#0A0118"/>
+    </linearGradient>
+    <linearGradient id="m-visor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="50%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#FF2EC4"/>
+    </linearGradient>
+    <linearGradient id="m-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2A1457"/>
+      <stop offset="100%" stop-color="#150627"/>
+    </linearGradient>
+    <filter id="m-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ambient glow -->
+  <circle cx="200" cy="200" r="190" fill="url(#m-bg)"/>
+
+  <!-- Body / shoulders -->
+  <path d="M100 360 Q100 270 200 260 Q300 270 300 360 Z"
+        fill="url(#m-body)" stroke="#A855F7" stroke-width="2"/>
+  <line x1="200" y1="260" x2="200" y2="360" stroke="#00F0FF" stroke-width="1" opacity="0.5"/>
+
+  <!-- Neck connectors -->
+  <rect x="180" y="240" width="40" height="30" fill="#2A1457" stroke="#00F0FF" stroke-width="1.5"/>
+  <circle cx="190" cy="255" r="3" fill="#FF2EC4"/>
+  <circle cx="210" cy="255" r="3" fill="#00F0FF"/>
+
+  <!-- Helmet -->
+  <path d="M120 180 Q120 90 200 90 Q280 90 280 180 L280 245 Q280 255 270 255 L130 255 Q120 255 120 245 Z"
+        fill="url(#m-helmet)" stroke="#A855F7" stroke-width="2.5" filter="url(#m-glow)"/>
+
+  <!-- Top antenna -->
+  <line x1="200" y1="90" x2="200" y2="50" stroke="#00F0FF" stroke-width="3"/>
+  <circle cx="200" cy="48" r="6" fill="#FF2EC4" filter="url(#m-glow)"/>
+
+  <!-- Side antennas -->
+  <line x1="125" y1="120" x2="105" y2="100" stroke="#A855F7" stroke-width="3"/>
+  <circle cx="103" cy="98" r="4" fill="#A855F7"/>
+  <line x1="275" y1="120" x2="295" y2="100" stroke="#FF2EC4" stroke-width="3"/>
+  <circle cx="297" cy="98" r="4" fill="#FF2EC4"/>
+
+  <!-- Visor (signature feature) -->
+  <path d="M140 150 Q140 135 155 135 L245 135 Q260 135 260 150 L260 200 Q260 215 245 215 L155 215 Q140 215 140 200 Z"
+        fill="url(#m-visor)" opacity="0.9" filter="url(#m-glow)"/>
+  <!-- Scan lines on visor -->
+  <line x1="145" y1="160" x2="255" y2="160" stroke="#0A0118" stroke-width="1" opacity="0.6"/>
+  <line x1="145" y1="175" x2="255" y2="175" stroke="#0A0118" stroke-width="1" opacity="0.4"/>
+  <line x1="145" y1="190" x2="255" y2="190" stroke="#0A0118" stroke-width="1" opacity="0.6"/>
+
+  <!-- Eyes glow through visor -->
+  <ellipse cx="175" cy="175" rx="10" ry="6" fill="#FFFFFF" opacity="0.9"/>
+  <ellipse cx="225" cy="175" rx="10" ry="6" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="175" cy="175" r="3" fill="#FF2EC4"/>
+  <circle cx="225" cy="175" r="3" fill="#00F0FF"/>
+
+  <!-- Mouth / breathing apparatus -->
+  <rect x="180" y="225" width="40" height="14" rx="3" fill="#2A1457" stroke="#00F0FF" stroke-width="1.5"/>
+  <line x1="188" y1="232" x2="212" y2="232" stroke="#FF2EC4" stroke-width="2"/>
+
+  <!-- Side ear pieces -->
+  <rect x="115" y="170" width="12" height="40" rx="3" fill="#2A1457" stroke="#A855F7" stroke-width="1.5"/>
+  <circle cx="121" cy="180" r="2" fill="#00F0FF"/>
+  <circle cx="121" cy="190" r="2" fill="#FF2EC4"/>
+  <circle cx="121" cy="200" r="2" fill="#A855F7"/>
+  <rect x="273" y="170" width="12" height="40" rx="3" fill="#2A1457" stroke="#A855F7" stroke-width="1.5"/>
+  <circle cx="279" cy="180" r="2" fill="#FF2EC4"/>
+  <circle cx="279" cy="190" r="2" fill="#00F0FF"/>
+  <circle cx="279" cy="200" r="2" fill="#A855F7"/>
+
+  <!-- Chest core -->
+  <circle cx="200" cy="320" r="20" fill="#150627" stroke="#00F0FF" stroke-width="2"/>
+  <circle cx="200" cy="320" r="10" fill="url(#m-visor)" filter="url(#m-glow)"/>
+
+  <!-- Circuit lines on chest -->
+  <path d="M180 320 L150 320 L150 340" fill="none" stroke="#00F0FF" stroke-width="1.5" opacity="0.7"/>
+  <path d="M220 320 L250 320 L250 340" fill="none" stroke="#FF2EC4" stroke-width="1.5" opacity="0.7"/>
+  <circle cx="150" cy="342" r="2" fill="#00F0FF"/>
+  <circle cx="250" cy="342" r="2" fill="#FF2EC4"/>
+</svg>
