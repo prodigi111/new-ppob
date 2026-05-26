@@ -126,12 +126,21 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 /app/scripts/list-sites.sh                       # show available sites + active
 ```
 
-### Built sites
-1. **blaze**     (red/gold esports) — original
-2. **neonforge** (cyan/purple/magenta cyberpunk) — prototype
+### Built sites (all 5 active)
+1. **blaze**       — red/gold esports (original master)         prefix `BLZ`
+2. **neonforge**   — cyan/purple/magenta cyberpunk              prefix `NEO`
+3. **pixelvault**  — orange/purple retro arcade (Press Start 2P) prefix `PXV`
+4. **elitecharge** — gold/black premium luxury (Playfair serif)  prefix `ELC`
+5. **raidstation** — army-green/red tactical military (Bebas Neue) prefix `RDS`
 
-### Pending presets (gamer tone)
-3. pixelvault   — retro arcade magenta/lime
-4. elitecharge  — premium black/gold luxury
-5. raidstation  — military FPS olive/orange
+(plus `vortex` `VTX` legacy proxy forward target)
+
+### What was completed this session (Feb 2026)
+- Cleaned up legacy `Blaze*` JS variable names and `.blaze-*` CSS aliases from the master template; all brand identity now flows exclusively through `theme.config.js` per site (no hardcoded "Blaze" in clones).
+- Created `/app/themes/pixelvault.json`, `/app/themes/elitecharge.json`, `/app/themes/raidstation.json`.
+- Cloned and verified 3 new sites; all render with distinct visual themes; X-Site-Id header injected via axios interceptor → backend resolves correct order prefix.
+- Backend `seed_multi_site_defaults` startup now auto-registers the 6 site_configs idempotently.
+- Wired `ayolinx_service.refresh_from_db()` and `digiflazz_service.refresh_from_db()` so admin-panel-stored credentials override env vars at call time (DB-first, env-fallback). Applied in `routes/payment.py` (create, auto-topup) and `routes/biller.py` (router-level dependency).
+- Patched local Babel visual-edits plugin to guard against null parentPath chain (fixed compile crash on cloned sites' `SitesTab.js`).
+- Regression suite added by testing agent: `/app/backend/tests/test_multisite.py` (13/13 pass).
 
