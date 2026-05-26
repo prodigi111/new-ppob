@@ -144,3 +144,12 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - Patched local Babel visual-edits plugin to guard against null parentPath chain (fixed compile crash on cloned sites' `SitesTab.js`).
 - Regression suite added by testing agent: `/app/backend/tests/test_multisite.py` (13/13 pass).
 
+### Iteration 4 (Feb 2026) — admin tools + visual revamp
+- **Test Connection buttons** for Ayolinx & DigiFlazz in admin → "Integrasi" tab (POST `/api/admin/integrations/{service}/test`). Returns `{ok, message, details}` with live mode/base_url/deposit info. UI shows colored banner with the result.
+- **"Tambah Tema & Brand Baru"** flow in admin → "Sites" tab. Admin posts (or uploads .json) a theme object → backend validates required fields/colors/prefix uniqueness → writes `/app/themes/<id>.json` → runs `clone-site.sh` → registers in `site_configs`. Failure path cleans up partial artifacts (`shutil.rmtree` + theme JSON unlink).
+- **Mascot removed** across all 5 sites. New `<HeroVisual />` component renders 5 distinct CSS/SVG variants (`controller-orb`, `circuit-grid`, `pixel-tiles`, `gold-orbs`, `crosshair-radar`) selected by `theme.style.heroVisual`. No image assets needed; each site looks visually unique.
+- **Favicon removed** from all sites (`<link rel="icon">` stripped in index.html + `apply-theme.js` patched + `assets.favicon` removed from theme JSONs).
+- `_validate_theme_json` now enforces the full 8-color schema required by `apply-theme.js` (primary, secondary, background, foreground, card, border, accent, destructive).
+- Regression: 22/22 tests pass (`test_multisite.py` 13/13 + new `test_new_features.py` 9 passed + 1 skipped for dev-mode DigiFlazz).
+
+

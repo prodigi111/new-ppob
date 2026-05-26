@@ -1479,7 +1479,9 @@ def _validate_theme_json(theme_obj: dict) -> Optional[str]:
     if not isinstance(brand, dict) or not brand.get("name"):
         return "brand.name is required"
     colors = theme_obj.get("colors") or {}
-    for col in ("primary", "background", "foreground", "card", "border", "accent"):
+    # Must match the keys consumed by /app/scripts/apply-theme.js (hexToHslComponents)
+    for col in ("primary", "secondary", "background", "foreground", "card",
+                "border", "accent", "destructive"):
         if not isinstance(colors.get(col), str) or not colors[col].startswith("#"):
             return f"colors.{col} must be a #hex string"
     return None
@@ -1540,9 +1542,16 @@ async def clone_new_site(payload: dict, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Clone command failed: {e}")
 
     if proc.returncode != 0:
-        # Cleanup partial folder & theme file on failure
+        # Cleanup partial artifacts: theme JSON + scaffolded folder
+        import shutil as _shutil
         try:
             theme_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        try:
+            partial = SITES_ROOT / site_id
+            if partial.exists():
+                _shutil.rmtree(partial, ignore_errors=True)
         except Exception:
             pass
         return {
