@@ -15,8 +15,7 @@
   "assets": {
     "logo": "/logo-blaze.svg",
     "mascot": "/mascot1.svg",
-    "heroBg": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80",
-    "favicon": "/favicon.svg"
+    "heroBg": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80"
   },
   "copy": {
     "hero": {
@@ -26,10 +25,22 @@
       "searchPlaceholder": "Cari game atau voucher..."
     },
     "features": [
-      { "label": "Instant", "desc": "Proses dalam detik" },
-      { "label": "Murah",   "desc": "Harga terbaik" },
-      { "label": "Aman",    "desc": "100% Terpercaya" },
-      { "label": "Support", "desc": "24/7 via WhatsApp" }
+      {
+        "label": "Instant",
+        "desc": "Proses dalam detik"
+      },
+      {
+        "label": "Murah",
+        "desc": "Harga terbaik"
+      },
+      {
+        "label": "Aman",
+        "desc": "100% Terpercaya"
+      },
+      {
+        "label": "Support",
+        "desc": "24/7 via WhatsApp"
+      }
     ],
     "cta": {
       "titlePrefix": "Jadi Reseller ",
@@ -43,27 +54,28 @@
     }
   },
   "colors": {
-    "primary":     "#FF0000",
-    "secondary":   "#FFFFFF",
-    "accent":      "#FFD700",
-    "background":  "#050A18",
-    "card":        "#0D1526",
-    "border":      "#2D3436",
-    "foreground":  "#FFFFFF",
-    "success":     "#22C55E",
+    "primary": "#FF0000",
+    "secondary": "#FFFFFF",
+    "accent": "#FFD700",
+    "background": "#050A18",
+    "card": "#0D1526",
+    "border": "#2D3436",
+    "foreground": "#FFFFFF",
+    "success": "#22C55E",
     "destructive": "#FF3B30",
-    "gradientFrom":"#FF0000",
-    "gradientTo":  "#FFD700"
+    "gradientFrom": "#FF0000",
+    "gradientTo": "#FFD700"
   },
   "fonts": {
     "display": "'Rajdhani', 'Space Grotesk', sans-serif",
-    "body":    "'Plus Jakarta Sans', 'Inter', sans-serif",
-    "mono":    "'JetBrains Mono', monospace",
+    "body": "'Plus Jakarta Sans', 'Inter', sans-serif",
+    "mono": "'JetBrains Mono', monospace",
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
   },
   "style": {
     "mascotGlow": "drop-shadow(0 0 30px rgba(255, 0, 0, 0.4))",
     "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-accent/20"
+    "heroAccent2": "bg-accent/20",
+    "heroVisual": "controller-orb"
   }
 }

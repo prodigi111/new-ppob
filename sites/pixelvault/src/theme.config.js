@@ -23,7 +23,6 @@ const theme = {
     "logo": "/logo-pixelvault.svg",
     "mascot": "/mascot-pixelvault.svg",
     "heroBg": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=1920&q=80",
-    "favicon": "/favicon.svg"
   },
   "copy": {
     "hero": {
@@ -81,6 +80,7 @@ const theme = {
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
   },
   "style": {
+    "heroVisual": "pixel-tiles",
     "mascotGlow": "drop-shadow(0 0 24px rgba(255, 122, 0, 0.55)) drop-shadow(0 0 48px rgba(147, 51, 234, 0.35))",
     "heroAccent1": "bg-primary/20",
     "heroAccent2": "bg-secondary/20"

@@ -1,0 +1,49 @@
+{
+  "summary": "Iterasi 4: 4 fitur baru (test-koneksi integrasi, clone-new-site, HeroVisual, hilangkan favicon) divalidasi. Backend pytest baru: 9 passed + 1 skipped (digiflazz dev-mode tanpa deposit info). Regression test_multisite.py: 13/13 lulus. Cleanup testclone_x diverifikasi (folder, theme JSON, dan row DB terhapus). Frontend HTML diverifikasi via scrape: <link rel='icon'> sudah dihapus dari blaze public/index.html, dan data-testid='hero-visual' ter-render di section hero + reseller CTA (controller-orb variant untuk blaze). UI admin (Test Koneksi & Tambah Tema dialog) tidak dieksekusi via Playwright karena kendala context budget — namun selektor data-testid (test-ayolinx-btn, test-digiflazz-btn, test-result-{service}, open-clone-site-btn, clone-site-dialog, clone-json-textarea, submit-clone-btn) seluruhnya ada di source dan backend endpoint yang di-wire sudah lulus tes.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/admin/sites/clone-new", "issue": "Validasi _validate_theme_json hanya cek 6 warna (primary/background/foreground/card/border/accent), TAPI /app/scripts/apply-theme.js (line 75) WAJIB juga colors.secondary & colors.destructive (dan opsional gradientFrom/gradientTo). Jika admin upload theme tanpa field tersebut, backend balas 200/ok=false dengan stderr 'TypeError: Cannot read properties of undefined (reading \\u0027replace\\u0027)' setelah file theme JSON sudah ditulis ke disk — dan endpoint TIDAK rollback file theme tersebut (cleanup hanya pakai unlink missing_ok pada flow path tertentu; folder /app/sites/{siteId} kosong/parsial juga mungkin tertinggal tergantung tahap kegagalan). STARTER_THEME_TEMPLATE di frontend SitesTab.js (default value textarea) wajib di-cross-check menyertakan semua warna ini.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/admin/integrations/digiflazz/test", "issue": "Dalam mode development/dummy, response berisi ok=True tapi details.deposit=None. Spec menyebut 'deposit info bila ok=True' — sebaiknya konsisten: jika tidak ada deposit data, ok=False; atau adjust spec."},
+      {"endpoint": "POST /api/admin/sites/clone-new", "issue": "Pada return ok=False (clone-site.sh non-zero), folder partial /app/sites/{siteId} TIDAK dibersihkan (hanya theme JSON di-unlink). Bisa meninggalkan sisa di filesystem & memblok retry."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Clone-site dialog default JSON", "issue": "PERLU verifikasi STARTER_THEME_TEMPLATE di /app/sites/blaze/src/pages/admin/SitesTab.js menyertakan colors.secondary & colors.destructive (dan idealnya gradientFrom/gradientTo) — jika tidak, submit default akan ok=false dari backend karena apply-theme.js crash.", "affected_selectors": ["clone-json-textarea", "submit-clone-btn", "test-result-clone"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_new_features.py",
+    "/app/backend/tests/test_multisite.py",
+    "/app/test_reports/pytest/pytest_new_features.xml",
+    "/app/test_reports/pytest/pytest_multisite.xml"
+  ],
+  "action_items": [
+    "Update _validate_theme_json di server.py: tambahkan validasi wajib untuk colors.secondary & colors.destructive (dan opsional gradientFrom/gradientTo) agar 400 ditolak lebih awal sebelum filesystem write — match dengan kebutuhan apply-theme.js.",
+    "Verifikasi STARTER_THEME_TEMPLATE di SitesTab.js mengandung 8 warna lengkap (primary, background, foreground, card, border, accent, secondary, destructive). Jika belum — submit default oleh admin akan gagal.",
+    "Pada cleanup path clone-new-site error, hapus juga folder /app/sites/{siteId} via shutil.rmtree (saat ini hanya theme JSON yang di-unlink).",
+    "(Opsional) Konsistensi DigiFlazz test-connection: jika tidak ada deposit di response, balas ok=False atau dokumentasikan bahwa dev-mode mengembalikan ok=True tanpa deposit.",
+    "(Opsional) Frontend Playwright belum dieksekusi untuk admin Test Koneksi & dialog Clone — main agent bisa self-test karena selektor sudah on-spec dan backend endpoint sudah lulus."
+  ],
+  "critical_code_review_comments": [
+    "GAP VALIDASI: backend dan apply-theme.js tidak sinkron pada daftar warna wajib. Single-source-of-truth disarankan: extract REQUIRED_COLORS sebagai konstanta yang dibaca kedua sisi (mis. /app/themes/_schema.json) atau biarkan apply-theme.js fail-gracefully dengan default warna.",
+    "server.py sudah >1700 baris. Endpoint clone-new-site (~100 baris) layak dipindah ke routes/admin_sites.py.",
+    "_cleanup pada failure clone tidak hapus folder partial /app/sites/{siteId}. Subprocess clone-site.sh bisa membuat folder sebelum apply-theme.js crash.",
+    "Endpoint test-connection mengembalikan 200 untuk error path (return {ok:False,...}) bukannya 502/503 — bagus untuk UX, tapi pastikan dokumentasi konsisten.",
+    "INTEGRATION_ENV_MAP digunakan untuk validasi unknown service di test endpoint via lookup eksplisit if/elif — boleh juga reuse INTEGRATION_ENV_MAP untuk DRY."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_new_features.py (BARU — 10 tests untuk 4 fitur baru)"
+  ],
+  "success_rate": {"backend": "100% executable (9 passed, 1 skipped pada dev-mode); regression 13/13", "frontend": "Static HTML verified (hero-visual rendered, favicon link absent); Playwright admin UI tidak dieksekusi"},
+  "test_credentials": "admin@voucherverse.com / admin123 — valid",
+  "seed_data_creation": "Test happy-path clone-new membuat sementara: /app/sites/testclone_x, /app/themes/testclone_x.json, db.site_configs row site_id='testclone_x'. CLEANUP otomatis via fixture cleanup_after — diverifikasi nihil setelah run (ls + count_documents = 0).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Bila main agent fix gap validasi colors.secondary/destructive: jalankan pytest /app/backend/tests/test_new_features.py untuk re-verifikasi happy path masih lulus dengan starter template (perbarui _starter_theme atau tambah test khusus 'missing secondary -> 400'). Untuk frontend Playwright admin: login → /admin → tab Integrasi (klik test-ayolinx-btn → tunggu banner test-result-ayolinx), lalu tab Sites (klik open-clone-site-btn → submit dengan siteId unik mis. dialogtest+DLG → cleanup folder/theme/DB row).",
+  "rca of the issue": "Bug utama: /app/scripts/apply-theme.js membutuhkan colors.secondary & colors.destructive yang TIDAK divalidasi oleh _validate_theme_json di server.py. Reproduce: POST clone-new-site dengan theme yang lulus validasi backend tapi tanpa colors.secondary → backend menulis theme JSON ke disk, jalankan clone-site.sh → apply-theme.js crash di hexToHslComponents(undefined) → return ok=False dengan stderr TypeError. Mitigasi: tambahkan secondary & destructive ke REQUIRED_THEME_COLORS list di _validate_theme_json dan pastikan STARTER_THEME_TEMPLATE menyertakan keduanya."
+}

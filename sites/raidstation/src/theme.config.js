@@ -23,7 +23,6 @@ const theme = {
     "logo": "/logo-raidstation.svg",
     "mascot": "/mascot-raidstation.svg",
     "heroBg": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80",
-    "favicon": "/favicon.svg"
   },
   "copy": {
     "hero": {
@@ -81,6 +80,7 @@ const theme = {
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap"
   },
   "style": {
+    "heroVisual": "crosshair-radar",
     "mascotGlow": "drop-shadow(0 0 24px rgba(74, 124, 42, 0.55)) drop-shadow(0 0 48px rgba(199, 62, 29, 0.35))",
     "heroAccent1": "bg-primary/25",
     "heroAccent2": "bg-secondary/20"

@@ -23,7 +23,6 @@ const theme = {
     "logo": "/logo-elitecharge.svg",
     "mascot": "/mascot-elitecharge.svg",
     "heroBg": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80",
-    "favicon": "/favicon.svg"
   },
   "copy": {
     "hero": {
@@ -81,6 +80,7 @@ const theme = {
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
   },
   "style": {
+    "heroVisual": "gold-orbs",
     "mascotGlow": "drop-shadow(0 0 24px rgba(212, 175, 55, 0.45)) drop-shadow(0 0 48px rgba(184, 134, 11, 0.25))",
     "heroAccent1": "bg-primary/15",
     "heroAccent2": "bg-accent/15"

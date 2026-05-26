@@ -15,21 +15,32 @@
   "assets": {
     "logo": "/logo-pixelvault.svg",
     "mascot": "/mascot-pixelvault.svg",
-    "heroBg": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=1920&q=80",
-    "favicon": "/favicon.svg"
+    "heroBg": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=1920&q=80"
   },
   "copy": {
     "hero": {
       "titleLine1": "Insert Coin,",
       "titleLine2": "Level Up Fast!",
-      "subtitle": "Arcade-style top-up untuk gamer retro & modern. UC, Diamond, voucher Steam, PSN — drop instan, harga arcade-cheap, support player-1 24/7.",
-      "searchPlaceholder": "Press START — cari game atau voucher..."
+      "subtitle": "Arcade-style top-up untuk gamer retro & modern. UC, Diamond, voucher Steam, PSN \u2014 drop instan, harga arcade-cheap, support player-1 24/7.",
+      "searchPlaceholder": "Press START \u2014 cari game atau voucher..."
     },
     "features": [
-      { "label": "1-Up Speed",   "desc": "Drop dalam 5 detik" },
-      { "label": "Coin-Cheap",   "desc": "Harga arcade termurah" },
-      { "label": "No Bugs",      "desc": "100% transaksi aman" },
-      { "label": "Player Two",   "desc": "Support live 24/7" }
+      {
+        "label": "1-Up Speed",
+        "desc": "Drop dalam 5 detik"
+      },
+      {
+        "label": "Coin-Cheap",
+        "desc": "Harga arcade termurah"
+      },
+      {
+        "label": "No Bugs",
+        "desc": "100% transaksi aman"
+      },
+      {
+        "label": "Player Two",
+        "desc": "Support live 24/7"
+      }
     ],
     "cta": {
       "titlePrefix": "Become a ",
@@ -43,27 +54,28 @@
     }
   },
   "colors": {
-    "primary":     "#FF7A00",
-    "secondary":   "#9333EA",
-    "accent":      "#FFD60A",
-    "background":  "#0F0820",
-    "card":        "#1B0F33",
-    "border":      "#3A1F66",
-    "foreground":  "#FFE9C2",
-    "success":     "#52FF8F",
+    "primary": "#FF7A00",
+    "secondary": "#9333EA",
+    "accent": "#FFD60A",
+    "background": "#0F0820",
+    "card": "#1B0F33",
+    "border": "#3A1F66",
+    "foreground": "#FFE9C2",
+    "success": "#52FF8F",
     "destructive": "#FF2D55",
-    "gradientFrom":"#FF7A00",
-    "gradientTo":  "#9333EA"
+    "gradientFrom": "#FF7A00",
+    "gradientTo": "#9333EA"
   },
   "fonts": {
     "display": "'Press Start 2P', 'VT323', monospace",
-    "body":    "'VT323', 'Plus Jakarta Sans', sans-serif",
-    "mono":    "'Press Start 2P', 'JetBrains Mono', monospace",
+    "body": "'VT323', 'Plus Jakarta Sans', sans-serif",
+    "mono": "'Press Start 2P', 'JetBrains Mono', monospace",
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
   },
   "style": {
     "mascotGlow": "drop-shadow(0 0 24px rgba(255, 122, 0, 0.55)) drop-shadow(0 0 48px rgba(147, 51, 234, 0.35))",
     "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-secondary/20"
+    "heroAccent2": "bg-secondary/20",
+    "heroVisual": "pixel-tiles"
   }
 }

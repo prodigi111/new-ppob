@@ -37,8 +37,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import theme from '../theme.config';
-const BrandMascot = theme.assets.mascot;
-const BrandMascot2 = theme.assets.mascot2 || theme.assets.mascot;
+import HeroVisual from '../components/HeroVisual';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -601,22 +600,12 @@ export default function Reseller() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
         
-        {/* Mascot decorations */}
-        <div className="absolute left-0 bottom-0 hidden xl:block opacity-50 z-0">
-          <img 
-            src={BrandMascot} 
-            alt="" 
-            className="w-64 h-64 object-contain animate-float"
-            style={{ filter: 'drop-shadow(0 0 20px rgba(255, 0, 0, 0.3))' }}
-          />
+        {/* Site-specific decorative visuals (replace legacy mascots) */}
+        <div className="absolute left-0 bottom-0 hidden xl:block opacity-40 z-0">
+          <HeroVisual compact />
         </div>
-        <div className="absolute right-0 top-20 hidden xl:block opacity-50 z-0">
-          <img 
-            src={BrandMascot2} 
-            alt="" 
-            className="w-56 h-56 object-contain animate-float"
-            style={{ filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.3))', animationDelay: '1s' }}
-          />
+        <div className="absolute right-0 top-20 hidden xl:block opacity-40 z-0">
+          <HeroVisual compact />
         </div>
         
         <div className="relative max-w-6xl mx-auto px-4 text-center z-10">

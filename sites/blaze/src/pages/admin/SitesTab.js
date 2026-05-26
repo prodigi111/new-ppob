@@ -7,7 +7,7 @@ import { Switch } from '../../components/ui/switch';
 import { toast } from 'sonner';
 import {
   Save, Loader2, Plus, Trash2, Edit2, X, Check, Globe,
-  ArrowRightCircle, MonitorSmartphone, RefreshCw
+  ArrowRightCircle, MonitorSmartphone, RefreshCw, Upload, FileJson, Sparkles
 } from 'lucide-react';
 
 const API_BASE = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -24,6 +24,68 @@ const EMPTY_CFG = {
   notes: '',
 };
 
+const STARTER_THEME_TEMPLATE = JSON.stringify({
+  id: 'mybrand',
+  siteId: 'mybrand',
+  orderPrefix: 'MYB',
+  brand: { name: 'MyBrand', short: 'My', legalName: 'PT MY BRAND' },
+  meta: {
+    title: 'MyBrand | Top Up Game & Voucher',
+    description: 'MyBrand - Top up game dan voucher digital terpercaya.',
+    themeColor: '#2563EB',
+  },
+  assets: {
+    logo: '/logo-mybrand.svg',
+    heroBg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80',
+  },
+  copy: {
+    hero: {
+      titleLine1: 'Top Up Game',
+      titleLine2: 'Cepat & Aman',
+      subtitle: 'Layanan top-up game & voucher digital. Proses kilat, harga bersaing, support 24/7.',
+      searchPlaceholder: 'Cari game atau voucher...',
+    },
+    features: [
+      { label: 'Cepat', desc: 'Proses < 5 detik' },
+      { label: 'Murah', desc: 'Harga terbaik' },
+      { label: 'Aman', desc: '100% terpercaya' },
+      { label: 'Support', desc: '24/7 via chat' },
+    ],
+    cta: {
+      titlePrefix: 'Jadi ',
+      titleHighlight: 'My',
+      titleSuffix: 'Reseller!',
+      subtitle: 'Daftar reseller untuk harga partner.',
+      button: 'Daftar Reseller',
+    },
+    footer: { tagline: 'Platform top-up digital terpercaya — MyBrand.' },
+  },
+  colors: {
+    primary: '#2563EB',
+    secondary: '#FFFFFF',
+    accent: '#F59E0B',
+    background: '#0B1220',
+    card: '#111827',
+    border: '#1F2937',
+    foreground: '#F3F4F6',
+    success: '#22C55E',
+    destructive: '#EF4444',
+    gradientFrom: '#2563EB',
+    gradientTo: '#F59E0B',
+  },
+  fonts: {
+    display: "'Rajdhani', 'Space Grotesk', sans-serif",
+    body: "'Plus Jakarta Sans', 'Inter', sans-serif",
+    mono: "'JetBrains Mono', monospace",
+  },
+  style: {
+    heroVisual: 'controller-orb',
+    mascotGlow: 'drop-shadow(0 0 30px rgba(37, 99, 235, 0.4))',
+    heroAccent1: 'bg-primary/20',
+    heroAccent2: 'bg-accent/20',
+  },
+}, null, 2);
+
 export default function SitesTab() {
   const [configs, setConfigs] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -33,6 +95,10 @@ export default function SitesTab() {
   const [draft, setDraft] = useState(EMPTY_CFG);
   const [saving, setSaving] = useState(false);
   const [switching, setSwitching] = useState(null);
+  const [cloneOpen, setCloneOpen] = useState(false);
+  const [cloneJsonText, setCloneJsonText] = useState('');
+  const [cloning, setCloning] = useState(false);
+  const [cloneLog, setCloneLog] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -114,6 +180,53 @@ export default function SitesTab() {
     setSwitching(null);
   };
 
+  const openCloneDialog = () => {
+    setCloneOpen(true);
+    setCloneLog(null);
+    if (!cloneJsonText) setCloneJsonText(STARTER_THEME_TEMPLATE);
+  };
+
+  const handleJsonFile = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const obj = JSON.parse(ev.target.result);
+        setCloneJsonText(JSON.stringify(obj, null, 2));
+      } catch (e) {
+        toast.error('File bukan JSON valid');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const submitClone = async () => {
+    let theme;
+    try {
+      theme = JSON.parse(cloneJsonText);
+    } catch (e) {
+      toast.error('JSON theme tidak valid: ' + e.message);
+      return;
+    }
+    setCloning(true);
+    setCloneLog(null);
+    try {
+      const { data } = await axios.post(`${API_BASE}/admin/sites/clone-new`, { theme });
+      setCloneLog(data);
+      if (data.ok) {
+        toast.success(`Site '${data.site_id}' berhasil dibuat (prefix ${data.prefix})`);
+        await load();
+      } else {
+        toast.error(`Clone gagal: ${data.message || 'unknown'}`);
+      }
+    } catch (e) {
+      const msg = e.response?.data?.detail || e.message;
+      setCloneLog({ ok: false, message: msg });
+      toast.error(`Clone gagal: ${msg}`);
+    }
+    setCloning(false);
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center py-12">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -134,9 +247,20 @@ export default function SitesTab() {
               Pilih tema/site yang ditampilkan ke pengunjung. Klik switch untuk ganti.
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={load} className="text-muted-foreground">
-            <RefreshCw className="w-4 h-4 mr-1" /> Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={openCloneDialog}
+              className="bg-accent hover:bg-accent/90 text-background"
+              data-testid="open-clone-site-btn"
+            >
+              <Sparkles className="w-4 h-4 mr-1" /> Tambah Tema / Brand Baru
+            </Button>
+            <Button variant="ghost" size="sm" onClick={load} className="text-muted-foreground">
+              <RefreshCw className="w-4 h-4 mr-1" /> Refresh
+            </Button>
+          </div>
         </div>
         <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {folders.length === 0 && (
@@ -235,6 +359,91 @@ export default function SitesTab() {
           </table>
         </div>
       </div>
+      {/* ============ CLONE-NEW-SITE DIALOG ============ */}
+      {cloneOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => !cloning && setCloneOpen(false)}
+        >
+          <div
+            className="bg-card border border-border rounded-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            data-testid="clone-site-dialog"
+          >
+            <div className="p-5 border-b border-border flex items-center justify-between">
+              <div>
+                <h3 className="font-rajdhani font-semibold text-lg text-white uppercase flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-accent" /> Tambah Tema & Brand Baru
+                </h3>
+                <p className="text-muted-foreground text-xs mt-1">
+                  Upload file <span className="font-mono">.json</span> tema, atau edit langsung template di bawah. Backend akan otomatis clone site React baru.
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => !cloning && setCloneOpen(false)} disabled={cloning}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="p-5 space-y-3 overflow-y-auto flex-1">
+              <div className="flex items-center gap-3">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept=".json,application/json"
+                    className="hidden"
+                    onChange={(e) => handleJsonFile(e.target.files?.[0])}
+                    data-testid="clone-upload-input"
+                  />
+                  <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/20 text-primary hover:bg-primary/30 text-sm border border-primary/40">
+                    <Upload className="w-4 h-4" /> Upload .json
+                  </span>
+                </label>
+                <span className="text-muted-foreground text-xs">
+                  Atau edit JSON template di textarea (default sudah terisi).
+                </span>
+              </div>
+
+              <div>
+                <Label className="text-gray-300 text-xs flex items-center gap-1">
+                  <FileJson className="w-3 h-3" /> Theme JSON
+                </Label>
+                <textarea
+                  className="w-full mt-1 h-80 bg-black/60 border border-white/10 rounded-md p-3 text-xs text-white font-mono leading-relaxed"
+                  value={cloneJsonText}
+                  onChange={(e) => setCloneJsonText(e.target.value)}
+                  spellCheck={false}
+                  data-testid="clone-json-textarea"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Wajib: <span className="font-mono">siteId</span>, <span className="font-mono">orderPrefix</span> (3 char), <span className="font-mono">brand.name</span>, <span className="font-mono">colors.primary</span>, <span className="font-mono">copy</span>, <span className="font-mono">fonts</span>. Gunakan <span className="font-mono">style.heroVisual</span> = <span className="font-mono">controller-orb | circuit-grid | pixel-tiles | gold-orbs | crosshair-radar</span> untuk visual hero unik.
+                </p>
+              </div>
+
+              {cloneLog && (
+                <div className={`p-3 rounded-md text-xs border ${cloneLog.ok ? 'bg-success/10 border-success/40 text-success' : 'bg-destructive/10 border-destructive/40 text-destructive'}`}>
+                  <div className="font-semibold mb-1">{cloneLog.message || (cloneLog.ok ? 'OK' : 'Gagal')}</div>
+                  {cloneLog.stderr && <pre className="whitespace-pre-wrap break-words opacity-80 mt-1 max-h-32 overflow-y-auto">{cloneLog.stderr}</pre>}
+                  {cloneLog.stdout && cloneLog.ok && <pre className="whitespace-pre-wrap break-words opacity-80 mt-1 max-h-32 overflow-y-auto">{cloneLog.stdout}</pre>}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-border flex items-center justify-end gap-2">
+              <Button variant="ghost" onClick={() => setCloneOpen(false)} disabled={cloning} className="text-muted-foreground">
+                Batal
+              </Button>
+              <Button
+                onClick={submitClone}
+                disabled={cloning || !cloneJsonText.trim()}
+                className="bg-accent hover:bg-accent/90 text-background"
+                data-testid="submit-clone-btn"
+              >
+                {cloning ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Membuat...</> : <><Sparkles className="w-4 h-4 mr-1" /> Buat Site</>}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,21 +15,32 @@
   "assets": {
     "logo": "/logo-elitecharge.svg",
     "mascot": "/mascot-elitecharge.svg",
-    "heroBg": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80",
-    "favicon": "/favicon.svg"
+    "heroBg": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80"
   },
   "copy": {
     "hero": {
       "titleLine1": "The Refined Way",
       "titleLine2": "to Top Up",
-      "subtitle": "Layanan top-up premium dengan eksekusi presisi. UC, Diamond, voucher digital dengan harga preferred dan concierge support — eksklusif untuk member EliteCharge.",
-      "searchPlaceholder": "Search the catalogue — game, voucher..."
+      "subtitle": "Layanan top-up premium dengan eksekusi presisi. UC, Diamond, voucher digital dengan harga preferred dan concierge support \u2014 eksklusif untuk member EliteCharge.",
+      "searchPlaceholder": "Search the catalogue \u2014 game, voucher..."
     },
     "features": [
-      { "label": "Concierge",    "desc": "Personal support 24/7" },
-      { "label": "Preferred",    "desc": "Harga member eksklusif" },
-      { "label": "Verified",     "desc": "Fully audited & secure" },
-      { "label": "Instant",      "desc": "White-glove delivery" }
+      {
+        "label": "Concierge",
+        "desc": "Personal support 24/7"
+      },
+      {
+        "label": "Preferred",
+        "desc": "Harga member eksklusif"
+      },
+      {
+        "label": "Verified",
+        "desc": "Fully audited & secure"
+      },
+      {
+        "label": "Instant",
+        "desc": "White-glove delivery"
+      }
     ],
     "cta": {
       "titlePrefix": "Apply for ",
@@ -39,31 +50,32 @@
       "button": "Request Invitation"
     },
     "footer": {
-      "tagline": "Curated digital top-up untuk gamer yang menghargai kualitas. Premium pricing, premium service, premium experience — by EliteCharge."
+      "tagline": "Curated digital top-up untuk gamer yang menghargai kualitas. Premium pricing, premium service, premium experience \u2014 by EliteCharge."
     }
   },
   "colors": {
-    "primary":     "#D4AF37",
-    "secondary":   "#F5F5F0",
-    "accent":      "#B8860B",
-    "background":  "#0B0B0F",
-    "card":        "#16161D",
-    "border":      "#2A2A35",
-    "foreground":  "#F5F5F0",
-    "success":     "#3FA34D",
+    "primary": "#D4AF37",
+    "secondary": "#F5F5F0",
+    "accent": "#B8860B",
+    "background": "#0B0B0F",
+    "card": "#16161D",
+    "border": "#2A2A35",
+    "foreground": "#F5F5F0",
+    "success": "#3FA34D",
     "destructive": "#C0392B",
-    "gradientFrom":"#D4AF37",
-    "gradientTo":  "#B8860B"
+    "gradientFrom": "#D4AF37",
+    "gradientTo": "#B8860B"
   },
   "fonts": {
     "display": "'Playfair Display', 'Cormorant Garamond', serif",
-    "body":    "'Inter', 'Plus Jakarta Sans', sans-serif",
-    "mono":    "'JetBrains Mono', monospace",
+    "body": "'Inter', 'Plus Jakarta Sans', sans-serif",
+    "mono": "'JetBrains Mono', monospace",
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
   },
   "style": {
     "mascotGlow": "drop-shadow(0 0 24px rgba(212, 175, 55, 0.45)) drop-shadow(0 0 48px rgba(184, 134, 11, 0.25))",
     "heroAccent1": "bg-primary/15",
-    "heroAccent2": "bg-accent/15"
+    "heroAccent2": "bg-accent/15",
+    "heroVisual": "gold-orbs"
   }
 }

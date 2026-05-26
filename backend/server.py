@@ -1322,6 +1322,65 @@ async def update_integration_settings(service: str, payload: IntegrationSettings
     return {"ok": True, "service": service, "saved_keys": list(cleaned.keys())}
 
 
+# ----- Test-connection endpoints -----
+
+@api_router.post("/admin/integrations/{service}/test")
+async def test_integration_connection(service: str, user: dict = Depends(get_current_user)):
+    """Lightweight liveness check using the saved (DB-first, env-fallback) credentials.
+
+    - ayolinx: trigger refresh + B2B access-token request.
+    - digiflazz: trigger refresh + check_balance (Cek Saldo).
+    Returns {ok, message, details} so the UI can show a clear status line.
+    """
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    service = service.lower()
+    if service == "ayolinx":
+        from services.ayolinx import ayolinx_service
+        try:
+            await ayolinx_service.refresh_from_db(db)
+            # _get_access_token is the cheapest authenticated call
+            token = await ayolinx_service.get_access_token()
+            if token:
+                return {
+                    "ok": True,
+                    "message": "Ayolinx connection OK — access token obtained",
+                    "details": {
+                        "mode": "sandbox" if "sandbox" in (ayolinx_service.base_url or "") else "production",
+                        "base_url": ayolinx_service.base_url,
+                        "client_key_set": bool(ayolinx_service.client_key),
+                        "private_key_loaded": bool(ayolinx_service.private_key),
+                    },
+                }
+            return {
+                "ok": False,
+                "message": "Ayolinx returned empty token. Periksa client_key / private_key / mode.",
+                "details": {"base_url": ayolinx_service.base_url},
+            }
+        except Exception as e:
+            return {"ok": False, "message": f"Ayolinx error: {e}", "details": {}}
+    elif service == "digiflazz":
+        from services.digiflazz import digiflazz_service
+        try:
+            await digiflazz_service.refresh_from_db(db)
+            result = await digiflazz_service.check_balance()
+            ok = bool(result.get("success"))
+            return {
+                "ok": ok,
+                "message": "DigiFlazz connection OK — balance fetched" if ok
+                            else f"DigiFlazz returned: {result.get('error') or result.get('message') or 'unknown'}",
+                "details": {
+                    "mode": digiflazz_service.mode,
+                    "username_set": bool(digiflazz_service.username),
+                    "api_key_set": bool(digiflazz_service.api_key),
+                    "deposit": result.get("deposit") if ok else None,
+                },
+            }
+        except Exception as e:
+            return {"ok": False, "message": f"DigiFlazz error: {e}", "details": {}}
+    raise HTTPException(status_code=400, detail=f"Unknown service '{service}'")
+
+
 # ----- Frontend switcher -----
 
 @api_router.get("/admin/sites/available")
@@ -1391,6 +1450,135 @@ async def switch_active_site(payload: dict, user: dict = Depends(get_current_use
         raise HTTPException(status_code=504, detail="Switch command timed out")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Switch failed: {e}")
+
+
+# ----- Clone-new-site (build a new themed site from JSON preset) -----
+
+import json as _json
+import re as _re
+
+THEMES_ROOT = Path("/app/themes")
+
+REQUIRED_THEME_FIELDS = {"siteId", "orderPrefix", "brand", "meta", "assets", "copy", "colors", "fonts"}
+
+
+def _validate_theme_json(theme_obj: dict) -> Optional[str]:
+    """Return None if valid, else a human-readable error string."""
+    if not isinstance(theme_obj, dict):
+        return "Theme must be a JSON object"
+    missing = [k for k in REQUIRED_THEME_FIELDS if k not in theme_obj]
+    if missing:
+        return f"Missing required fields: {', '.join(missing)}"
+    sid = theme_obj.get("siteId", "")
+    if not _re.fullmatch(r"[a-z0-9][a-z0-9_-]{1,30}", str(sid)):
+        return "siteId must be 2-31 chars, lowercase alnum/dash/underscore, start with alnum"
+    prefix = str(theme_obj.get("orderPrefix", "")).upper()
+    if not _re.fullmatch(r"[A-Z0-9]{3}", prefix):
+        return "orderPrefix must be exactly 3 alphanumeric characters (e.g. NEO)"
+    brand = theme_obj.get("brand") or {}
+    if not isinstance(brand, dict) or not brand.get("name"):
+        return "brand.name is required"
+    colors = theme_obj.get("colors") or {}
+    for col in ("primary", "background", "foreground", "card", "border", "accent"):
+        if not isinstance(colors.get(col), str) or not colors[col].startswith("#"):
+            return f"colors.{col} must be a #hex string"
+    return None
+
+
+@api_router.post("/admin/sites/clone-new")
+async def clone_new_site(payload: dict, user: dict = Depends(get_current_user)):
+    """
+    Create a NEW themed clone site from an uploaded theme JSON. The admin posts
+    the entire theme object. Backend will:
+      1. Validate required fields & uniqueness (site_id + prefix).
+      2. Write /app/themes/{siteId}.json.
+      3. Run /app/scripts/clone-site.sh {siteId} {siteId} to scaffold the React app.
+      4. Insert a default site_configs row (process_locally=True, active=True).
+    Returns scaffold logs so the admin can see what happened.
+    """
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    theme_obj = payload.get("theme") if isinstance(payload, dict) else None
+    if not isinstance(theme_obj, dict):
+        raise HTTPException(status_code=400, detail="Body must be {theme: {...}}")
+    err = _validate_theme_json(theme_obj)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+
+    site_id = theme_obj["siteId"]
+    prefix = str(theme_obj["orderPrefix"]).upper()
+    brand_name = theme_obj["brand"]["name"]
+
+    # Uniqueness checks
+    if (SITES_ROOT / site_id).exists():
+        raise HTTPException(status_code=409, detail=f"Site folder '{site_id}' already exists")
+    if await db.site_configs.find_one({"site_id": site_id}):
+        raise HTTPException(status_code=409, detail=f"site_id '{site_id}' already registered in DB")
+    if await db.site_configs.find_one({"prefix": prefix}):
+        raise HTTPException(status_code=409, detail=f"prefix '{prefix}' already used by another site")
+
+    # Persist theme JSON
+    THEMES_ROOT.mkdir(parents=True, exist_ok=True)
+    theme_path = THEMES_ROOT / f"{site_id}.json"
+    try:
+        theme_path.write_text(_json.dumps(theme_obj, indent=2), encoding="utf-8")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to write theme JSON: {e}")
+
+    # Run clone-site.sh
+    script = SCRIPTS_ROOT / "clone-site.sh"
+    if not script.exists():
+        raise HTTPException(status_code=500, detail="clone-site.sh missing")
+    try:
+        proc = subprocess.run(
+            ["bash", str(script), site_id, site_id],
+            capture_output=True, text=True, timeout=90,
+        )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="clone-site.sh timed out")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Clone command failed: {e}")
+
+    if proc.returncode != 0:
+        # Cleanup partial folder & theme file on failure
+        try:
+            theme_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        return {
+            "ok": False,
+            "exit_code": proc.returncode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "message": "clone-site.sh exited non-zero. See stderr.",
+        }
+
+    # Register in DB
+    cfg_doc = {
+        "site_id": site_id,
+        "prefix": prefix,
+        "brand_name": brand_name,
+        "forward_url_qris": None,
+        "forward_url_va": None,
+        "forward_url_digiflazz": None,
+        "process_locally": True,
+        "active": True,
+        "notes": f"Created via admin clone-new at {datetime.now(timezone.utc).isoformat()}",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.site_configs.insert_one(cfg_doc)
+
+    return {
+        "ok": True,
+        "site_id": site_id,
+        "prefix": prefix,
+        "brand_name": brand_name,
+        "theme_path": str(theme_path),
+        "stdout": proc.stdout,
+        "stderr": proc.stderr,
+        "message": f"Site '{site_id}' created. Switch ke site ini via tab Sites untuk preview.",
+    }
 
 
 # ----- Startup: seed default site configs -----

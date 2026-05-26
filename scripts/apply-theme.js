@@ -128,7 +128,9 @@ html = html
   .replace(/<meta name="description" content="[^"]*"\s*\/>/,
            `<meta name="description" content="${theme.meta.description}" />`)
   .replace(/<title>[^<]*<\/title>/g,
-           `<title>${theme.meta.title}</title>`);
+           `<title>${theme.meta.title}</title>`)
+  // Strip any leftover favicon links (per requirement: no favicon per site)
+  .replace(/\s*<link rel="icon"[^>]*\/>\n?/g, '\n');
 fs.writeFileSync(htmlPath, html);
 
 // ---------- 4. Update package.json name ---------------------------------------

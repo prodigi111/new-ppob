@@ -207,3 +207,46 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 .animate-slide-in-right {
   animation: slideInRight 0.8s ease-out forwards;
 }
+
+/* HeroVisual animations (replace legacy mascot) */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spinSlow 14s linear infinite;
+}
+
+@keyframes scan {
+  0%   { top: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.animate-scan {
+  animation: scan 3.5s linear infinite;
+}
+
+@keyframes pixelPulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+.animate-pixel-pulse {
+  animation: pixelPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-radar-sweep {
+  animation: radarSweep 3s linear infinite;
+  transform-origin: left center;
+}
+
+.bg-radial-radar {
+  background: radial-gradient(circle at center,
+    hsl(var(--primary) / 0.25) 0%,
+    hsl(var(--background)) 70%);
+}
+

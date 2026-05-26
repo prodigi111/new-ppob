@@ -15,21 +15,32 @@
   "assets": {
     "logo": "/logo-neonforge.svg",
     "mascot": "/mascot-neonforge.svg",
-    "heroBg": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&q=80",
-    "favicon": "/favicon.svg"
+    "heroBg": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&q=80"
   },
   "copy": {
     "hero": {
       "titleLine1": "Forge Your",
       "titleLine2": "Digital Power",
-      "subtitle": "Hub top-up cyberpunk untuk gamer hardcore. Diamond, UC, voucher PSN, Steam — di-deploy ke akun lo dalam mili-detik. Harga overclocked, support 24/7.",
+      "subtitle": "Hub top-up cyberpunk untuk gamer hardcore. Diamond, UC, voucher PSN, Steam \u2014 di-deploy ke akun lo dalam mili-detik. Harga overclocked, support 24/7.",
       "searchPlaceholder": "Search the grid: game, voucher, top-up..."
     },
     "features": [
-      { "label": "Light-Speed", "desc": "Auto-deploy < 5 detik" },
-      { "label": "Overclocked", "desc": "Harga termurah di grid" },
-      { "label": "Encrypted",   "desc": "End-to-end secure" },
-      { "label": "Always-On",   "desc": "Support 24/7 cyber-ops" }
+      {
+        "label": "Light-Speed",
+        "desc": "Auto-deploy < 5 detik"
+      },
+      {
+        "label": "Overclocked",
+        "desc": "Harga termurah di grid"
+      },
+      {
+        "label": "Encrypted",
+        "desc": "End-to-end secure"
+      },
+      {
+        "label": "Always-On",
+        "desc": "Support 24/7 cyber-ops"
+      }
     ],
     "cta": {
       "titlePrefix": "Become a ",
@@ -39,31 +50,32 @@
       "button": "Jack In Now"
     },
     "footer": {
-      "tagline": "Cyberpunk gaming top-up hub. Built for gamers, by gamers. Forge your victory di NeonForge — di mana setiap milidetik dihitung."
+      "tagline": "Cyberpunk gaming top-up hub. Built for gamers, by gamers. Forge your victory di NeonForge \u2014 di mana setiap milidetik dihitung."
     }
   },
   "colors": {
-    "primary":     "#00F0FF",
-    "secondary":   "#A855F7",
-    "accent":      "#FF2EC4",
-    "background":  "#0A0118",
-    "card":        "#150627",
-    "border":      "#2A1457",
-    "foreground":  "#E9D5FF",
-    "success":     "#39FF14",
+    "primary": "#00F0FF",
+    "secondary": "#A855F7",
+    "accent": "#FF2EC4",
+    "background": "#0A0118",
+    "card": "#150627",
+    "border": "#2A1457",
+    "foreground": "#E9D5FF",
+    "success": "#39FF14",
     "destructive": "#FF073A",
-    "gradientFrom":"#00F0FF",
-    "gradientTo":  "#FF2EC4"
+    "gradientFrom": "#00F0FF",
+    "gradientTo": "#FF2EC4"
   },
   "fonts": {
     "display": "'Orbitron', 'Rajdhani', sans-serif",
-    "body":    "'Chakra Petch', 'Plus Jakarta Sans', sans-serif",
-    "mono":    "'Share Tech Mono', 'JetBrains Mono', monospace",
+    "body": "'Chakra Petch', 'Plus Jakarta Sans', sans-serif",
+    "mono": "'Share Tech Mono', 'JetBrains Mono', monospace",
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap"
   },
   "style": {
     "mascotGlow": "drop-shadow(0 0 30px rgba(0, 240, 255, 0.6)) drop-shadow(0 0 60px rgba(168, 85, 247, 0.4))",
     "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-secondary/20"
+    "heroAccent2": "bg-secondary/20",
+    "heroVisual": "circuit-grid"
   }
 }

@@ -23,7 +23,6 @@ const theme = {
     "logo": "/logo-neonforge.svg",
     "mascot": "/mascot-neonforge.svg",
     "heroBg": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&q=80",
-    "favicon": "/favicon.svg"
   },
   "copy": {
     "hero": {
@@ -81,6 +80,7 @@ const theme = {
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap"
   },
   "style": {
+    "heroVisual": "circuit-grid",
     "mascotGlow": "drop-shadow(0 0 30px rgba(0, 240, 255, 0.6)) drop-shadow(0 0 60px rgba(168, 85, 247, 0.4))",
     "heroAccent1": "bg-primary/20",
     "heroAccent2": "bg-secondary/20"

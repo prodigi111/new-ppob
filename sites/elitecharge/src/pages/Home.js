@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GameCard, GameCardSkeleton } from '../components/GameCard';
+import HeroVisual from '../components/HeroVisual';
 import { useStore } from '../context/StoreContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Search, Zap, Clock, Shield, Tag, Headphones } from 'lucide-react';
 import theme from '../theme.config';
-const BrandMascot = theme.assets.mascot;
 const HERO_BG = theme.assets.heroBg;
 const COPY = theme.copy;
 
@@ -146,20 +146,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right - Mascot */}
+            {/* Right - Site-specific hero visual (replaces legacy mascot) */}
             <div className="hidden lg:flex justify-center items-center">
-              <div className="relative">
-                {/* Glow effect behind mascot */}
-                <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl scale-75 animate-pulse" />
-                <img 
-                  src={BrandMascot} 
-                  alt={theme.brand.name + ' Mascot'} 
-                  className="relative z-10 w-80 h-80 object-contain drop-shadow-2xl animate-float"
-                  style={{
-                    filter: theme.style.mascotGlow
-                  }}
-                />
-              </div>
+              <HeroVisual />
             </div>
           </div>
         </div>
@@ -260,14 +249,9 @@ export default function Home() {
                 </Button>
               </div>
               
-              {/* Mascot in CTA */}
+              {/* Site-specific visual in CTA (compact) */}
               <div className="hidden md:block">
-                <img 
-                  src={BrandMascot} 
-                  alt={theme.brand.name + ' Mascot'} 
-                  className="w-48 h-48 object-contain animate-float"
-                  style={{ filter: theme.style.mascotGlow }}
-                />
+                <HeroVisual compact />
               </div>
             </div>
           </div>

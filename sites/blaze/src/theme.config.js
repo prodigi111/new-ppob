@@ -35,7 +35,6 @@ const theme = {
     logo: '/logo-blaze.svg',
     mascot: '/mascot1.svg',
     heroBg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80',
-    favicon: '/favicon.svg',
   },
 
   // -------- Copy / Tone --------
@@ -91,6 +90,7 @@ const theme = {
 
   // -------- Visual Style Modifiers (tone hooks per site) --------
   style: {
+    "heroVisual": "controller-orb",
     // Used by Home.js hero — applied as inline filter on mascot.
     mascotGlow: 'drop-shadow(0 0 30px rgba(255, 0, 0, 0.4))',
     // Used by hero CTA glow
