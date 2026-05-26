@@ -909,7 +909,7 @@ async def get_server_ip():
 @api_router.get("/migrate/fix-icon-urls")
 async def fix_icon_urls():
     """Fix brand/payment icon URLs: convert preview URLs and upload paths to /icons/ path"""
-    preview = "https://topup-store.preview.emergentagent.com"
+    preview = "https://store-variant-test.preview.emergentagent.com"
     old_path = "/api/static/uploads/"
     new_path = "/icons/"
     fixed = 0
