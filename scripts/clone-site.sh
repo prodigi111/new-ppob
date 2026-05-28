@@ -42,12 +42,15 @@ fi
 
 echo "→ Cloning $SOURCE → $DEST  (preset: $PRESET)"
 mkdir -p "$DEST"
-# Copy everything EXCEPT heavy/regenerable dirs
+# Copy everything EXCEPT heavy/regenerable dirs + favicon files (per requirement: no favicon)
 rsync -a \
   --exclude='node_modules' \
   --exclude='build' \
   --exclude='.cache' \
   --exclude='.next' \
+  --exclude='public/favicon.*' \
+  --exclude='public/apple-touch-icon*' \
+  --exclude='public/manifest.json' \
   "$SOURCE/" "$DEST/"
 
 # Share node_modules with blaze (deps identical across sites)

@@ -129,9 +129,22 @@ html = html
            `<meta name="description" content="${theme.meta.description}" />`)
   .replace(/<title>[^<]*<\/title>/g,
            `<title>${theme.meta.title}</title>`)
-  // Strip any leftover favicon links (per requirement: no favicon per site)
-  .replace(/\s*<link rel="icon"[^>]*\/>\n?/g, '\n');
+  // Strip any leftover favicon / icon / manifest links (per requirement: no favicon per site)
+  .replace(/\s*<link rel="(icon|shortcut icon|apple-touch-icon|manifest)"[^>]*\/?\s*>\n?/gi, '\n')
+  .replace(/\s*<link rel="manifest"[^>]*\/?\s*>\n?/gi, '\n');
 fs.writeFileSync(htmlPath, html);
+
+// ---------- 3b. Delete any favicon assets in public/ --------------------------
+// Defensive cleanup: even if the source site re-introduces a favicon, the cloned
+// site stays favicon-free per product requirement.
+const publicDir = path.join(siteDir, 'public');
+if (fs.existsSync(publicDir)) {
+  for (const f of fs.readdirSync(publicDir)) {
+    if (/^(favicon\.|apple-touch-icon|manifest\.json$)/i.test(f)) {
+      try { fs.unlinkSync(path.join(publicDir, f)); } catch {}
+    }
+  }
+}
 
 // ---------- 4. Update package.json name ---------------------------------------
 const pkgPath = path.join(siteDir, 'package.json');
