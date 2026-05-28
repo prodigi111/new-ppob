@@ -1344,23 +1344,46 @@ async def test_integration_connection(service: str, user: dict = Depends(get_cur
         from services.ayolinx import ayolinx_service
         try:
             await ayolinx_service.refresh_from_db(db)
-            # _get_access_token is the cheapest authenticated call
-            token = await ayolinx_service.get_access_token()
-            if token:
-                return {
-                    "ok": True,
-                    "message": "Ayolinx connection OK — access token obtained",
-                    "details": {
-                        "mode": "sandbox" if "sandbox" in (ayolinx_service.base_url or "") else "production",
-                        "base_url": ayolinx_service.base_url,
-                        "client_key_set": bool(ayolinx_service.client_key),
-                        "private_key_loaded": bool(ayolinx_service.private_key),
-                    },
-                }
+            # Inline copy of get_access_token but capture full response for diagnostics
+            import httpx
+            timestamp = ayolinx_service._get_timestamp()
+            signature = ayolinx_service._sign_for_token(timestamp)
+            headers = {
+                "Content-Type": "application/json",
+                "X-TIMESTAMP": timestamp,
+                "X-CLIENT-KEY": ayolinx_service.client_key or "",
+                "X-SIGNATURE": signature or "",
+            }
+            body = {"grantType": "client_credentials"}
+            async with httpx.AsyncClient() as client_http:
+                resp = await client_http.post(
+                    f"{ayolinx_service.base_url}/v1.0/access-token/b2b",
+                    headers=headers, json=body, timeout=20.0,
+                )
+                try:
+                    data = resp.json()
+                except Exception:
+                    data = {"raw": resp.text[:500]}
+            response_code = data.get("responseCode")
+            ok = response_code == "2007300"
             return {
-                "ok": False,
-                "message": "Ayolinx returned empty token. Periksa client_key / private_key / mode.",
-                "details": {"base_url": ayolinx_service.base_url},
+                "ok": ok,
+                "message": (
+                    "Ayolinx connection OK — access token diperoleh"
+                    if ok else
+                    f"Ayolinx menolak: code={response_code} message={data.get('responseMessage', data.get('message', 'unknown'))}"
+                ),
+                "details": {
+                    "mode": "sandbox" if "sandbox" in (ayolinx_service.base_url or "") else "production",
+                    "base_url": ayolinx_service.base_url,
+                    "client_key_set": bool(ayolinx_service.client_key),
+                    "private_key_loaded": bool(ayolinx_service.private_key),
+                    "http_status": resp.status_code,
+                    "response_code": response_code,
+                    "response_message": data.get("responseMessage") or data.get("message"),
+                    # Truncated raw response for debugging
+                    "response_preview": {k: (str(v)[:120] if isinstance(v, str) else v) for k, v in data.items()},
+                },
             }
         except Exception as e:
             return {"ok": False, "message": f"Ayolinx error: {e}", "details": {}}
