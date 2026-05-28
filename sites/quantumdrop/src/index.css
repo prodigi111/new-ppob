@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide Emergent badge */
+#emergent-badge { display: none !important; }
+a[href*="emergent"][style*="position: fixed"] { display: none !important; }
+
+
+/* ============================================================================
+   BRAND COLOR TOKENS — single source of truth for runtime CSS.
+   Format: H S% L%  (HSL components, no commas) so Tailwind/shadcn can wrap
+   them in hsl(var(--xxx) / <alpha>). Keep in sync with src/theme.config.js.
+   The /app/scripts/clone-site.sh generator updates this block automatically.
+   ============================================================================ */
+@layer base {
+  :root {
+    /* THEME:QUANTUMDROP */
+    --background:           252 52% 6%;    /* #050A18 Deep Midnight */
+    --foreground:           247 100% 95%;     /* #FFFFFF Electric White */
+    --card:                 251 46% 12%;    /* #0D1526 */
+    --card-foreground:      247 100% 95%;
+    --popover:              251 46% 12%;
+    --popover-foreground:   247 100% 95%;
+    --primary:              262 83% 58%;    /* Brand primary */
+    --primary-foreground:   247 100% 95%;
+    --secondary:            189 94% 43%;     /* #FFFFFF */
+    --secondary-foreground: 252 52% 6%;
+    --muted:                251 50% 24%;    /* #2D3436 Circuit Grey */
+    --muted-foreground:     0 0% 64%;
+    --accent:               329 86% 70%;   /* #FFD700 Golden Coin */
+    --accent-foreground:    252 52% 6%;
+    --destructive:          350 89% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border:               251 50% 24%;
+    --input:                251 50% 24%;
+    --ring:                 262 83% 58%;
+    --radius:               0.5rem;
+    /* Gradient stops (for .brand-gradient text) */
+    --gradient-from:        262 83% 58%;
+    --gradient-to:          189 94% 43%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+    background-color: hsl(var(--background));
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Selection — uses primary */
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* Noise texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.02;
+  pointer-events: none;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, hsl(var(--primary) / 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--primary) / 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glassmorphism */
+.glass {
+  backdrop-filter: blur(16px);
+  background: hsl(var(--background) / 0.8);
+  border: 1px solid hsl(var(--foreground) / 0.05);
+}
+
+/* Neon glow effects */
+.neon-red {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+}
+
+.neon-gold {
+  box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
+}
+
+.neon-white {
+  box-shadow: 0 0 15px hsl(var(--secondary) / 0.2);
+}
+
+/* Brand glow aliases (cross-site) */
+.neon-brand {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+}
+
+/* Game card hover effect */
+.game-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+}
+
+/* Fire/Flame animation */
+.fire-glow {
+  animation: fireGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireGlow {
+  0% {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.3), 0 0 20px hsl(var(--accent) / 0.2);
+  }
+  100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--accent) / 0.3);
+  }
+}
+
+/* Terminal input style */
+.terminal-input {
+  @apply bg-black/50 border-white/10 text-white font-mono;
+}
+
+.terminal-input:focus {
+  @apply border-primary ring-1 ring-primary/50;
+}
+
+/* Brand gradient text */
+.brand-gradient {
+  background: linear-gradient(135deg, hsl(var(--gradient-from)) 0%, hsl(var(--gradient-to)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Brand button glow */
+.brand-btn {
+  transition: all 0.3s ease;
+}
+
+.brand-btn:hover {
+  box-shadow: 0 0 25px hsl(var(--primary) / 0.5);
+}
+
+/* Mascot float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-1deg);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Mascot entrance animation */
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+/* HeroVisual animations (replace legacy mascot) */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spinSlow 14s linear infinite;
+}
+
+@keyframes scan {
+  0%   { top: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.animate-scan {
+  animation: scan 3.5s linear infinite;
+}
+
+@keyframes pixelPulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+.animate-pixel-pulse {
+  animation: pixelPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-radar-sweep {
+  animation: radarSweep 3s linear infinite;
+  transform-origin: left center;
+}
+
+.bg-radial-radar {
+  background: radial-gradient(circle at center,
+    hsl(var(--primary) / 0.25) 0%,
+    hsl(var(--background)) 70%);
+}
+

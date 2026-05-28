@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="QuantumDrop logo">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#F472B6"/>
+    </linearGradient>
+    <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <polygon points="100,12 178,55 178,145 100,188 22,145 22,55"
+           fill="url(#brandGrad)" filter="url(#brandGlow)" opacity="0.95"/>
+  <polygon points="100,28 162,62 162,138 100,172 38,138 38,62"
+           fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
+  <text x="100" y="118" text-anchor="middle"
+        font-family="'Rajdhani','Space Grotesk','Inter',sans-serif"
+        font-weight="800" font-size="74" fill="white"
+        style="letter-spacing:-2px">QU</text>
+</svg>

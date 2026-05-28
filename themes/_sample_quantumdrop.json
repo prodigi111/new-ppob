@@ -1,0 +1,67 @@
+{
+  "id": "quantumdrop",
+  "siteId": "quantumdrop",
+  "orderPrefix": "QTM",
+  "brand": {
+    "name": "QuantumDrop",
+    "short": "Quantum",
+    "legalName": "PT QUANTUM DROP DIGITAL"
+  },
+  "meta": {
+    "title": "QuantumDrop | Top Up Game Future-Forward",
+    "description": "QuantumDrop - Top-up game & voucher digital dengan teknologi quantum-fast delivery. Particle precision, light-speed transactions.",
+    "themeColor": "#7C3AED"
+  },
+  "assets": {
+    "heroBg": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=1920&q=80"
+  },
+  "copy": {
+    "hero": {
+      "titleLine1": "Particle-Speed",
+      "titleLine2": "Top-Up Engine",
+      "subtitle": "Quantum-grade delivery untuk gamer modern. UC, Diamond, voucher digital — terkirim sebelum sinyal selesai loading. Built on light, priced like air.",
+      "searchPlaceholder": "Scan dimensi: cari game, voucher, atau bundle..."
+    },
+    "features": [
+      { "label": "Quantum Fast",  "desc": "Delivery < 3 detik" },
+      { "label": "Wave Pricing",  "desc": "Harga teroptimasi" },
+      { "label": "Encrypted",     "desc": "End-to-end security" },
+      { "label": "Always-On",     "desc": "Support multidimensi 24/7" }
+    ],
+    "cta": {
+      "titlePrefix": "Enter the ",
+      "titleHighlight": "Quantum",
+      "titleSuffix": "Network",
+      "subtitle": "Daftar sebagai reseller QuantumDrop. Dapatkan akses ke node harga eksklusif dan dashboard analytic real-time.",
+      "button": "Activate Node"
+    },
+    "footer": {
+      "tagline": "Top-up digital di kecepatan partikel. Future-forward delivery untuk gamer yang tidak punya waktu menunggu — by QuantumDrop."
+    }
+  },
+  "colors": {
+    "primary":     "#7C3AED",
+    "secondary":   "#06B6D4",
+    "accent":      "#F472B6",
+    "background":  "#0A0716",
+    "card":        "#15102B",
+    "border":      "#2A1F5C",
+    "foreground":  "#E9E6FF",
+    "success":     "#34D399",
+    "destructive": "#F43F5E",
+    "gradientFrom":"#7C3AED",
+    "gradientTo":  "#06B6D4"
+  },
+  "fonts": {
+    "display": "'Space Grotesk', 'Orbitron', sans-serif",
+    "body":    "'Inter', 'Plus Jakarta Sans', sans-serif",
+    "mono":    "'JetBrains Mono', monospace",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+  },
+  "style": {
+    "heroVisual": "circuit-grid",
+    "mascotGlow": "drop-shadow(0 0 24px rgba(124, 58, 237, 0.55)) drop-shadow(0 0 48px rgba(6, 182, 212, 0.35))",
+    "heroAccent1": "bg-primary/20",
+    "heroAccent2": "bg-secondary/20"
+  }
+}

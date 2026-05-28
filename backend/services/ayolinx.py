@@ -70,6 +70,7 @@ class AyolinxService:
     async def refresh_from_db(self, db) -> None:
         """
         Apply DB overrides (admin panel → integration_settings) on top of env values.
+        Priority for keys: PEM content (pasted by admin) > path file (env/db) > current.
         Empty/missing DB values fall back to env defaults. Invalidates access token
         so the next call re-authenticates with potentially new credentials.
         """
@@ -86,19 +87,31 @@ class AyolinxService:
 
             new_base = SANDBOX_URL if new_mode == "sandbox" else PRODUCTION_URL
 
-            # Reload key files only if path changed
-            new_private = self.private_key
-            new_public = self.public_key
-            if new_priv_path != AYOLINX_PRIVATE_KEY_PATH or not self.private_key:
+            # Prefer pasted PEM content (private_key_pem / public_key_pem) over file paths
+            pem_priv = (cfg.get("private_key_pem") or "").strip()
+            pem_pub = (cfg.get("public_key_pem") or "").strip()
+
+            if pem_priv:
+                new_private = pem_priv
+            elif new_priv_path != AYOLINX_PRIVATE_KEY_PATH or not self.private_key:
                 new_private = load_key_from_file(new_priv_path)
-            if new_pub_path != AYOLINX_PUBLIC_KEY_PATH or not self.public_key:
+            else:
+                new_private = self.private_key
+
+            if pem_pub:
+                new_public = pem_pub
+            elif new_pub_path != AYOLINX_PUBLIC_KEY_PATH or not self.public_key:
                 new_public = load_key_from_file(new_pub_path)
+            else:
+                new_public = self.public_key
 
             changed = (
                 new_ck != self.client_key
                 or new_cs != self.client_secret
                 or new_cn != self.customer_no
                 or new_base != self.base_url
+                or new_private != self.private_key
+                or new_public != self.public_key
             )
 
             self.client_key = new_ck

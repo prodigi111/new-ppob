@@ -114,6 +114,10 @@ INTEGRATION_ENV_MAP = {
         "client_key": "AYOLINX_CLIENT_KEY",
         "client_secret": "AYOLINX_CLIENT_SECRET",
         "customer_no": "AYOLINX_CUSTOMER_NO",
+        # PEM content pasted by admin (DB-only; no env var counterpart)
+        "private_key_pem": None,
+        "public_key_pem": None,
+        # File paths still supported for env-side fallback
         "private_key_path": "AYOLINX_PRIVATE_KEY_PATH",
         "public_key_path": "AYOLINX_PUBLIC_KEY_PATH",
         "mode": "AYOLINX_MODE",  # sandbox|production
@@ -137,7 +141,8 @@ async def get_integration_config(service: str) -> dict:
     db_cfg = db_doc.get("config", {})
     result = {}
     for key, env_name in INTEGRATION_ENV_MAP[service].items():
-        result[key] = db_cfg.get(key) or os.environ.get(env_name, "")
+        env_val = os.environ.get(env_name, "") if env_name else ""
+        result[key] = db_cfg.get(key) or env_val
     result["_source"] = {
         k: ("db" if db_cfg.get(k) else "env")
         for k in INTEGRATION_ENV_MAP[service].keys()
@@ -1281,7 +1286,7 @@ async def list_integration_settings(user: dict = Depends(get_current_user)):
     result = {}
     for svc in ("ayolinx", "digiflazz"):
         cfg = await get_integration_config(svc)
-        sensitive_keys = {"client_secret", "api_key", "webhook_secret"}
+        sensitive_keys = {"client_secret", "api_key", "webhook_secret", "private_key_pem"}
         sanitized = {}
         for k, v in cfg.items():
             if k == "_source":
@@ -1462,6 +1467,68 @@ THEMES_ROOT = Path("/app/themes")
 REQUIRED_THEME_FIELDS = {"siteId", "orderPrefix", "brand", "meta", "assets", "copy", "colors", "fonts"}
 
 
+def _generate_brand_logo_svg(brand_name: str, primary: str, accent: str) -> str:
+    """Generate a self-contained SVG monogram logo from brand name + 2 brand colors.
+
+    No external assets required. Renders a hexagon badge with the first 1-2
+    letters of the brand name, gradient fill from primary→accent, and a soft
+    inner glow. Designed to read cleanly at 40-200px.
+    """
+    # Build initials (up to 2 uppercase letters, alnum only)
+    safe = "".join(ch for ch in (brand_name or "?") if ch.isalnum())
+    initials = (safe[:2] or "?").upper()
+    primary = primary if (isinstance(primary, str) and primary.startswith("#")) else "#FF0000"
+    accent = accent if (isinstance(accent, str) and accent.startswith("#")) else "#FFD700"
+    return f'''<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="{brand_name} logo">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="{primary}"/>
+      <stop offset="100%" stop-color="{accent}"/>
+    </linearGradient>
+    <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <polygon points="100,12 178,55 178,145 100,188 22,145 22,55"
+           fill="url(#brandGrad)" filter="url(#brandGlow)" opacity="0.95"/>
+  <polygon points="100,28 162,62 162,138 100,172 38,138 38,62"
+           fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
+  <text x="100" y="118" text-anchor="middle"
+        font-family="'Rajdhani','Space Grotesk','Inter',sans-serif"
+        font-weight="800" font-size="74" fill="white"
+        style="letter-spacing:-2px">{initials}</text>
+</svg>
+'''
+
+
+def _write_brand_logo(site_dir: Path, theme_obj: dict) -> Optional[str]:
+    """Write a generated SVG logo into the site's public folder.
+
+    Returns the public-relative path written (e.g. '/logo-mybrand.svg') or
+    None on failure. Also patches theme.assets.logo to point to it.
+    """
+    try:
+        site_id = theme_obj.get("siteId") or "site"
+        brand = (theme_obj.get("brand") or {}).get("name") or site_id
+        colors = theme_obj.get("colors") or {}
+        svg = _generate_brand_logo_svg(brand, colors.get("primary", "#FF0000"), colors.get("accent", "#FFD700"))
+        public_dir = site_dir / "public"
+        public_dir.mkdir(parents=True, exist_ok=True)
+        logo_name = f"logo-{site_id}.svg"
+        (public_dir / logo_name).write_text(svg, encoding="utf-8")
+        # Patch theme.assets.logo so theme.config.js (already written) and any
+        # downstream consumers point at the generated logo.
+        rel_path = f"/{logo_name}"
+        theme_obj.setdefault("assets", {})["logo"] = rel_path
+        return rel_path
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Failed to generate brand logo")
+        return None
+
+
 def _validate_theme_json(theme_obj: dict) -> Optional[str]:
     """Return None if valid, else a human-readable error string."""
     if not isinstance(theme_obj, dict):
@@ -1578,12 +1645,47 @@ async def clone_new_site(payload: dict, user: dict = Depends(get_current_user)):
     }
     await db.site_configs.insert_one(cfg_doc)
 
+    # Auto-generate brand logo (SVG monogram) and patch theme.config.js
+    site_dir = SITES_ROOT / site_id
+    logo_rel = _write_brand_logo(site_dir, theme_obj)
+    if logo_rel:
+        # Re-write theme JSON with the patched logo path so future re-applies stay consistent
+        try:
+            theme_path.write_text(_json.dumps(theme_obj, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        # Patch theme.config.js generated by apply-theme.js so the React app
+        # picks up the new logo path immediately (without re-clone).
+        try:
+            cfg_js = site_dir / "src" / "theme.config.js"
+            if cfg_js.exists():
+                txt = cfg_js.read_text(encoding="utf-8")
+                import re as _r
+                # Try to update an existing "logo": "..." entry first.
+                new_txt, n = _r.subn(
+                    r'(["\']?logo["\']?\s*:\s*["\'])[^"\']*(["\'])',
+                    rf'\g<1>{logo_rel}\g<2>',
+                    txt, count=1,
+                )
+                if n == 0:
+                    # No existing logo field — inject into the "assets": { ... block.
+                    new_txt, n = _r.subn(
+                        r'("assets"\s*:\s*\{)',
+                        rf'\1\n    "logo": "{logo_rel}",',
+                        txt, count=1,
+                    )
+                if n > 0:
+                    cfg_js.write_text(new_txt, encoding="utf-8")
+        except Exception:
+            pass
+
     return {
         "ok": True,
         "site_id": site_id,
         "prefix": prefix,
         "brand_name": brand_name,
         "theme_path": str(theme_path),
+        "logo_path": logo_rel,
         "stdout": proc.stdout,
         "stderr": proc.stderr,
         "message": f"Site '{site_id}' created. Switch ke site ini via tab Sites untuk preview.",

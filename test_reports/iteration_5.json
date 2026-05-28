@@ -1,0 +1,44 @@
+{
+  "summary": "Iterasi 5: 4 enhancement (PEM textarea, mode dropdown, logo auto-generate, demo quantumdrop) divalidasi lengkap. Backend pytest test_iter5_features.py: 11/11 PASSED. Regression test_multisite.py + test_new_features.py: 22 passed + 1 skipped (target tercapai). Frontend Playwright Integrasi tab: textarea PEM (TEXTAREA tag + min-h-[140px]), select Mode Ayolinx (sandbox/production) & DigiFlazz (development/production), eye-toggle untuk private_key_pem, save → toast 'AYOLINX settings tersimpan' — semua lulus. Logo SVG monogram terbangkit untuk clone baru (test demoauto: file /app/sites/demoauto/public/logo-demoauto.svg dibuat + theme.config.js dipatch dengan '/logo-demoauto.svg', initials 'DE' ter-render). QuantumDrop dipertahankan (file SVG ada, prefix QTM, theme.config.js berisi 'Particle-Speed' + 'circuit-grid'). 4 site existing (neonforge/pixelvault/elitecharge/raidstation) sudah di-backfill logo. Cleanup tuntas: demoauto folder/theme/DB row terhapus, integrations Ayolinx & DigiFlazz dikembalikan ke env (config={}).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/admin/integrations", "issue": "ayolinx.source.customer_no = 'db' meski tidak ada nilai customer_no yang di-set sesi ini — kemungkinan residu DB lama dari iterasi sebelum-sebelumnya. Tidak mempengaruhi fungsi (env value tetap dipakai jika DB string kosong); tapi UX badge 'db' bisa membingungkan admin. Pertimbangkan auto-prune key dengan value falsy saat upsert."},
+      {"endpoint": "POST /api/admin/integrations/digiflazz/test", "issue": "Mode development tetap return ok=True tanpa deposit info (sudah diketahui dari iterasi 4) — currently di-skip oleh test_digiflazz_returns_ok_field."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin → Integrasi (hydration warning)", "issues": ["Console hydration warning: '<span> cannot be a child of <select>'. Kemungkinan komponen Tabs di parent men-render <span> wrapper di sekitar <select>. Tidak memblokir fitur, tapi kotori console. Cek IntegrationsTab.js renderer select / Tabs ancestor."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter5_features.py",
+    "/app/test_reports/pytest/pytest_iter5.xml",
+    "/app/test_reports/pytest/pytest_regression_iter5.xml"
+  ],
+  "action_items": [
+    "(Opsional) Auto-prune key falsy di update_integration_settings — saat ini sudah dilakukan saat cleaned dict dibangun (v.strip() if v), tapi jika DB sudah punya key lama, upsert $set tidak menghapus key lama. Pertimbangkan replace dokumen penuh ATAU $unset untuk key yang tidak dikirim.",
+    "(Opsional) Fix hydration warning di IntegrationsTab.js — kemungkinan <span> di antara Label/select. Bukan blocker.",
+    "Tidak ada action item kritikal — fitur iterasi 5 siap rilis."
+  ],
+  "critical_code_review_comments": [
+    "INTEGRATION_ENV_MAP['ayolinx'] sudah benar menempatkan private_key_pem/public_key_pem dengan env_name=None — handler get_integration_config safely skip env lookup (cek 'if env_name else \"\"').",
+    "mask_secret untuk PEM 8-char saja akan jadi '••••••••'; PEM real >1KB akan tertangani dengan prefix+suffix+bullets. UI menampilkan '(truncated)' tail — bagus untuk feedback.",
+    "Endpoint clone-new sudah memanggil _write_brand_logo + patch theme.config.js secara atomic setelah scaffolding sukses. Logo gagal generate hanya log warning, tidak rollback (dapat diterima karena clone sukses).",
+    "_write_brand_logo handles missing public_dir via mkdir parents=True — aman untuk site baru. Patch theme.config.js menggunakan regex tunggal yang cover existing logo entry atau inject di 'assets' block.",
+    "server.py kini 1815 baris — semakin mendesak untuk dipecah ke routes/admin_sites.py & routes/admin_integrations.py."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter5_features.py (BARU — 11 tests untuk 4 enhancement iterasi 5)"
+  ],
+  "success_rate": {"backend": "100% (11/11 iter5 + 22/22 regression non-skipped)", "frontend": "100% pada flow Integrasi (textarea/select/save toast); switch quantumdrop tidak dieksekusi (sengaja, agar blaze tetap aktif) — verifikasi dilakukan via filesystem (theme.config.js berisi logo path + Particle-Speed + circuit-grid)"},
+  "test_credentials": "admin@voucherverse.com / admin123 — valid",
+  "seed_data_creation": "Test happy-path clone-new dengan demoauto/DMO membuat sementara /app/sites/demoauto, /app/themes/demoauto.json, db.site_configs row site_id='demoauto'. Sudah DIHAPUS oleh fixture cleanup_demoauto (diverifikasi via ls + GET /api/admin/site-configs → demoauto tidak ada). Test PEM persistence menyimpan PEM dummy di db.integration_settings sementara, dibersihkan oleh fixture cleanup_integrations (config={}). State akhir Ayolinx/DigiFlazz source = 'env' (kecuali customer_no = 'db' yang merupakan residu dari iterasi sebelumnya, bukan dari run ini).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iterasi 5 lulus penuh. Total backend test files relevan: test_multisite.py (13), test_new_features.py (10, 1 skip), test_iter5_features.py (11). Jalankan: pytest /app/backend/tests/ -v. Site quantumdrop dipertahankan sebagai demo; jangan dihapus. Active site = blaze. Untuk smoke quantumdrop di frontend, gunakan POST /api/admin/sites/switch dengan body {\"name\":\"quantumdrop\"} (BUKAN site_id) — namun ingat ini akan menukar build aktif, balikkan dengan {\"name\":\"blaze\"} setelah selesai. Logo path konvensi: /logo-{site_id}.svg di public/.",
+  "rca of the issue": "Tidak ada bug. Investigasi sumber 'db' untuk customer_no: payload IntegrationSettingsPayload menyimpan dict config penuh via $set; key lama yang sudah ada di db.integration_settings.config TIDAK ter-unset saat admin PUT config={}. Solusi sederhana: ganti $set ke pengganti dokumen utuh (replace_one) atau iterasi key lama untuk $unset. Sudah dicatat di action_items sebagai opsional."
+}
