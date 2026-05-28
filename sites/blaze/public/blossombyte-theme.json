@@ -1,0 +1,67 @@
+{
+  "id": "blossombyte",
+  "siteId": "blossombyte",
+  "orderPrefix": "BLM",
+  "brand": {
+    "name": "BlossomByte",
+    "short": "Blossom",
+    "legalName": "PT BLOSSOM BYTE DIGITAL"
+  },
+  "meta": {
+    "title": "BlossomByte | Top-Up Game, Halus Seperti Sakura",
+    "description": "BlossomByte - Top-up game dan voucher digital dengan sentuhan zen. Halus, cepat, mekar di akun-mu seperti sakura di musim semi.",
+    "themeColor": "#FF6FA8"
+  },
+  "assets": {
+    "heroBg": "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80"
+  },
+  "copy": {
+    "hero": {
+      "titleLine1": "Top-Up yang",
+      "titleLine2": "Mekar Indah.",
+      "subtitle": "Layanan top-up game dengan sentuhan halus ala kelopak sakura. UC, Diamond, voucher digital — datang seperti angin musim semi: cepat, lembut, tanpa drama.",
+      "searchPlaceholder": "Petik kelopak: cari game, voucher, hadiah..."
+    },
+    "features": [
+      { "label": "Petal Speed",   "desc": "Mekar dalam 5 detik" },
+      { "label": "Tea-House",     "desc": "Harga tenang & bersih" },
+      { "label": "Bonsai-Care",   "desc": "Detail diperhatikan" },
+      { "label": "Hanami 24/7",   "desc": "Support penuh hati" }
+    ],
+    "cta": {
+      "titlePrefix": "Bergabung ke ",
+      "titleHighlight": "Garden",
+      "titleSuffix": " Kami",
+      "subtitle": "Reseller BlossomByte dapat harga senjata samurai (tajam, presisi), dashboard ikebana real-time, dan dukungan zen master.",
+      "button": "Mulai Hanami"
+    },
+    "footer": {
+      "tagline": "Top-up digital dengan ketenangan ala teahouse Kyoto. Setiap transaksi adalah satu kelopak yang mekar — by BlossomByte."
+    }
+  },
+  "colors": {
+    "primary":     "#FF6FA8",
+    "secondary":   "#6EE7B7",
+    "accent":      "#F5E6D3",
+    "background":  "#1A0B1E",
+    "card":        "#2A0E2E",
+    "border":      "#4A1F4F",
+    "foreground":  "#FFE8F0",
+    "success":     "#6EE7B7",
+    "destructive": "#EF476F",
+    "gradientFrom":"#FF6FA8",
+    "gradientTo":  "#F5E6D3"
+  },
+  "fonts": {
+    "display": "'Cormorant Garamond', 'Sawarabi Mincho', 'Playfair Display', serif",
+    "body":    "'Sawarabi Gothic', 'Plus Jakarta Sans', 'Inter', sans-serif",
+    "mono":    "'JetBrains Mono', monospace",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Sawarabi+Mincho&family=Sawarabi+Gothic&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+  },
+  "style": {
+    "heroVisual": "gold-orbs",
+    "mascotGlow": "drop-shadow(0 0 24px rgba(255, 111, 168, 0.45)) drop-shadow(0 0 48px rgba(245, 230, 211, 0.25))",
+    "heroAccent1": "bg-primary/15",
+    "heroAccent2": "bg-accent/15"
+  }
+}
