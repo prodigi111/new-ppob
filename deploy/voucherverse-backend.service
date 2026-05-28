@@ -1,0 +1,45 @@
+[Unit]
+Description=VoucherVerse FastAPI Backend
+Documentation=https://github.com/USER/REPO
+After=network.target mongod.service
+Wants=mongod.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/voucherverse/backend
+Environment="PATH=/opt/voucherverse/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EnvironmentFile=/opt/voucherverse/backend/.env
+
+# Pakai uvicorn dengan 2 worker (cukup untuk 8 GB RAM, naikkan jadi 4 kalau traffic tinggi)
+ExecStart=/opt/voucherverse/backend/venv/bin/uvicorn server:app \
+    --host 127.0.0.1 \
+    --port 8001 \
+    --workers 2 \
+    --proxy-headers \
+    --forwarded-allow-ips=127.0.0.1 \
+    --log-level info
+
+# Restart on crash
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=4G
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=false
+ReadWritePaths=/opt/voucherverse /var/log
+
+# Stdout/stderr → journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=voucherverse-backend
+
+[Install]
+WantedBy=multi-user.target
