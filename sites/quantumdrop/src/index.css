@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&family=Fira+Code:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,29 +18,29 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 @layer base {
   :root {
     /* THEME:QUANTUMDROP */
-    --background:           227 46% 8%;    /* #050A18 Deep Midnight */
-    --foreground:           230 100% 96%;     /* #FFFFFF Electric White */
-    --card:                 228 44% 14%;    /* #0D1526 */
-    --card-foreground:      230 100% 96%;
-    --popover:              228 44% 14%;
-    --popover-foreground:   230 100% 96%;
-    --primary:              234 100% 68%;    /* Brand primary */
-    --primary-foreground:   230 100% 96%;
-    --secondary:            233 100% 86%;     /* #FFFFFF */
-    --secondary-foreground: 227 46% 8%;
-    --muted:                229 33% 22%;    /* #2D3436 Circuit Grey */
+    --background:           0 0% 0%;    /* #050A18 Deep Midnight */
+    --foreground:           149 80% 90%;     /* #FFFFFF Electric White */
+    --card:                 120 23% 3%;    /* #0D1526 */
+    --card-foreground:      149 80% 90%;
+    --popover:              120 23% 3%;
+    --popover-foreground:   149 80% 90%;
+    --primary:              160 84% 39%;    /* Brand primary */
+    --primary-foreground:   149 80% 90%;
+    --secondary:            163 88% 20%;     /* #FFFFFF */
+    --secondary-foreground: 0 0% 0%;
+    --muted:                163 64% 14%;    /* #2D3436 Circuit Grey */
     --muted-foreground:     0 0% 64%;
-    --accent:               37 52% 81%;   /* #FFD700 Golden Coin */
-    --accent-foreground:    227 46% 8%;
-    --destructive:          352 76% 63%;
+    --accent:               84 81% 44%;   /* #FFD700 Golden Coin */
+    --accent-foreground:    0 0% 0%;
+    --destructive:          0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border:               229 33% 22%;
-    --input:                229 33% 22%;
-    --ring:                 234 100% 68%;
+    --border:               163 64% 14%;
+    --input:                163 64% 14%;
+    --ring:                 160 84% 39%;
     --radius:               0.5rem;
     /* Gradient stops (for .brand-gradient text) */
-    --gradient-from:        234 100% 68%;
-    --gradient-to:          37 52% 81%;
+    --gradient-from:        160 84% 39%;
+    --gradient-to:          84 81% 44%;
   }
 }
 
@@ -51,7 +51,7 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', 'Manrope', sans-serif;
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
     background-color: hsl(var(--background));
   }
 }
@@ -250,3 +250,24 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
     hsl(var(--background)) 70%);
 }
 
+
+
+/* Deep abyss — jellyfish slow drift */
+@keyframes floatSlow {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -12px); }
+}
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* Terminal feed — matrix code rain */
+@keyframes rain {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(120%); opacity: 0; }
+}
+.animate-rain {
+  animation: rain linear infinite;
+}

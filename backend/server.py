@@ -1591,6 +1591,44 @@ def _generate_brand_logo_svg(
               <text x="24" y="33" text-anchor="middle" font-family="''' + display_font.replace('"',"&quot;") + '''"
                     font-weight="800" font-size="26" fill="white">''' + safe[:1].upper() + '''</text>
             </g>''',
+        "deep-abyss": '''
+            <!-- Deep-sea jellyfish: bell dome + bioluminescent tentacles -->
+            <g transform="translate(8,8)">
+              <!-- Bell dome with concentric depth rings -->
+              <path d="M6 22 Q24 -2 42 22 L42 26 Q24 22 6 26 Z"
+                    fill="url(#brandGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
+              <path d="M10 18 Q24 4 38 18" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1"/>
+              <path d="M14 13 Q24 6 34 13" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+              <!-- Tentacles (wavy) -->
+              <path d="M10 26 Q8 32 12 36 Q9 40 12 46" fill="none" stroke="''' + accent + '''" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M18 26 Q17 33 20 38 Q17 42 19 47" fill="none" stroke="''' + accent + '''" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M24 26 Q25 33 23 39 Q26 43 24 48" fill="none" stroke="''' + accent + '''" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M30 26 Q31 33 28 38 Q31 42 29 47" fill="none" stroke="''' + accent + '''" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M38 26 Q40 32 36 36 Q39 40 36 46" fill="none" stroke="''' + accent + '''" stroke-width="1.6" stroke-linecap="round"/>
+              <!-- Bioluminescent core -->
+              <circle cx="24" cy="20" r="3" fill="white" opacity="0.9"/>
+              <circle cx="24" cy="20" r="6" fill="none" stroke="white" stroke-width="0.5" opacity="0.4"/>
+            </g>''',
+        "terminal-feed": '''
+            <!-- Terminal prompt: angle bracket + cursor + code stream -->
+            <g transform="translate(8,8)">
+              <!-- Frame -->
+              <rect x="2" y="6" width="44" height="36" rx="3" fill="rgba(0,0,0,0.85)"
+                    stroke="url(#brandGrad)" stroke-width="2"/>
+              <!-- Window dots -->
+              <circle cx="7" cy="11" r="1.2" fill="''' + accent + '''" opacity="0.8"/>
+              <circle cx="11" cy="11" r="1.2" fill="''' + accent + '''" opacity="0.55"/>
+              <circle cx="15" cy="11" r="1.2" fill="''' + accent + '''" opacity="0.35"/>
+              <!-- Prompt: > -->
+              <path d="M7 22 L13 26 L7 30" fill="none" stroke="url(#brandGrad)"
+                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Code lines -->
+              <rect x="17" y="20" width="20" height="2" fill="''' + primary + '''" opacity="0.9"/>
+              <rect x="17" y="25" width="14" height="2" fill="''' + accent + '''" opacity="0.85"/>
+              <rect x="17" y="30" width="18" height="2" fill="''' + primary + '''" opacity="0.8"/>
+              <!-- Blinking cursor block -->
+              <rect x="38" y="29" width="4" height="4" fill="''' + accent + '''"/>
+            </g>''',
     }
     icon = icons.get(icon_variant, icons["hex-badge"])
 
@@ -1635,6 +1673,8 @@ _HERO_VISUAL_TO_ICON = {
     "pixel-tiles": "pixel-stack",
     "gold-orbs": "crown",
     "crosshair-radar": "crosshair",
+    "deep-abyss": "deep-abyss",
+    "terminal-feed": "terminal-feed",
 }
 
 

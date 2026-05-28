@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,29 +18,29 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 @layer base {
   :root {
     /* THEME:AQUARIFT */
-    --background:           35 100% 97%;    /* #050A18 Deep Midnight */
-    --foreground:           202 80% 24%;     /* #FFFFFF Electric White */
-    --card:                 0 0% 100%;    /* #0D1526 */
-    --card-foreground:      202 80% 24%;
-    --popover:              0 0% 100%;
-    --popover-foreground:   202 80% 24%;
-    --primary:              198 93% 60%;    /* Brand primary */
-    --primary-foreground:   202 80% 24%;
-    --secondary:            27 96% 61%;     /* #FFFFFF */
-    --secondary-foreground: 35 100% 97%;
-    --muted:                36 90% 89%;    /* #2D3436 Circuit Grey */
+    --background:           229 84% 5%;    /* #050A18 Deep Midnight */
+    --foreground:           198 85% 90%;     /* #FFFFFF Electric White */
+    --card:                 222 72% 7%;    /* #0D1526 */
+    --card-foreground:      198 85% 90%;
+    --popover:              222 72% 7%;
+    --popover-foreground:   198 85% 90%;
+    --primary:              190 100% 42%;    /* Brand primary */
+    --primary-foreground:   198 85% 90%;
+    --secondary:            276 91% 38%;     /* #FFFFFF */
+    --secondary-foreground: 229 84% 5%;
+    --muted:                215 67% 12%;    /* #2D3436 Circuit Grey */
     --muted-foreground:     0 0% 64%;
-    --accent:               43 96% 56%;   /* #FFD700 Golden Coin */
-    --accent-foreground:    35 100% 97%;
-    --destructive:          0 84% 60%;
+    --accent:               333 93% 56%;   /* #FFD700 Golden Coin */
+    --accent-foreground:    229 84% 5%;
+    --destructive:          342 100% 64%;
     --destructive-foreground: 0 0% 98%;
-    --border:               36 90% 89%;
-    --input:                36 90% 89%;
-    --ring:                 198 93% 60%;
+    --border:               215 67% 12%;
+    --input:                215 67% 12%;
+    --ring:                 190 100% 42%;
     --radius:               0.5rem;
     /* Gradient stops (for .brand-gradient text) */
-    --gradient-from:        198 93% 60%;
-    --gradient-to:          27 96% 61%;
+    --gradient-from:        190 100% 42%;
+    --gradient-to:          333 93% 56%;
   }
 }
 
@@ -250,3 +250,23 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
     hsl(var(--background)) 70%);
 }
 
+
+/* Deep abyss — jellyfish slow drift */
+@keyframes floatSlow {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -12px); }
+}
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* Terminal feed — matrix code rain (kept for symmetry with quantum) */
+@keyframes rain {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(120%); opacity: 0; }
+}
+.animate-rain {
+  animation: rain linear infinite;
+}

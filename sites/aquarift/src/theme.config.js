@@ -15,74 +15,74 @@ const theme = {
     "legalName": "PT AQUA RIFT DIGITAL"
   },
   "meta": {
-    "title": "AquaRift | Top-Up Game yang Ngalir Tanpa Hambatan",
-    "description": "AquaRift — top-up game dan voucher digital dengan vibe pantai tropis. Santai prosesnya, cepat hasilnya. Surf the deals.",
-    "themeColor": "#38BDF8"
+    "title": "AquaRift | Deep-Sea Top-Up Operations",
+    "description": "AquaRift — turun ke kedalaman untuk top-up game dan voucher digital. Operasi sunyi, kecepatan arus, harga abyssal. Bioluminescent precision.",
+    "themeColor": "#00B4D8"
   },
   "assets": {
-    "heroBg": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
+    "heroBg": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80",
     "logo": "/logo-aquarift.svg"
   },
   "copy": {
     "hero": {
-      "titleLine1": "Surf the Deals,",
-      "titleLine2": "Ride the Drop.",
-      "subtitle": "Top-up game santai ala liburan pantai — UC, Diamond, voucher digital yang ngalir ke akunmu secepat ombak. No drama, no overthinking, just smooth waves & sunshine.",
-      "searchPlaceholder": "Cari game, voucher, atau bundle santai..."
+      "titleLine1": "Dive the Abyss.",
+      "titleLine2": "Surface with the Goods.",
+      "subtitle": "Operasi top-up dari kedalaman 2.400 meter. Sinyal bioluminescent membawa UC, Diamond, dan voucher digital langsung ke akun-mu — tanpa noise, tanpa permukaan, hanya arus kalem dengan presisi laut dalam.",
+      "searchPlaceholder": "Sonar ping: cari game, voucher, atau cargo..."
     },
     "features": [
       {
-        "label": "Ngalir Cepat",
-        "desc": "Cair dalam 4 detik"
+        "label": "Current Drift",
+        "desc": "Arus 3 detik ke akun"
       },
       {
-        "label": "Harga Sejuk",
-        "desc": "Adem di kantong"
+        "label": "Abyssal Pricing",
+        "desc": "Harga sedalam Mariana"
       },
       {
-        "label": "Aman Banget",
-        "desc": "Enkripsi end-to-end"
+        "label": "Bioluminescent Trace",
+        "desc": "Riwayat transaksi bersinar"
       },
       {
-        "label": "Selalu Stand-By",
-        "desc": "Support 24/7 ramah"
+        "label": "Submarine Support",
+        "desc": "Bantuan 24/7 dari deck"
       }
     ],
     "cta": {
-      "titlePrefix": "Jadi ",
-      "titleHighlight": "Aqua",
-      "titleSuffix": "Crew",
-      "subtitle": "Ride bareng kami sebagai reseller AquaRift. Harga special crew, dashboard friendly, dan komunitas yang hangat kayak matahari sore di pantai.",
-      "button": "Gabung Crew"
+      "titlePrefix": "Naik kapal sebagai ",
+      "titleHighlight": "Rift",
+      "titleSuffix": " Captain",
+      "subtitle": "Bergabung sebagai reseller AquaRift. Akses harga deep-sea tier, sonar dashboard real-time, dan jalur komunikasi langsung dengan command deck.",
+      "button": "Charter Sekarang"
     },
     "footer": {
-      "tagline": "Top-up digital ala pantai tropis. Santai, ramah, dan ngalir tanpa hambatan — buat gamer yang suka hidup chill. Catch the wave at AquaRift."
+      "tagline": "Operasi top-up digital dari laut dalam. Tenang seperti palung Mariana, cepat seperti arus dasar — AquaRift. Trust the depth."
     }
   },
   "colors": {
-    "primary": "#38BDF8",
-    "secondary": "#FB923C",
-    "accent": "#FBBF24",
-    "background": "#FFF8EE",
-    "card": "#FFFFFF",
-    "border": "#FCE7C8",
-    "foreground": "#0C4A6E",
-    "success": "#22C55E",
-    "destructive": "#EF4444",
-    "gradientFrom": "#38BDF8",
-    "gradientTo": "#FB923C"
+    "primary": "#00B4D8",
+    "secondary": "#7209B7",
+    "accent": "#F72585",
+    "background": "#020617",
+    "card": "#050D1F",
+    "border": "#0A1B33",
+    "foreground": "#CFEEFB",
+    "success": "#06FFA5",
+    "destructive": "#FF477E",
+    "gradientFrom": "#00B4D8",
+    "gradientTo": "#F72585"
   },
   "fonts": {
-    "display": "'Outfit', 'Plus Jakarta Sans', 'DM Sans', sans-serif",
-    "body": "'Plus Jakarta Sans', 'Outfit', sans-serif",
+    "display": "'Cormorant Garamond', 'Playfair Display', serif",
+    "body": "'Inter', 'Plus Jakarta Sans', sans-serif",
     "mono": "'JetBrains Mono', monospace",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@500;600&display=swap"
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap"
   },
   "style": {
-    "heroVisual": "controller-orb",
-    "mascotGlow": "drop-shadow(0 0 24px rgba(56, 189, 248, 0.4)) drop-shadow(0 0 48px rgba(251, 146, 60, 0.25))",
-    "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-secondary/15"
+    "heroVisual": "deep-abyss",
+    "mascotGlow": "drop-shadow(0 0 20px rgba(0, 180, 216, 0.5)) drop-shadow(0 0 40px rgba(247, 37, 133, 0.25))",
+    "heroAccent1": "bg-primary/15",
+    "heroAccent2": "bg-accent/10"
   }
 };
 

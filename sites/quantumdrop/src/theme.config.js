@@ -15,74 +15,74 @@ const theme = {
     "legalName": "PT QUANTUM DROP DIGITAL"
   },
   "meta": {
-    "title": "QuantumDrop | Premium Precision Top-Up",
-    "description": "QuantumDrop — platform top-up game premium dengan presisi laboratorium. Engineered drop, calibrated delivery, untuk gamer yang menghargai akurasi.",
-    "themeColor": "#5B6CFF"
+    "title": "QuantumDrop | Terminal-Grade Game Top-Up",
+    "description": "QuantumDrop — top-up game ala terminal hacker. Hijau pada hitam, no fluff. Drop sequence engaged, signal verified, tx hash logged.",
+    "themeColor": "#10B981"
   },
   "assets": {
-    "heroBg": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80",
+    "heroBg": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80",
     "logo": "/logo-quantumdrop.svg"
   },
   "copy": {
     "hero": {
-      "titleLine1": "Engineered Drop.",
-      "titleLine2": "Calibrated Delivery.",
-      "subtitle": "Top-up game dengan presisi laboratorium. Setiap transaksi dihitung, diuji, dan dikirim dengan akurasi atom — platform yang dibuat untuk gamer yang menghargai kualitas, bukan kebisingan.",
-      "searchPlaceholder": "Calibrate: cari game, voucher, atau item..."
+      "titleLine1": "> drop sequence",
+      "titleLine2": "engaged_",
+      "subtitle": "Terminal-grade top-up untuk gamer yang ngerti command line. UC, Diamond, voucher digital — dikirim via tx-pipeline yang clean, signed, dan logged. No fluff, no bloat. Just green text on black background.",
+      "searchPlaceholder": "$ search --target <game|voucher|sku>"
     },
     "features": [
       {
-        "label": "Precision Delivery",
-        "desc": "Akurasi 99.99%"
+        "label": "tx.execute",
+        "desc": "Latency < 200ms"
       },
       {
-        "label": "Calibrated Pricing",
-        "desc": "Harga teruji & adil"
+        "label": "diff.pricing",
+        "desc": "Harga di-compile fresh"
       },
       {
-        "label": "Lab-Grade Security",
-        "desc": "Enkripsi research-tier"
+        "label": "sha.verified",
+        "desc": "Setiap tx ter-signed"
       },
       {
-        "label": "Concierge Support",
-        "desc": "Dedicated 24/7"
+        "label": "uptime.log",
+        "desc": "99.99% dalam 12 bulan"
       }
     ],
     "cta": {
-      "titlePrefix": "Bergabung sebagai ",
-      "titleHighlight": "Partner",
-      "titleSuffix": "QuantumDrop",
-      "subtitle": "Akses tier reseller premium dengan harga kalibrasi, dashboard analitik presisi, dan dukungan dedicated untuk skala bisnismu.",
-      "button": "Mulai Konsultasi"
+      "titlePrefix": "$ ssh ",
+      "titleHighlight": "partner@quantum",
+      "titleSuffix": " --init",
+      "subtitle": "Login ke shell partner kami. SLA terdokumentasi, harga di-version-control, dan akses sandbox staging untuk integrasi clean.",
+      "button": "init session →"
     },
     "footer": {
-      "tagline": "Platform top-up game premium dengan presisi laboratorium. Untuk gamer dan reseller yang menghargai kualitas, bukan gimmick — QuantumDrop."
+      "tagline": "// terminal-grade top-up engine. green text, black background, signed transactions. built for operators that prefer keyboards over dashboards — quantumdrop."
     }
   },
   "colors": {
-    "primary": "#5B6CFF",
-    "secondary": "#B8C0FF",
-    "accent": "#E8D5B7",
-    "background": "#0B0F1E",
-    "card": "#141A33",
-    "border": "#252C4A",
-    "foreground": "#EDF0FF",
-    "success": "#7DD3A8",
-    "destructive": "#E85A6E",
-    "gradientFrom": "#5B6CFF",
-    "gradientTo": "#E8D5B7"
+    "primary": "#10B981",
+    "secondary": "#065F46",
+    "accent": "#84CC16",
+    "background": "#000000",
+    "card": "#050805",
+    "border": "#0D3B2E",
+    "foreground": "#D1FAE5",
+    "success": "#10B981",
+    "destructive": "#EF4444",
+    "gradientFrom": "#10B981",
+    "gradientTo": "#84CC16"
   },
   "fonts": {
-    "display": "'Manrope', 'Geist', 'Inter', sans-serif",
-    "body": "'Inter', 'Manrope', sans-serif",
-    "mono": "'Geist Mono', 'JetBrains Mono', monospace",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    "display": "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace",
+    "body": "'JetBrains Mono', 'IBM Plex Mono', monospace",
+    "mono": "'JetBrains Mono', 'Fira Code', monospace",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&family=Fira+Code:wght@400;500;600&display=swap"
   },
   "style": {
-    "heroVisual": "gold-orbs",
-    "mascotGlow": "drop-shadow(0 0 20px rgba(91, 108, 255, 0.4)) drop-shadow(0 0 40px rgba(232, 213, 183, 0.25))",
-    "heroAccent1": "bg-primary/15",
-    "heroAccent2": "bg-accent/15"
+    "heroVisual": "terminal-feed",
+    "mascotGlow": "drop-shadow(0 0 20px rgba(16, 185, 129, 0.6)) drop-shadow(0 0 40px rgba(132, 204, 22, 0.3))",
+    "heroAccent1": "bg-primary/10",
+    "heroAccent2": "bg-accent/10"
   }
 };
 

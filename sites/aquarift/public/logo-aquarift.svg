@@ -2,13 +2,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 263 70" role="img" aria-label="AquaRift logo">
   <defs>
     <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"  stop-color="#00C9A7"/>
-      <stop offset="100%" stop-color="#FF6B6B"/>
+      <stop offset="0%"  stop-color="#00B4D8"/>
+      <stop offset="100%" stop-color="#F72585"/>
     </linearGradient>
     <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"  stop-color="#00C9A7"/>
+      <stop offset="0%"  stop-color="#00B4D8"/>
       <stop offset="60%" stop-color="white"/>
-      <stop offset="100%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#F72585"/>
     </linearGradient>
     <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="2.5" result="b"/>
@@ -17,19 +17,26 @@
   </defs>
   <!-- Thematic graphic mark -->
   <g filter="url(#brandGlow)">
-            <!-- Tactical radar reticle: outer ring, crosshair lines, range marks -->
+            <!-- Deep-sea jellyfish: bell dome + bioluminescent tentacles -->
             <g transform="translate(8,8)">
-              <circle cx="24" cy="24" r="22" fill="none" stroke="url(#brandGrad)" stroke-width="2.4"/>
-              <circle cx="24" cy="24" r="13" fill="none" stroke="#FF6B6B" stroke-width="1.5" opacity="0.85"/>
-              <line x1="24" y1="0"  x2="24" y2="8"  stroke="#FF6B6B" stroke-width="2.4"/>
-              <line x1="24" y1="40" x2="24" y2="48" stroke="#FF6B6B" stroke-width="2.4"/>
-              <line x1="0"  y1="24" x2="8"  y2="24" stroke="#FF6B6B" stroke-width="2.4"/>
-              <line x1="40" y1="24" x2="48" y2="24" stroke="#FF6B6B" stroke-width="2.4"/>
-              <circle cx="24" cy="24" r="3.5" fill="white"/>
+              <!-- Bell dome with concentric depth rings -->
+              <path d="M6 22 Q24 -2 42 22 L42 26 Q24 22 6 26 Z"
+                    fill="url(#brandGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
+              <path d="M10 18 Q24 4 38 18" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1"/>
+              <path d="M14 13 Q24 6 34 13" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+              <!-- Tentacles (wavy) -->
+              <path d="M10 26 Q8 32 12 36 Q9 40 12 46" fill="none" stroke="#F72585" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M18 26 Q17 33 20 38 Q17 42 19 47" fill="none" stroke="#F72585" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M24 26 Q25 33 23 39 Q26 43 24 48" fill="none" stroke="#F72585" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M30 26 Q31 33 28 38 Q31 42 29 47" fill="none" stroke="#F72585" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M38 26 Q40 32 36 36 Q39 40 36 46" fill="none" stroke="#F72585" stroke-width="1.6" stroke-linecap="round"/>
+              <!-- Bioluminescent core -->
+              <circle cx="24" cy="20" r="3" fill="white" opacity="0.9"/>
+              <circle cx="24" cy="20" r="6" fill="none" stroke="white" stroke-width="0.5" opacity="0.4"/>
             </g></g>
   <!-- Brand-name wordmark -->
   <text x="78" y="44"
-        font-family="'Audiowide', 'Exo 2', 'Rajdhani', sans-serif"
+        font-family="'Cormorant Garamond', 'Playfair Display', serif"
         font-weight="800"
         font-size="26"
         fill="url(#textGrad)"
