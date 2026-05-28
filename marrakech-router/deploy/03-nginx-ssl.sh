@@ -15,10 +15,11 @@ cp "${SCRIPT_DIR}/nginx.conf.template" /etc/nginx/sites-available/marrakech-rout
 sed -i "s|__DOMAIN__|${DOMAIN}|g" /etc/nginx/sites-available/marrakech-router
 
 ln -sf /etc/nginx/sites-available/marrakech-router /etc/nginx/sites-enabled/marrakech-router
-rm -f /etc/nginx/sites-enabled/default
 
 nginx -t
 systemctl reload nginx
+
+# DO NOT remove sites-enabled/default — leave existing voucherverse vhosts intact
 
 echo "=== Requesting Let's Encrypt SSL for ${DOMAIN} ==="
 certbot --nginx -d "${DOMAIN}" --non-interactive --agree-tos --email "${EMAIL}" --redirect

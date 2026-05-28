@@ -57,7 +57,7 @@ echo "=== [7/8] Service status ==="
 systemctl status ${SERVICE_NAME} --no-pager -l | head -20
 
 echo "=== [8/8] Health check ==="
-curl -fsS http://127.0.0.1:8001/api/health && echo "" || echo "WARN: backend not responding on 127.0.0.1:8001"
+curl -fsS http://127.0.0.1:8002/api/health && echo "" || echo "WARN: backend not responding on 127.0.0.1:8002"
 
 echo ""
 echo "=== Done. Next: bash 03-nginx-ssl.sh (with DOMAIN=${DOMAIN}) ==="

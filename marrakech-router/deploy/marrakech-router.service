@@ -9,7 +9,7 @@ User=__APP_USER__
 Group=__APP_USER__
 WorkingDirectory=__APP_DIR__/backend
 Environment="PATH=__APP_DIR__/venv/bin:/usr/bin:/bin"
-ExecStart=__APP_DIR__/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8001 --workers 2
+ExecStart=__APP_DIR__/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8002 --workers 2
 Restart=always
 RestartSec=5
 StandardOutput=journal
