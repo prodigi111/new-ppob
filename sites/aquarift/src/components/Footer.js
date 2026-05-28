@@ -58,7 +58,7 @@ export const Footer = () => {
 
         <div className="border-t border-border mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2026 {isReseller ? storeName : theme.brand.legalName}. All rights reserved.
+            © 2026 {isReseller ? storeName : theme.brand.name}. All rights reserved.
           </p>
         </div>
       </div>
