@@ -152,4 +152,14 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - `_validate_theme_json` now enforces the full 8-color schema required by `apply-theme.js` (primary, secondary, background, foreground, card, border, accent, destructive).
 - Regression: 22/22 tests pass (`test_multisite.py` 13/13 + new `test_new_features.py` 9 passed + 1 skipped for dev-mode DigiFlazz).
 
+### Iteration 5 (Feb 2026) — copy-paste credentials, dropdowns, auto-logo
+- **Ayolinx Private/Public Key → textarea PEM copy-paste** at admin → Integrasi. Backend accepts `private_key_pem` / `public_key_pem` fields (DB-only, no env counterpart). `ayolinx_service.refresh_from_db` prefers PEM content > file path > current. PEM masked in GET response.
+- **Mode field → `<select>` dropdown**. Ayolinx options: `sandbox` / `production`. DigiFlazz options: `development` / `production`.
+- **Auto-generated SVG logo** per site (hexagon badge + monogram initials, gradient primary→accent). Implemented as `_generate_brand_logo_svg()` + `_write_brand_logo()`. Called automatically inside `POST /api/admin/sites/clone-new` after `clone-site.sh` succeeds; also back-filled for neonforge/pixelvault/elitecharge/raidstation. `theme.config.js` auto-patched to point at `/logo-<siteId>.svg`.
+- **Sample theme JSON** at `/app/themes/_sample_quantumdrop.json` for testing upload flow.
+- **QuantumDrop (6th site)** created end-to-end via the upload endpoint: purple/cyan/pink futuristic, prefix `QTM`, circuit-grid hero, auto-generated "QU" hex logo — kept as a live demo of the upload flow.
+- Sites total now **6 sites**: blaze, neonforge, pixelvault, elitecharge, raidstation, quantumdrop (+ legacy vortex proxy entry).
+- Regression: 33/33 tests pass (`test_multisite.py` 13 + `test_new_features.py` 9+1skip + `test_iter5_features.py` 11).
+
+
 
