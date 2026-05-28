@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,29 +18,29 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 @layer base {
   :root {
     /* THEME:QUANTUMDROP */
-    --background:           252 52% 6%;    /* #050A18 Deep Midnight */
-    --foreground:           247 100% 95%;     /* #FFFFFF Electric White */
-    --card:                 251 46% 12%;    /* #0D1526 */
-    --card-foreground:      247 100% 95%;
-    --popover:              251 46% 12%;
-    --popover-foreground:   247 100% 95%;
-    --primary:              262 83% 58%;    /* Brand primary */
-    --primary-foreground:   247 100% 95%;
-    --secondary:            189 94% 43%;     /* #FFFFFF */
-    --secondary-foreground: 252 52% 6%;
-    --muted:                251 50% 24%;    /* #2D3436 Circuit Grey */
+    --background:           227 46% 8%;    /* #050A18 Deep Midnight */
+    --foreground:           230 100% 96%;     /* #FFFFFF Electric White */
+    --card:                 228 44% 14%;    /* #0D1526 */
+    --card-foreground:      230 100% 96%;
+    --popover:              228 44% 14%;
+    --popover-foreground:   230 100% 96%;
+    --primary:              234 100% 68%;    /* Brand primary */
+    --primary-foreground:   230 100% 96%;
+    --secondary:            233 100% 86%;     /* #FFFFFF */
+    --secondary-foreground: 227 46% 8%;
+    --muted:                229 33% 22%;    /* #2D3436 Circuit Grey */
     --muted-foreground:     0 0% 64%;
-    --accent:               329 86% 70%;   /* #FFD700 Golden Coin */
-    --accent-foreground:    252 52% 6%;
-    --destructive:          350 89% 60%;
+    --accent:               37 52% 81%;   /* #FFD700 Golden Coin */
+    --accent-foreground:    227 46% 8%;
+    --destructive:          352 76% 63%;
     --destructive-foreground: 0 0% 98%;
-    --border:               251 50% 24%;
-    --input:                251 50% 24%;
-    --ring:                 262 83% 58%;
+    --border:               229 33% 22%;
+    --input:                229 33% 22%;
+    --ring:                 234 100% 68%;
     --radius:               0.5rem;
     /* Gradient stops (for .brand-gradient text) */
-    --gradient-from:        262 83% 58%;
-    --gradient-to:          189 94% 43%;
+    --gradient-from:        234 100% 68%;
+    --gradient-to:          37 52% 81%;
   }
 }
 
@@ -51,7 +51,7 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', 'Manrope', sans-serif;
     background-color: hsl(var(--background));
   }
 }

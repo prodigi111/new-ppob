@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Exo+2:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,29 +18,29 @@ a[href*="emergent"][style*="position: fixed"] { display: none !important; }
 @layer base {
   :root {
     /* THEME:AQUARIFT */
-    --background:           200 64% 6%;    /* #050A18 Deep Midnight */
-    --foreground:           172 59% 92%;     /* #FFFFFF Electric White */
-    --card:                 204 57% 13%;    /* #0D1526 */
-    --card-foreground:      172 59% 92%;
-    --popover:              204 57% 13%;
-    --popover-foreground:   172 59% 92%;
-    --primary:              170 100% 39%;    /* Brand primary */
-    --primary-foreground:   172 59% 92%;
-    --secondary:            192 72% 21%;     /* #FFFFFF */
-    --secondary-foreground: 200 64% 6%;
-    --muted:                201 47% 20%;    /* #2D3436 Circuit Grey */
+    --background:           35 100% 97%;    /* #050A18 Deep Midnight */
+    --foreground:           202 80% 24%;     /* #FFFFFF Electric White */
+    --card:                 0 0% 100%;    /* #0D1526 */
+    --card-foreground:      202 80% 24%;
+    --popover:              0 0% 100%;
+    --popover-foreground:   202 80% 24%;
+    --primary:              198 93% 60%;    /* Brand primary */
+    --primary-foreground:   202 80% 24%;
+    --secondary:            27 96% 61%;     /* #FFFFFF */
+    --secondary-foreground: 35 100% 97%;
+    --muted:                36 90% 89%;    /* #2D3436 Circuit Grey */
     --muted-foreground:     0 0% 64%;
-    --accent:               0 100% 71%;   /* #FFD700 Golden Coin */
-    --accent-foreground:    200 64% 6%;
-    --destructive:          355 100% 64%;
+    --accent:               43 96% 56%;   /* #FFD700 Golden Coin */
+    --accent-foreground:    35 100% 97%;
+    --destructive:          0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border:               201 47% 20%;
-    --input:                201 47% 20%;
-    --ring:                 170 100% 39%;
+    --border:               36 90% 89%;
+    --input:                36 90% 89%;
+    --ring:                 198 93% 60%;
     --radius:               0.5rem;
     /* Gradient stops (for .brand-gradient text) */
-    --gradient-from:        170 100% 39%;
-    --gradient-to:          0 100% 71%;
+    --gradient-from:        198 93% 60%;
+    --gradient-to:          27 96% 61%;
   }
 }
 

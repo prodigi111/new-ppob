@@ -15,74 +15,74 @@ const theme = {
     "legalName": "PT AQUA RIFT DIGITAL"
   },
   "meta": {
-    "title": "AquaRift | Dive Into Top-Up Game & Voucher",
-    "description": "AquaRift - Top-up game dan voucher digital ala deep-sea explorer. Sonar precision, current-fast delivery, harga drift-cheap.",
-    "themeColor": "#00C9A7"
+    "title": "AquaRift | Top-Up Game yang Ngalir Tanpa Hambatan",
+    "description": "AquaRift — top-up game dan voucher digital dengan vibe pantai tropis. Santai prosesnya, cepat hasilnya. Surf the deals.",
+    "themeColor": "#38BDF8"
   },
   "assets": {
-    "logo": "/logo-aquarift.svg",
-    "heroBg": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=80"
+    "heroBg": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
+    "logo": "/logo-aquarift.svg"
   },
   "copy": {
     "hero": {
-      "titleLine1": "Dive Deep,",
-      "titleLine2": "Surface Faster.",
-      "subtitle": "Top-up game ala scuba-grade — UC, Diamond, voucher digital terkirim secepat gelombang. Sonar-akurat, harga drift-cheap, support 24/7 dari dasar laut.",
-      "searchPlaceholder": "Sonar scan: cari game, voucher, atau bundle..."
+      "titleLine1": "Surf the Deals,",
+      "titleLine2": "Ride the Drop.",
+      "subtitle": "Top-up game santai ala liburan pantai — UC, Diamond, voucher digital yang ngalir ke akunmu secepat ombak. No drama, no overthinking, just smooth waves & sunshine.",
+      "searchPlaceholder": "Cari game, voucher, atau bundle santai..."
     },
     "features": [
       {
-        "label": "Current Speed",
-        "desc": "Drop dalam 4 detik"
+        "label": "Ngalir Cepat",
+        "desc": "Cair dalam 4 detik"
       },
       {
-        "label": "Reef Pricing",
-        "desc": "Harga drift-cheap"
+        "label": "Harga Sejuk",
+        "desc": "Adem di kantong"
       },
       {
-        "label": "Pressure-Safe",
-        "desc": "Enkripsi tier-1"
+        "label": "Aman Banget",
+        "desc": "Enkripsi end-to-end"
       },
       {
-        "label": "Lifeline 24/7",
-        "desc": "Support always-on"
+        "label": "Selalu Stand-By",
+        "desc": "Support 24/7 ramah"
       }
     ],
     "cta": {
       "titlePrefix": "Jadi ",
       "titleHighlight": "Aqua",
-      "titleSuffix": "Captain",
-      "subtitle": "Ambil tier reseller AquaRift. Harga partner sedalam Mariana, dashboard sonar real-time, dukungan armada full-fleet.",
-      "button": "Charter Now"
+      "titleSuffix": "Crew",
+      "subtitle": "Ride bareng kami sebagai reseller AquaRift. Harga special crew, dashboard friendly, dan komunitas yang hangat kayak matahari sore di pantai.",
+      "button": "Gabung Crew"
     },
     "footer": {
-      "tagline": "Deep-sea digital top-up untuk gamer yang menyelam tanpa rem. Built like a submarine, priced like sea-foam — by AquaRift."
+      "tagline": "Top-up digital ala pantai tropis. Santai, ramah, dan ngalir tanpa hambatan — buat gamer yang suka hidup chill. Catch the wave at AquaRift."
     }
   },
   "colors": {
-    "primary": "#00C9A7",
-    "secondary": "#0F4C5C",
-    "accent": "#FF6B6B",
-    "background": "#06141B",
-    "card": "#0E2433",
-    "border": "#1B3A4B",
-    "foreground": "#E0F7F4",
-    "success": "#3DDC97",
-    "destructive": "#FF4757",
-    "gradientFrom": "#00C9A7",
-    "gradientTo": "#FF6B6B"
+    "primary": "#38BDF8",
+    "secondary": "#FB923C",
+    "accent": "#FBBF24",
+    "background": "#FFF8EE",
+    "card": "#FFFFFF",
+    "border": "#FCE7C8",
+    "foreground": "#0C4A6E",
+    "success": "#22C55E",
+    "destructive": "#EF4444",
+    "gradientFrom": "#38BDF8",
+    "gradientTo": "#FB923C"
   },
   "fonts": {
-    "display": "'Audiowide', 'Exo 2', 'Rajdhani', sans-serif",
-    "body": "'Exo 2', 'Plus Jakarta Sans', 'Inter', sans-serif",
+    "display": "'Outfit', 'Plus Jakarta Sans', 'DM Sans', sans-serif",
+    "body": "'Plus Jakarta Sans', 'Outfit', sans-serif",
     "mono": "'JetBrains Mono', monospace",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Audiowide&family=Exo+2:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@500;600&display=swap"
   },
   "style": {
-    "heroVisual": "crosshair-radar",
-    "mascotGlow": "drop-shadow(0 0 24px rgba(0, 201, 167, 0.55)) drop-shadow(0 0 48px rgba(255, 107, 107, 0.3))",
+    "heroVisual": "controller-orb",
+    "mascotGlow": "drop-shadow(0 0 24px rgba(56, 189, 248, 0.4)) drop-shadow(0 0 48px rgba(251, 146, 60, 0.25))",
     "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-accent/20"
+    "heroAccent2": "bg-secondary/15"
   }
 };
 

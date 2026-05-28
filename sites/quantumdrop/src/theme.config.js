@@ -15,74 +15,74 @@ const theme = {
     "legalName": "PT QUANTUM DROP DIGITAL"
   },
   "meta": {
-    "title": "QuantumDrop | Top Up Game Future-Forward",
-    "description": "QuantumDrop - Top-up game & voucher digital dengan teknologi quantum-fast delivery. Particle precision, light-speed transactions.",
-    "themeColor": "#7C3AED"
+    "title": "QuantumDrop | Premium Precision Top-Up",
+    "description": "QuantumDrop — platform top-up game premium dengan presisi laboratorium. Engineered drop, calibrated delivery, untuk gamer yang menghargai akurasi.",
+    "themeColor": "#5B6CFF"
   },
   "assets": {
-    "logo": "/logo-quantumdrop.svg",
-    "heroBg": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=1920&q=80"
+    "heroBg": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80",
+    "logo": "/logo-quantumdrop.svg"
   },
   "copy": {
     "hero": {
-      "titleLine1": "Particle-Speed",
-      "titleLine2": "Top-Up Engine",
-      "subtitle": "Quantum-grade delivery untuk gamer modern. UC, Diamond, voucher digital — terkirim sebelum sinyal selesai loading. Built on light, priced like air.",
-      "searchPlaceholder": "Scan dimensi: cari game, voucher, atau bundle..."
+      "titleLine1": "Engineered Drop.",
+      "titleLine2": "Calibrated Delivery.",
+      "subtitle": "Top-up game dengan presisi laboratorium. Setiap transaksi dihitung, diuji, dan dikirim dengan akurasi atom — platform yang dibuat untuk gamer yang menghargai kualitas, bukan kebisingan.",
+      "searchPlaceholder": "Calibrate: cari game, voucher, atau item..."
     },
     "features": [
       {
-        "label": "Quantum Fast",
-        "desc": "Delivery < 3 detik"
+        "label": "Precision Delivery",
+        "desc": "Akurasi 99.99%"
       },
       {
-        "label": "Wave Pricing",
-        "desc": "Harga teroptimasi"
+        "label": "Calibrated Pricing",
+        "desc": "Harga teruji & adil"
       },
       {
-        "label": "Encrypted",
-        "desc": "End-to-end security"
+        "label": "Lab-Grade Security",
+        "desc": "Enkripsi research-tier"
       },
       {
-        "label": "Always-On",
-        "desc": "Support multidimensi 24/7"
+        "label": "Concierge Support",
+        "desc": "Dedicated 24/7"
       }
     ],
     "cta": {
-      "titlePrefix": "Enter the ",
-      "titleHighlight": "Quantum",
-      "titleSuffix": "Network",
-      "subtitle": "Daftar sebagai reseller QuantumDrop. Dapatkan akses ke node harga eksklusif dan dashboard analytic real-time.",
-      "button": "Activate Node"
+      "titlePrefix": "Bergabung sebagai ",
+      "titleHighlight": "Partner",
+      "titleSuffix": "QuantumDrop",
+      "subtitle": "Akses tier reseller premium dengan harga kalibrasi, dashboard analitik presisi, dan dukungan dedicated untuk skala bisnismu.",
+      "button": "Mulai Konsultasi"
     },
     "footer": {
-      "tagline": "Top-up digital di kecepatan partikel. Future-forward delivery untuk gamer yang tidak punya waktu menunggu — by QuantumDrop."
+      "tagline": "Platform top-up game premium dengan presisi laboratorium. Untuk gamer dan reseller yang menghargai kualitas, bukan gimmick — QuantumDrop."
     }
   },
   "colors": {
-    "primary": "#7C3AED",
-    "secondary": "#06B6D4",
-    "accent": "#F472B6",
-    "background": "#0A0716",
-    "card": "#15102B",
-    "border": "#2A1F5C",
-    "foreground": "#E9E6FF",
-    "success": "#34D399",
-    "destructive": "#F43F5E",
-    "gradientFrom": "#7C3AED",
-    "gradientTo": "#06B6D4"
+    "primary": "#5B6CFF",
+    "secondary": "#B8C0FF",
+    "accent": "#E8D5B7",
+    "background": "#0B0F1E",
+    "card": "#141A33",
+    "border": "#252C4A",
+    "foreground": "#EDF0FF",
+    "success": "#7DD3A8",
+    "destructive": "#E85A6E",
+    "gradientFrom": "#5B6CFF",
+    "gradientTo": "#E8D5B7"
   },
   "fonts": {
-    "display": "'Space Grotesk', 'Orbitron', sans-serif",
-    "body": "'Inter', 'Plus Jakarta Sans', sans-serif",
-    "mono": "'JetBrains Mono', monospace",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Orbitron:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    "display": "'Manrope', 'Geist', 'Inter', sans-serif",
+    "body": "'Inter', 'Manrope', sans-serif",
+    "mono": "'Geist Mono', 'JetBrains Mono', monospace",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
   },
   "style": {
-    "heroVisual": "circuit-grid",
-    "mascotGlow": "drop-shadow(0 0 24px rgba(124, 58, 237, 0.55)) drop-shadow(0 0 48px rgba(6, 182, 212, 0.35))",
-    "heroAccent1": "bg-primary/20",
-    "heroAccent2": "bg-secondary/20"
+    "heroVisual": "gold-orbs",
+    "mascotGlow": "drop-shadow(0 0 20px rgba(91, 108, 255, 0.4)) drop-shadow(0 0 40px rgba(232, 213, 183, 0.25))",
+    "heroAccent1": "bg-primary/15",
+    "heroAccent2": "bg-accent/15"
   }
 };
 
