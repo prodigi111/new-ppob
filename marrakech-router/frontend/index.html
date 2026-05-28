@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marrakech Router · Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  pre.payload { white-space: pre-wrap; word-break: break-word; max-height: 280px; overflow:auto; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .badge-green { background:#dcfce7; color:#166534; }
+  .badge-red { background:#fee2e2; color:#991b1b; }
+  .badge-gray { background:#f1f5f9; color:#475569; }
+  .badge-amber { background:#fef3c7; color:#92400e; }
+  .badge-blue { background:#dbeafe; color:#1e40af; }
+</style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen text-slate-800">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+// ----- API helpers -----
+const API_BASE = (typeof window !== "undefined" ? window.location.origin : "") + "/api";
+
+const storage = {
+  getToken: () => localStorage.getItem("mr_token"),
+  setToken: (t) => localStorage.setItem("mr_token", t),
+  clear: () => localStorage.removeItem("mr_token"),
+};
+
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+  const token = storage.getToken();
+  if (token) headers.Authorization = "Bearer " + token;
+  const resp = await fetch(API_BASE + path, { ...opts, headers });
+  const ct = resp.headers.get("content-type") || "";
+  const body = ct.includes("json") ? await resp.json() : await resp.text();
+  if (!resp.ok) {
+    const msg = (body && body.detail) ? body.detail : (typeof body === "string" ? body : "Request failed");
+    const err = new Error(msg);
+    err.status = resp.status;
+    err.body = body;
+    if (resp.status === 401) {
+      storage.clear();
+      window.location.reload();
+    }
+    throw err;
+  }
+  return body;
+}
+
+// ----- Toast -----
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const push = (msg, type = "info") => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts((t) => [...t, { id, msg, type }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
+  };
+  const Toaster = () => (
+    <div className="fixed bottom-4 right-4 z-50 space-y-2">
+      {toasts.map((t) => (
+        <div key={t.id} data-testid={`toast-${t.type}`}
+             className={`px-4 py-2 rounded shadow-lg text-sm font-medium ${
+               t.type === "error" ? "bg-red-600 text-white" :
+               t.type === "success" ? "bg-emerald-600 text-white" :
+               "bg-slate-800 text-white"
+             }`}>{t.msg}</div>
+      ))}
+    </div>
+  );
+  return { push, Toaster };
+}
+
+// ===================== LOGIN =====================
+function Login({ onLogin, toast }) {
+  const [email, setEmail] = useState("admin@voucherverse.com");
+  const [pw, setPw] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await api("/auth/login", { method: "POST", body: JSON.stringify({ email, password: pw }) });
+      storage.setToken(res.token);
+      onLogin(res.user);
+    } catch (err) {
+      toast(err.message || "Login gagal", "error");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <form onSubmit={submit} data-testid="login-form" className="glass shadow-xl rounded-2xl p-8 w-full max-w-md border border-white/40">
+        <div className="mb-6">
+          <div className="text-2xl font-bold tracking-tight">Marrakech Router</div>
+          <div className="text-sm text-slate-500">Admin Panel · Webhook Routing</div>
+        </div>
+        <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">Email</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+               data-testid="login-email-input"
+               className="w-full px-3 py-2 rounded-lg border border-slate-200 mb-4 focus:outline-none focus:ring-2 focus:ring-slate-900/10" />
+        <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">Password</label>
+        <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} required
+               data-testid="login-password-input"
+               className="w-full px-3 py-2 rounded-lg border border-slate-200 mb-6 focus:outline-none focus:ring-2 focus:ring-slate-900/10" />
+        <button type="submit" disabled={loading} data-testid="login-submit-btn"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg disabled:opacity-50">
+          {loading ? "Memproses…" : "Masuk"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ===================== ROUTES TAB =====================
+const EMPTY_ROUTE = {
+  prefix: "", type: "ayolinx", site_name: "", active: true,
+  forward_url_qris: "", forward_url_va: "", forward_url_notify: "", forward_url_link: "",
+  forward_url_webhook: "", notes: "",
+};
+
+function RouteModal({ initial, onClose, onSaved, toast }) {
+  const isEdit = !!initial?.id;
+  const [form, setForm] = useState(initial || EMPTY_ROUTE);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setForm(initial || EMPTY_ROUTE); }, [initial]);
+
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (isEdit) {
+        await api(`/admin/routes/${form.id}`, { method: "PUT", body: JSON.stringify({
+          site_name: form.site_name, active: form.active,
+          forward_url_qris: form.forward_url_qris, forward_url_va: form.forward_url_va,
+          forward_url_notify: form.forward_url_notify, forward_url_link: form.forward_url_link,
+          forward_url_webhook: form.forward_url_webhook, notes: form.notes,
+        })});
+        toast("Route diupdate", "success");
+      } else {
+        await api("/admin/routes", { method: "POST", body: JSON.stringify({ ...form, prefix: (form.prefix || "").toUpperCase() }) });
+        toast("Route ditambahkan", "success");
+      }
+      onSaved();
+    } catch (err) { toast(err.message, "error"); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+      <form onClick={(e) => e.stopPropagation()} onSubmit={submit}
+            data-testid="route-form"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div className="font-semibold text-lg">{isEdit ? "Edit Route" : "Tambah Route Baru"}</div>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700" data-testid="route-modal-close">✕</button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase text-slate-500">Prefix (3 huruf)</label>
+              <input value={form.prefix} onChange={set("prefix")} maxLength={3} required disabled={isEdit}
+                     data-testid="route-prefix-input"
+                     placeholder="RDS" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 uppercase font-mono disabled:bg-slate-50" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase text-slate-500">Tipe</label>
+              <select value={form.type} onChange={set("type")} disabled={isEdit} data-testid="route-type-select"
+                      className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 disabled:bg-slate-50">
+                <option value="ayolinx">Ayolinx (Payment)</option>
+                <option value="digiflazz">DigiFlazz (Topup)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase text-slate-500">Nama Site</label>
+            <input value={form.site_name} onChange={set("site_name")} required data-testid="route-sitename-input"
+                   placeholder="RaidStation" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200" />
+          </div>
+
+          {form.type === "ayolinx" ? (
+            <>
+              <div>
+                <label className="text-xs font-semibold uppercase text-slate-500">Forward URL — QRIS</label>
+                <input value={form.forward_url_qris || ""} onChange={set("forward_url_qris")} data-testid="route-url-qris"
+                       placeholder="https://raidstation.online/api/payment/callback/qris" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 mono" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase text-slate-500">Forward URL — VA</label>
+                <input value={form.forward_url_va || ""} onChange={set("forward_url_va")} data-testid="route-url-va"
+                       placeholder="https://raidstation.online/api/payment/callback/va" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 mono" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase text-slate-500">Forward URL — Notify</label>
+                <input value={form.forward_url_notify || ""} onChange={set("forward_url_notify")} data-testid="route-url-notify"
+                       placeholder="https://raidstation.online/api/payment/callback/notify" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 mono" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase text-slate-500">Forward URL — Link</label>
+                <input value={form.forward_url_link || ""} onChange={set("forward_url_link")} data-testid="route-url-link"
+                       placeholder="https://raidstation.online/api/payment/callback/link" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 mono" />
+              </div>
+            </>
+          ) : (
+            <div>
+              <label className="text-xs font-semibold uppercase text-slate-500">Forward URL — DigiFlazz Webhook</label>
+              <input value={form.forward_url_webhook || ""} onChange={set("forward_url_webhook")} data-testid="route-url-webhook"
+                     placeholder="https://raidstation.online/api/biller/webhook" className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 mono" />
+            </div>
+          )}
+
+          <div>
+            <label className="text-xs font-semibold uppercase text-slate-500">Catatan</label>
+            <input value={form.notes || ""} onChange={set("notes")} data-testid="route-notes-input"
+                   className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200" />
+          </div>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!form.active} onChange={set("active")} data-testid="route-active-checkbox" />
+            <span>Aktif</span>
+          </label>
+        </div>
+        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-2 sticky bottom-0">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-200">Batal</button>
+          <button type="submit" disabled={saving} data-testid="route-save-btn"
+                  className="px-5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50">
+            {saving ? "Menyimpan…" : (isEdit ? "Update" : "Simpan")}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function RoutesTab({ toast }) {
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(null);
+  const [filter, setFilter] = useState("");
+
+  const load = async () => {
+    setLoading(true);
+    try { const r = await api("/admin/routes"); setRoutes(r.items || []); }
+    catch (e) { toast(e.message, "error"); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { load(); }, []);
+
+  const remove = async (id, prefix) => {
+    if (!confirm(`Hapus route ${prefix}?`)) return;
+    try { await api(`/admin/routes/${id}`, { method: "DELETE" }); toast("Route dihapus", "success"); load(); }
+    catch (e) { toast(e.message, "error"); }
+  };
+
+  const filtered = useMemo(() => {
+    const q = filter.toLowerCase();
+    if (!q) return routes;
+    return routes.filter((r) =>
+      r.prefix.toLowerCase().includes(q) ||
+      r.type.toLowerCase().includes(q) ||
+      (r.site_name || "").toLowerCase().includes(q));
+  }, [routes, filter]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <input placeholder="Cari prefix / site / tipe…" value={filter} onChange={(e) => setFilter(e.target.value)}
+               data-testid="routes-filter-input"
+               className="px-3 py-2 rounded-lg border border-slate-200 w-72" />
+        <button onClick={() => setEditing(EMPTY_ROUTE)} data-testid="add-route-btn"
+                className="px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">+ Tambah Route</button>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-600 uppercase text-xs">
+            <tr>
+              <th className="px-4 py-3 text-left">Prefix</th>
+              <th className="px-4 py-3 text-left">Tipe</th>
+              <th className="px-4 py-3 text-left">Site</th>
+              <th className="px-4 py-3 text-left">Target</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && <tr><td colSpan={6} className="text-center py-12 text-slate-400">Memuat…</td></tr>}
+            {!loading && filtered.length === 0 && <tr><td colSpan={6} className="text-center py-12 text-slate-400">Belum ada route. Klik + Tambah Route.</td></tr>}
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50" data-testid={`route-row-${r.prefix}`}>
+                <td className="px-4 py-3 font-mono font-bold">{r.prefix}</td>
+                <td className="px-4 py-3"><span className={`badge ${r.type === "ayolinx" ? "badge-blue" : "badge-amber"}`}>{r.type}</span></td>
+                <td className="px-4 py-3">{r.site_name}</td>
+                <td className="px-4 py-3 mono text-slate-600">
+                  {r.type === "ayolinx" ? (
+                    <div className="space-y-0.5">
+                      {r.forward_url_qris && <div>QRIS: {r.forward_url_qris}</div>}
+                      {r.forward_url_va && <div>VA: {r.forward_url_va}</div>}
+                      {r.forward_url_notify && <div>Notify: {r.forward_url_notify}</div>}
+                      {r.forward_url_link && <div>Link: {r.forward_url_link}</div>}
+                    </div>
+                  ) : (
+                    <div>{r.forward_url_webhook}</div>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {r.active ? <span className="badge badge-green">Aktif</span> : <span className="badge badge-gray">Nonaktif</span>}
+                </td>
+                <td className="px-4 py-3 text-right space-x-2">
+                  <button onClick={() => setEditing(r)} className="text-slate-700 hover:underline text-xs" data-testid={`edit-route-${r.prefix}`}>Edit</button>
+                  <button onClick={() => remove(r.id, r.prefix)} className="text-red-600 hover:underline text-xs" data-testid={`delete-route-${r.prefix}`}>Hapus</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <RouteModal initial={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} toast={toast} />}
+    </div>
+  );
+}
+
+// ===================== LOGS TAB =====================
+function LogDetail({ logId, onClose, toast, onReplayed }) {
+  const [log, setLog] = useState(null);
+  const [replaying, setReplaying] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try { setLog(await api(`/admin/logs/${logId}`)); }
+      catch (e) { toast(e.message, "error"); onClose(); }
+    })();
+  }, [logId]);
+
+  const replay = async () => {
+    setReplaying(true);
+    try {
+      const res = await api(`/admin/logs/${logId}/replay`, { method: "POST" });
+      toast(`Replay → ${res.status_code || "ERR"}`, res.status_code && res.status_code < 300 ? "success" : "error");
+      setLog(await api(`/admin/logs/${logId}`));
+      onReplayed && onReplayed();
+    } catch (e) { toast(e.message, "error"); }
+    finally { setReplaying(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div>
+            <div className="font-semibold">Detail Callback</div>
+            <div className="text-xs text-slate-500 mono">{logId}</div>
+          </div>
+          <div className="flex gap-2">
+            {log && log.target_url && (
+              <button onClick={replay} disabled={replaying} data-testid="replay-btn"
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium disabled:opacity-50">
+                {replaying ? "Mengirim…" : "Replay"}
+              </button>
+            )}
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700">✕</button>
+          </div>
+        </div>
+        {!log ? <div className="p-12 text-center text-slate-400">Memuat…</div> : (
+          <div className="p-6 space-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-3">
+              <Info label="Created" value={log.created_at} mono />
+              <Info label="Prefix" value={log.prefix || "—"} mono />
+              <Info label="Type / Channel" value={`${log.type} / ${log.channel}`} />
+              <Info label="Ref ID" value={log.ref_id || "—"} mono />
+              <Info label="Target URL" value={log.target_url || "(dropped)"} mono />
+              <Info label="Status" value={
+                log.status_code ? (
+                  <span className={`badge ${log.status_code < 300 ? "badge-green" : "badge-red"}`}>HTTP {log.status_code}</span>
+                ) : (log.error ? <span className="badge badge-red">ERROR</span> : <span className="badge badge-gray">DROPPED</span>)
+              } />
+              <Info label="Duration" value={`${log.duration_ms || 0} ms`} />
+              <Info label="Replay count" value={(log.replays || []).length} />
+            </div>
+            {log.error && (
+              <div>
+                <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Error</div>
+                <pre className="payload mono bg-red-50 p-3 rounded-lg text-red-700">{log.error}</pre>
+              </div>
+            )}
+            <div>
+              <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Payload</div>
+              <pre className="payload mono bg-slate-50 p-3 rounded-lg">{JSON.stringify(log.payload, null, 2)}</pre>
+            </div>
+            {log.response_body && (
+              <div>
+                <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Response from target</div>
+                <pre className="payload mono bg-slate-50 p-3 rounded-lg">{log.response_body}</pre>
+              </div>
+            )}
+            <div>
+              <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Headers (forwarded)</div>
+              <pre className="payload mono bg-slate-50 p-3 rounded-lg">{JSON.stringify(log.headers, null, 2)}</pre>
+            </div>
+            {(log.replays || []).length > 0 && (
+              <div>
+                <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Replay history</div>
+                <div className="space-y-2">
+                  {log.replays.map((r, i) => (
+                    <div key={i} className="border border-slate-200 rounded-lg p-3 text-xs">
+                      <div className="flex justify-between mb-1">
+                        <span className="mono">{r.at}</span>
+                        <span className={`badge ${r.status_code && r.status_code < 300 ? "badge-green" : "badge-red"}`}>
+                          {r.status_code ? `HTTP ${r.status_code}` : "ERR"} · {r.duration_ms} ms
+                        </span>
+                      </div>
+                      {r.error && <div className="text-red-600">{r.error}</div>}
+                      {r.response_body && <pre className="mono mt-1 text-slate-600">{r.response_body.slice(0, 300)}</pre>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Info({ label, value, mono }) {
+  return (
+    <div>
+      <div className="text-xs font-semibold uppercase text-slate-500">{label}</div>
+      <div className={`${mono ? "mono" : ""} text-slate-800 break-all`}>{value}</div>
+    </div>
+  );
+}
+
+function LogsTab({ toast }) {
+  const [logs, setLogs] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [skip, setSkip] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ prefix: "", type: "", status: "" });
+  const [selected, setSelected] = useState(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const LIMIT = 50;
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const qs = new URLSearchParams({ limit: LIMIT, skip });
+      if (filters.prefix) qs.set("prefix", filters.prefix);
+      if (filters.type) qs.set("type", filters.type);
+      if (filters.status) qs.set("status", filters.status);
+      const r = await api(`/admin/logs?${qs.toString()}`);
+      setLogs(r.items || []);
+      setTotal(r.total || 0);
+    } catch (e) { toast(e.message, "error"); }
+    finally { setLoading(false); }
+  }, [skip, filters]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const t = setInterval(load, 5000);
+    return () => clearInterval(t);
+  }, [autoRefresh, load]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <input placeholder="Prefix (e.g. RDS)" maxLength={3} value={filters.prefix}
+               onChange={(e) => { setSkip(0); setFilters({ ...filters, prefix: e.target.value.toUpperCase() }); }}
+               data-testid="logs-filter-prefix"
+               className="px-3 py-2 rounded-lg border border-slate-200 w-32 uppercase mono" />
+        <select value={filters.type} onChange={(e) => { setSkip(0); setFilters({ ...filters, type: e.target.value }); }}
+                data-testid="logs-filter-type" className="px-3 py-2 rounded-lg border border-slate-200">
+          <option value="">Semua tipe</option>
+          <option value="ayolinx">Ayolinx</option>
+          <option value="digiflazz">DigiFlazz</option>
+        </select>
+        <select value={filters.status} onChange={(e) => { setSkip(0); setFilters({ ...filters, status: e.target.value }); }}
+                data-testid="logs-filter-status" className="px-3 py-2 rounded-lg border border-slate-200">
+          <option value="">Semua status</option>
+          <option value="success">Success (2xx)</option>
+          <option value="failed">Failed (4xx/5xx/err)</option>
+          <option value="dropped">Dropped (no route)</option>
+        </select>
+        <label className="flex items-center gap-2 text-sm ml-2">
+          <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} data-testid="logs-auto-refresh" />
+          Auto refresh (5s)
+        </label>
+        <button onClick={load} className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm" data-testid="logs-refresh-btn">↻ Refresh</button>
+        <div className="ml-auto text-sm text-slate-500">{total} log total</div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-600 uppercase text-xs">
+            <tr>
+              <th className="px-4 py-3 text-left">Waktu</th>
+              <th className="px-4 py-3 text-left">Prefix</th>
+              <th className="px-4 py-3 text-left">Tipe / Ch</th>
+              <th className="px-4 py-3 text-left">Ref ID</th>
+              <th className="px-4 py-3 text-left">Target</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && <tr><td colSpan={7} className="text-center py-12 text-slate-400">Memuat…</td></tr>}
+            {!loading && logs.length === 0 && <tr><td colSpan={7} className="text-center py-12 text-slate-400">Tidak ada log.</td></tr>}
+            {logs.map((l) => (
+              <tr key={l.id} className="border-t border-slate-100 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setSelected(l.id)} data-testid={`log-row-${l.id}`}>
+                <td className="px-4 py-2 mono text-xs whitespace-nowrap">{new Date(l.created_at).toLocaleString("id-ID")}</td>
+                <td className="px-4 py-2 font-mono font-bold">{l.prefix || "—"}</td>
+                <td className="px-4 py-2">
+                  <span className={`badge ${l.type === "ayolinx" ? "badge-blue" : "badge-amber"}`}>{l.type}</span>
+                  <span className="text-xs text-slate-500 ml-1">{l.channel}</span>
+                </td>
+                <td className="px-4 py-2 mono text-xs">{l.ref_id || "—"}</td>
+                <td className="px-4 py-2 mono text-xs text-slate-500 max-w-[280px] truncate">{l.target_url || "(dropped)"}</td>
+                <td className="px-4 py-2">
+                  {l.status_code ? (
+                    <span className={`badge ${l.status_code < 300 ? "badge-green" : "badge-red"}`}>HTTP {l.status_code}</span>
+                  ) : l.error ? <span className="badge badge-red">ERR</span> : <span className="badge badge-gray">DROP</span>}
+                  {(l.replays || []).length > 0 && <span className="badge badge-amber ml-1">⟳{l.replays.length}</span>}
+                </td>
+                <td className="px-4 py-2 text-right text-xs text-slate-500">{l.duration_ms || 0} ms</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {total > LIMIT && (
+          <div className="px-4 py-3 border-t border-slate-200 flex justify-between items-center text-sm bg-slate-50">
+            <div className="text-slate-500">{skip + 1}–{Math.min(skip + LIMIT, total)} of {total}</div>
+            <div className="flex gap-2">
+              <button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - LIMIT))}
+                      className="px-3 py-1 rounded-lg bg-white border border-slate-200 disabled:opacity-40">←</button>
+              <button disabled={skip + LIMIT >= total} onClick={() => setSkip(skip + LIMIT)}
+                      className="px-3 py-1 rounded-lg bg-white border border-slate-200 disabled:opacity-40">→</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {selected && <LogDetail logId={selected} onClose={() => setSelected(null)} toast={toast} onReplayed={load} />}
+    </div>
+  );
+}
+
+// ===================== STATS TAB =====================
+function StatsTab({ toast }) {
+  const [s, setS] = useState(null);
+  const load = async () => { try { setS(await api("/admin/stats")); } catch (e) { toast(e.message, "error"); } };
+  useEffect(() => { load(); const t = setInterval(load, 10000); return () => clearInterval(t); }, []);
+  if (!s) return <div className="text-slate-400 text-center py-12">Memuat…</div>;
+  const Card = ({ label, val, accent }) => (
+    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+      <div className="text-xs font-semibold uppercase text-slate-500">{label}</div>
+      <div className={`text-3xl font-bold mt-1 ${accent || ""}`}>{val}</div>
+    </div>
+  );
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card label="Routes Aktif" val={`${s.routes_active}/${s.routes_total}`} />
+        <Card label="Forward Sukses" val={s.logs_success} accent="text-emerald-600" />
+        <Card label="Forward Gagal" val={s.logs_failed} accent="text-red-600" />
+        <Card label="Dropped" val={s.logs_dropped} accent="text-amber-600" />
+      </div>
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200 font-semibold text-sm">Traffic 24 jam terakhir per prefix</div>
+        {s.last24h_by_prefix.length === 0 ? (
+          <div className="text-center text-slate-400 py-8 text-sm">Belum ada traffic dalam 24 jam terakhir.</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-600">
+              <tr><th className="px-4 py-2 text-left">Prefix</th><th className="px-4 py-2 text-left">Tipe</th><th className="px-4 py-2 text-right">Total</th><th className="px-4 py-2 text-right">Sukses</th><th className="px-4 py-2 text-right">Rate</th></tr>
+            </thead>
+            <tbody>
+              {s.last24h_by_prefix.map((r, i) => {
+                const rate = r.total ? Math.round((r.success / r.total) * 100) : 0;
+                return (
+                  <tr key={i} className="border-t border-slate-100">
+                    <td className="px-4 py-2 font-mono font-bold">{r.prefix || "—"}</td>
+                    <td className="px-4 py-2"><span className={`badge ${r.type === "ayolinx" ? "badge-blue" : "badge-amber"}`}>{r.type}</span></td>
+                    <td className="px-4 py-2 text-right">{r.total}</td>
+                    <td className="px-4 py-2 text-right text-emerald-700">{r.success}</td>
+                    <td className="px-4 py-2 text-right">
+                      <span className={`badge ${rate >= 95 ? "badge-green" : rate >= 50 ? "badge-amber" : "badge-red"}`}>{rate}%</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===================== SHELL =====================
+function App() {
+  const { push: toast, Toaster } = useToast();
+  const [user, setUser] = useState(null);
+  const [tab, setTab] = useState("routes");
+  const [booted, setBooted] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (!storage.getToken()) { setBooted(true); return; }
+      try { const me = await api("/auth/me"); setUser(me); }
+      catch (e) { storage.clear(); }
+      finally { setBooted(true); }
+    })();
+  }, []);
+
+  if (!booted) return <div className="min-h-screen flex items-center justify-center text-slate-400">Memuat…</div>;
+  if (!user) return <><Login onLogin={setUser} toast={toast} /><Toaster /></>;
+
+  const logout = () => { storage.clear(); setUser(null); };
+
+  return (
+    <div className="min-h-screen">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div>
+              <div className="font-bold text-lg tracking-tight">Marrakech Router</div>
+              <div className="text-xs text-slate-500">Webhook Routing · Ayolinx + DigiFlazz</div>
+            </div>
+            <nav className="flex gap-1 text-sm">
+              {["routes", "logs", "stats"].map((t) => (
+                <button key={t} onClick={() => setTab(t)} data-testid={`tab-${t}`}
+                        className={`px-3 py-1.5 rounded-lg capitalize ${tab === t ? "bg-slate-900 text-white" : "hover:bg-slate-100"}`}>
+                  {t === "routes" ? "Routes" : t === "logs" ? "Logs" : "Stats"}
+                </button>
+              ))}
+            </nav>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-slate-500">{user.email}</span>
+            <button onClick={logout} data-testid="logout-btn"
+                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200">Logout</button>
+          </div>
+        </div>
+      </header>
+      <main className="max-w-7xl mx-auto px-6 py-6">
+        {tab === "routes" && <RoutesTab toast={toast} />}
+        {tab === "logs" && <LogsTab toast={toast} />}
+        {tab === "stats" && <StatsTab toast={toast} />}
+      </main>
+      <Toaster />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    server_name __DOMAIN__;
+
+    # Increase max body for large webhook payloads
+    client_max_body_size 2m;
+
+    # Proxy all traffic to FastAPI on 127.0.0.1:8001
+    location / {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Preserve original headers like X-SIGNATURE, X-TIMESTAMP, X-Hub-Signature
+        proxy_pass_request_headers on;
+        proxy_read_timeout 30s;
+        proxy_connect_timeout 10s;
+    }
+
+    # Optional: separate access log per domain
+    access_log /var/log/nginx/marrakech-router.access.log;
+    error_log  /var/log/nginx/marrakech-router.error.log;
+}
