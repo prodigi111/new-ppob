@@ -152,7 +152,35 @@ Build a digital voucher marketplace website similar to Uniplay (https://uniplay.
 - `_validate_theme_json` now enforces the full 8-color schema required by `apply-theme.js` (primary, secondary, background, foreground, card, border, accent, destructive).
 - Regression: 22/22 tests pass (`test_multisite.py` 13/13 + new `test_new_features.py` 9 passed + 1 skipped for dev-mode DigiFlazz).
 
+### Iteration 6 (Feb 2026) — typography wordmark + thematic graphic logos
+- **Logo redesigned**: horizontal SVG dengan **thematic graphic icon (kiri) + brand-name wordmark (kanan)** menggantikan monogram hex sederhana.
+- 6 ikon tematik yang dipilih otomatis dari `theme.style.heroVisual`:
+  - `burst` (Blaze) — flame + energy spike rays
+  - `circuit` (NeonForge, QuantumDrop) — hex node + connecting traces
+  - `pixel-stack` (PixelVault) — 3D stacked pixel blocks
+  - `crown` (EliteCharge) — minimal 3-spike crown + jewel
+  - `crosshair` (RaidStation) — radar reticle + range marks
+  - `hex-badge` (fallback) — hex monogram
+- Wordmark menggunakan `theme.fonts.display` (Rajdhani, Orbitron, Press Start 2P, Playfair, Bebas Neue, dst), gradient `primary→white→accent`.
+- Dynamic viewBox width (0.72×fontSize per char + padding) — tidak ada lagi text terpotong.
+- 6 logo existing di-regenerate dengan format baru.
+- Regression: 33/33 pytest pass.
+
 ### Iteration 5 (Feb 2026) — copy-paste credentials, dropdowns, auto-logo
+- **Logo redesigned**: horizontal SVG dengan **thematic graphic icon (kiri) + brand-name wordmark (kanan)** menggantikan monogram hex sederhana.
+- 6 ikon tematik yang dipilih otomatis dari `theme.style.heroVisual`:
+  - `burst` (Blaze) — flame + energy spike rays
+  - `circuit` (NeonForge, QuantumDrop) — hex node + connecting traces
+  - `pixel-stack` (PixelVault) — 3D stacked pixel blocks
+  - `crown` (EliteCharge) — minimal 3-spike crown + jewel
+  - `crosshair` (RaidStation) — radar reticle + range marks
+  - `hex-badge` (fallback) — hex monogram
+- Wordmark menggunakan `theme.fonts.display` (Rajdhani, Orbitron, Press Start 2P, Playfair, Bebas Neue, dst), gradient `primary→white→accent`.
+- Dynamic viewBox width (0.72×fontSize per char + padding) — tidak ada lagi text terpotong untuk nama panjang (terverifikasi: NEONFORGE, ELITECHARGE, RAIDSTATION, QUANTUMDROP).
+- Font-size adaptif: 30/26/22/18 berdasarkan panjang nama (≤6/9/12/>12 chars).
+- 6 logo existing (blaze/neonforge/pixelvault/elitecharge/raidstation/quantumdrop) sudah di-regenerate dengan icon-wordmark format baru.
+- Regression: 33/33 pytest pass (1 skipped). Test `test_clone_new_generates_svg_logo_and_patches_theme` updated agar cek wordmark (bukan initials lama).
+
 - **Ayolinx Private/Public Key → textarea PEM copy-paste** at admin → Integrasi. Backend accepts `private_key_pem` / `public_key_pem` fields (DB-only, no env counterpart). `ayolinx_service.refresh_from_db` prefers PEM content > file path > current. PEM masked in GET response.
 - **Mode field → `<select>` dropdown**. Ayolinx options: `sandbox` / `production`. DigiFlazz options: `development` / `production`.
 - **Auto-generated SVG logo** per site (hexagon badge + monogram initials, gradient primary→accent). Implemented as `_generate_brand_logo_svg()` + `_write_brand_logo()`. Called automatically inside `POST /api/admin/sites/clone-new` after `clone-site.sh` succeeds; also back-filled for neonforge/pixelvault/elitecharge/raidstation. `theme.config.js` auto-patched to point at `/logo-<siteId>.svg`.

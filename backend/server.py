@@ -1490,40 +1490,152 @@ THEMES_ROOT = Path("/app/themes")
 REQUIRED_THEME_FIELDS = {"siteId", "orderPrefix", "brand", "meta", "assets", "copy", "colors", "fonts"}
 
 
-def _generate_brand_logo_svg(brand_name: str, primary: str, accent: str) -> str:
-    """Generate a self-contained SVG monogram logo from brand name + 2 brand colors.
+def _generate_brand_logo_svg(
+    brand_name: str,
+    primary: str,
+    accent: str,
+    icon_variant: str = "burst",
+    display_font: Optional[str] = None,
+) -> str:
+    """Generate a horizontal SVG logo = thematic icon + brand-name wordmark.
 
-    No external assets required. Renders a hexagon badge with the first 1-2
-    letters of the brand name, gradient fill from primary→accent, and a soft
-    inner glow. Designed to read cleanly at 40-200px.
+    `icon_variant` selects the graphic mark. Supported tokens (typically
+    derived from theme.style.heroVisual):
+      - 'burst'         → flame/energy spikes (Blaze)
+      - 'circuit'       → hex node + connectors (NeonForge / QuantumDrop)
+      - 'pixel-stack'   → stacked pixel blocks (PixelVault)
+      - 'crown'         → minimal crown (EliteCharge)
+      - 'crosshair'     → radar reticle (RaidStation)
+      - 'hex-badge'     → fallback hexagonal monogram
     """
-    # Build initials (up to 2 uppercase letters, alnum only)
-    safe = "".join(ch for ch in (brand_name or "?") if ch.isalnum())
-    initials = (safe[:2] or "?").upper()
+    safe = "".join(ch for ch in (brand_name or "?") if ch.isalnum() or ch == " ").strip() or "Brand"
+    # Word-mark font sizing scales down for long names so it stays inside the viewBox.
+    char_count = max(len(safe), 1)
+    font_size = 30 if char_count <= 6 else (26 if char_count <= 9 else (22 if char_count <= 12 else 18))
+    # Dynamic viewBox width based on estimated text width + icon area + padding.
+    # Display fonts (Orbitron, Bebas Neue, Press Start 2P, Playfair) tend to be wider
+    # than generic sans-serif → use 0.72×fontSize plus letter-spacing (1.5px) and
+    # generous right padding so the wordmark never gets clipped inside <img>.
+    glyph_advance = font_size * 0.72 + 1.5
+    text_width_est = int(char_count * glyph_advance)
+    text_x = 78  # icon box (0-64) + 14px gap
+    right_pad = 24
+    vb_w = max(text_x + text_width_est + right_pad, 200)
+    vb_h = 70
+
     primary = primary if (isinstance(primary, str) and primary.startswith("#")) else "#FF0000"
     accent = accent if (isinstance(accent, str) and accent.startswith("#")) else "#FFD700"
+    display_font = display_font or "'Rajdhani','Space Grotesk','Oswald','Inter',sans-serif"
+
+    # ---- Icon shapes (centered in a 64x64 box at x=0..64, y=3..67) ----
+    icons = {
+        "burst": '''
+            <!-- Flame burst: outer rays + inner flame -->
+            <g transform="translate(8,8)">
+              <path d="M24 2 L28 16 L24 22 L20 16 Z" fill="url(#brandGrad)"/>
+              <path d="M44 12 L36 22 L30 22 L36 16 Z" fill="url(#brandGrad)" opacity="0.85"/>
+              <path d="M4 12 L12 22 L18 22 L12 16 Z" fill="url(#brandGrad)" opacity="0.85"/>
+              <path d="M24 16 C 14 22, 12 36, 24 46 C 36 36, 34 22, 24 16 Z"
+                    fill="url(#brandGrad)" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+              <circle cx="24" cy="38" r="4" fill="white" opacity="0.85"/>
+            </g>''',
+        "circuit": '''
+            <!-- Hex node with 4 connecting traces and inner dot -->
+            <g transform="translate(8,8)">
+              <line x1="0" y1="24" x2="14" y2="24" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="34" y1="24" x2="48" y2="24" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="24" y1="0" x2="24" y2="10" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="24" y1="38" x2="24" y2="48" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <circle cx="0" cy="24" r="3" fill="''' + accent + '''"/>
+              <circle cx="48" cy="24" r="3" fill="''' + accent + '''"/>
+              <circle cx="24" cy="0" r="3" fill="''' + accent + '''"/>
+              <circle cx="24" cy="48" r="3" fill="''' + accent + '''"/>
+              <polygon points="24,8 38,16 38,32 24,40 10,32 10,16"
+                       fill="url(#brandGrad)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+              <circle cx="24" cy="24" r="4" fill="white" opacity="0.9"/>
+            </g>''',
+        "pixel-stack": '''
+            <!-- 3D stacked pixel blocks -->
+            <g transform="translate(8,8)">
+              <rect x="4"  y="32" width="14" height="14" fill="''' + primary + '''" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <rect x="18" y="32" width="14" height="14" fill="''' + accent + '''" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <rect x="32" y="32" width="14" height="14" fill="''' + primary + '''" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <rect x="11" y="18" width="14" height="14" fill="''' + accent + '''" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <rect x="25" y="18" width="14" height="14" fill="''' + primary + '''" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <rect x="18" y="4"  width="14" height="14" fill="url(#brandGrad)" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+            </g>''',
+        "crown": '''
+            <!-- Minimal three-spike crown with center jewel -->
+            <g transform="translate(8,12)">
+              <path d="M2 36 L6 14 L16 26 L24 6 L32 26 L42 14 L46 36 Z"
+                    fill="url(#brandGrad)" stroke="rgba(255,255,255,0.85)" stroke-width="1.6"/>
+              <rect x="2" y="38" width="44" height="4" fill="''' + accent + '''" stroke="rgba(255,255,255,0.6)" stroke-width="0.8"/>
+              <circle cx="24" cy="22" r="3.5" fill="white" stroke="''' + accent + '''" stroke-width="1.2"/>
+            </g>''',
+        "crosshair": '''
+            <!-- Tactical radar reticle: outer ring, crosshair lines, range marks -->
+            <g transform="translate(8,8)">
+              <circle cx="24" cy="24" r="22" fill="none" stroke="url(#brandGrad)" stroke-width="2.4"/>
+              <circle cx="24" cy="24" r="13" fill="none" stroke="''' + accent + '''" stroke-width="1.5" opacity="0.85"/>
+              <line x1="24" y1="0"  x2="24" y2="8"  stroke="''' + accent + '''" stroke-width="2.4"/>
+              <line x1="24" y1="40" x2="24" y2="48" stroke="''' + accent + '''" stroke-width="2.4"/>
+              <line x1="0"  y1="24" x2="8"  y2="24" stroke="''' + accent + '''" stroke-width="2.4"/>
+              <line x1="40" y1="24" x2="48" y2="24" stroke="''' + accent + '''" stroke-width="2.4"/>
+              <circle cx="24" cy="24" r="3.5" fill="white"/>
+            </g>''',
+        "hex-badge": '''
+            <!-- Fallback: hex badge with brand monogram (single letter) -->
+            <g transform="translate(8,8)">
+              <polygon points="24,2 44,13 44,35 24,46 4,35 4,13"
+                       fill="url(#brandGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+              <text x="24" y="33" text-anchor="middle" font-family="''' + display_font.replace('"',"&quot;") + '''"
+                    font-weight="800" font-size="26" fill="white">''' + safe[:1].upper() + '''</text>
+            </g>''',
+    }
+    icon = icons.get(icon_variant, icons["hex-badge"])
+
+    # ---- Wordmark (kerned, slight letter-spacing, primary→accent gradient fill) ----
+    word = safe.upper() if char_count <= 12 else safe  # all-caps reads strong for short names
+    text_y = 44  # vertical baseline inside the 70px viewBox
+
     return f'''<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="{brand_name} logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vb_w} {vb_h}" role="img" aria-label="{brand_name} logo">
   <defs>
     <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%"  stop-color="{primary}"/>
       <stop offset="100%" stop-color="{accent}"/>
     </linearGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="{primary}"/>
+      <stop offset="60%" stop-color="white"/>
+      <stop offset="100%" stop-color="{accent}"/>
+    </linearGradient>
     <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <polygon points="100,12 178,55 178,145 100,188 22,145 22,55"
-           fill="url(#brandGrad)" filter="url(#brandGlow)" opacity="0.95"/>
-  <polygon points="100,28 162,62 162,138 100,172 38,138 38,62"
-           fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
-  <text x="100" y="118" text-anchor="middle"
-        font-family="'Rajdhani','Space Grotesk','Inter',sans-serif"
-        font-weight="800" font-size="74" fill="white"
-        style="letter-spacing:-2px">{initials}</text>
+  <!-- Thematic graphic mark -->
+  <g filter="url(#brandGlow)">{icon}</g>
+  <!-- Brand-name wordmark -->
+  <text x="{text_x}" y="{text_y}"
+        font-family="{display_font.replace('"','&quot;')}"
+        font-weight="800"
+        font-size="{font_size}"
+        fill="url(#textGrad)"
+        style="letter-spacing:1.5px">{word}</text>
 </svg>
 '''
+
+
+# Map theme.style.heroVisual → icon variant (1:1 if matching shape exists)
+_HERO_VISUAL_TO_ICON = {
+    "controller-orb": "burst",
+    "circuit-grid": "circuit",
+    "pixel-tiles": "pixel-stack",
+    "gold-orbs": "crown",
+    "crosshair-radar": "crosshair",
+}
 
 
 def _write_brand_logo(site_dir: Path, theme_obj: dict) -> Optional[str]:
@@ -1536,13 +1648,22 @@ def _write_brand_logo(site_dir: Path, theme_obj: dict) -> Optional[str]:
         site_id = theme_obj.get("siteId") or "site"
         brand = (theme_obj.get("brand") or {}).get("name") or site_id
         colors = theme_obj.get("colors") or {}
-        svg = _generate_brand_logo_svg(brand, colors.get("primary", "#FF0000"), colors.get("accent", "#FFD700"))
+        style = theme_obj.get("style") or {}
+        fonts = theme_obj.get("fonts") or {}
+        hero = style.get("heroVisual") or "controller-orb"
+        icon_variant = _HERO_VISUAL_TO_ICON.get(hero, "hex-badge")
+        display_font = fonts.get("display")
+        svg = _generate_brand_logo_svg(
+            brand,
+            colors.get("primary", "#FF0000"),
+            colors.get("accent", "#FFD700"),
+            icon_variant=icon_variant,
+            display_font=display_font,
+        )
         public_dir = site_dir / "public"
         public_dir.mkdir(parents=True, exist_ok=True)
         logo_name = f"logo-{site_id}.svg"
         (public_dir / logo_name).write_text(svg, encoding="utf-8")
-        # Patch theme.assets.logo so theme.config.js (already written) and any
-        # downstream consumers point at the generated logo.
         rel_path = f"/{logo_name}"
         theme_obj.setdefault("assets", {})["logo"] = rel_path
         return rel_path

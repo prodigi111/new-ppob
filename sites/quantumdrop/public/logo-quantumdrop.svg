@@ -1,21 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="QuantumDrop logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 292 70" role="img" aria-label="QuantumDrop logo">
   <defs>
     <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%"  stop-color="#7C3AED"/>
       <stop offset="100%" stop-color="#F472B6"/>
     </linearGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#7C3AED"/>
+      <stop offset="60%" stop-color="white"/>
+      <stop offset="100%" stop-color="#F472B6"/>
+    </linearGradient>
     <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <polygon points="100,12 178,55 178,145 100,188 22,145 22,55"
-           fill="url(#brandGrad)" filter="url(#brandGlow)" opacity="0.95"/>
-  <polygon points="100,28 162,62 162,138 100,172 38,138 38,62"
-           fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
-  <text x="100" y="118" text-anchor="middle"
-        font-family="'Rajdhani','Space Grotesk','Inter',sans-serif"
-        font-weight="800" font-size="74" fill="white"
-        style="letter-spacing:-2px">QU</text>
+  <!-- Thematic graphic mark -->
+  <g filter="url(#brandGlow)">
+            <!-- Hex node with 4 connecting traces and inner dot -->
+            <g transform="translate(8,8)">
+              <line x1="0" y1="24" x2="14" y2="24" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="34" y1="24" x2="48" y2="24" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="24" y1="0" x2="24" y2="10" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <line x1="24" y1="38" x2="24" y2="48" stroke="url(#brandGrad)" stroke-width="2.5"/>
+              <circle cx="0" cy="24" r="3" fill="#F472B6"/>
+              <circle cx="48" cy="24" r="3" fill="#F472B6"/>
+              <circle cx="24" cy="0" r="3" fill="#F472B6"/>
+              <circle cx="24" cy="48" r="3" fill="#F472B6"/>
+              <polygon points="24,8 38,16 38,32 24,40 10,32 10,16"
+                       fill="url(#brandGrad)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+              <circle cx="24" cy="24" r="4" fill="white" opacity="0.9"/>
+            </g></g>
+  <!-- Brand-name wordmark -->
+  <text x="78" y="44"
+        font-family="'Space Grotesk', 'Orbitron', sans-serif"
+        font-weight="800"
+        font-size="22"
+        fill="url(#textGrad)"
+        style="letter-spacing:1.5px">QUANTUMDROP</text>
 </svg>

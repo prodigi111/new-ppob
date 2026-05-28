@@ -266,9 +266,9 @@ class TestCloneNewWithLogo:
         assert svg_path.exists(), f"Logo SVG not generated at {svg_path}"
         svg_content = svg_path.read_text()
         assert "<svg" in svg_content
-        # Initials from brand DemoAuto → "DE"
-        assert ">DE</text>" in svg_content or ">DE<" in svg_content, \
-            "Expected initials 'DE' rendered in SVG"
+        # New design: full brand name as wordmark (DEMOAUTO uppercase since <=12 chars)
+        assert ">DEMOAUTO</text>" in svg_content or "DEMOAUTO" in svg_content, \
+            "Expected brand wordmark 'DEMOAUTO' rendered in SVG"
 
         # theme.config.js must include the logo path
         cfg_js = SITES_ROOT / DEMO_SITE_ID / "src" / "theme.config.js"
